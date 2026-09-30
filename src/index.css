@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+@import "@fontsource/cormorant-garamond/600.css";
+@import "@fontsource/cormorant-garamond/700.css";
+@import "@fontsource/yomogi/400.css";
+
+@theme {
+  --color-background: #f7f5f9;
+  --color-ink: #1a1a1a;
+  --color-accent-teal: #2b8c93;
+  --color-accent-pink: #ff3ea5;
+  --color-accent-lavender: #ede4f5;
+  --color-rain-violet: #8b5cf6;
+  --color-rain-magenta: #d6409f;
+  --color-rain-teal: #5eead4;
+  --color-footer: #6b6b6b;
+
+  --font-display: "Cormorant Garamond", serif;
+  --font-hand: "Yomogi", cursive;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-background);
+}
+
+.squiggle-underline {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='8' viewBox='0 0 24 8'%3E%3Cpath d='M0 4 Q 6 0, 12 4 T 24 4' fill='none' stroke='%23FF3EA5' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-position: bottom;
+  background-size: 24px 8px;
+  padding-bottom: 6px;
+}
