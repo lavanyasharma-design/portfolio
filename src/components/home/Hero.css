@@ -1,0 +1,49 @@
+/* ---------- SITE: one screen, Figma "home page" (node 90:13, drawn at 1512x982) ---------- */
+/* opaque on purpose: once it fades in, it covers the orb field and becomes the page */
+.site{
+  position:relative;z-index:1;opacity:0;visibility:hidden;transition:opacity 1.1s var(--ease-out);
+  min-height:100vh;min-height:100svh;display:grid;grid-template-rows:auto 1fr auto;
+  /* motif tiles sit 46.4 x 46 apart in Figma, starting at -57,-39 */
+  background:#fff url(/motif.svg) -57px -39px/46.4px 46px repeat;color:#1e1e1e;
+  /* 1 design px, shrinking only when the 521px hero block no longer fits the screen */
+  --u:min(1px, (100vw - 32px)/521);
+}
+.site.in{opacity:1;visibility:visible}
+.site a{text-decoration:none}
+.top a{color:inherit}
+.serif{font-family:var(--font-serif);font-weight:600;line-height:normal}
+.sans{font-family:var(--font-sans);font-weight:400;font-variation-settings:"opsz" 14;line-height:normal}
+
+.top{display:flex;justify-content:space-between;align-items:center;padding:45px 40px 0;font-size:20px}
+.top .social{display:flex;gap:16px}
+
+.center{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:max(40px, calc(88*var(--u)));padding:80px 0 40px}
+.hero{position:relative;width:calc(521*var(--u));height:calc(288*var(--u))}
+.hero > *{position:absolute;margin:0;white-space:nowrap}
+.hero .hi{left:0;top:0;font-size:calc(28*var(--u))}
+.hero h1{inset:0;font-size:calc(108*var(--u));font-weight:600;color:#000}
+.hero h1 span{position:absolute}
+.hero h1 .l1{left:0;top:calc(28*var(--u))}
+.hero h1 .l2{left:calc(143*var(--u));top:calc(117*var(--u))}
+.hero .tag{left:0;top:calc(262*var(--u));font-size:calc(20*var(--u));letter-spacing:calc(-.4*var(--u))}
+/* same crop Figma applies to the image fill; 112px wide, nudged 10px left of the design's centre.
+   rotate (not transform) so the .rise entrance can't reset the tilt */
+.hero .bfly{left:calc(374.02*var(--u));top:calc(59.59*var(--u));width:calc(112*var(--u));height:calc(99.06*var(--u));overflow:hidden;rotate:18deg}
+.hero .bfly img{position:absolute;left:-35.55%;top:-10.42%;width:171.1%;height:121.5%;max-width:none}
+
+.links{display:flex;align-items:center;gap:clamp(32px, 7.143vw, 108px);font-size:24px;line-height:normal}
+.links .work{color:#551999}
+.links .about{color:#46b2d7}
+.links .play{color:#e821ba}
+
+.foot{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:0 40px 30px;font-size:16px}
+.foot img{display:block;width:5px;height:5px}
+
+.rise{opacity:0;transform:translateY(14px);filter:blur(4px)}
+.site.in .rise{animation:rise .9s var(--ease-out) forwards}
+@keyframes rise{to{opacity:1;transform:none;filter:none}}
+
+@media (max-width:760px){
+  .top{padding:24px 16px 0}
+  .foot{padding:0 16px 24px}
+}
