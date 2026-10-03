@@ -138,8 +138,8 @@ function WindowIntro({ heroRef, heroBflyRef, onReveal }) {
       sashAnim?.stop()
       sashAnim = run(progress, target, { type: 'spring', stiffness: 170, damping: 22, velocity, onUpdate: setProgress, onComplete: () => { setProgress(target); onDone?.() } })
     }
-    function showHint() { if (hinted) return; hinted = true; hint.classList.add('show') }
-    later(showHint, 2200)
+    function showHint() { if (hinted || opened) return; hinted = true; hint.classList.add('show') }
+    later(showHint, Math.max(0, 1000 - performance.now()))   // 1s from page load, not from when this setup finishes
     const onSashDown = e => {
       if (opened) return
       dragging = true; moved = false; sash.classList.add('dragging'); sashAnim?.stop()
@@ -151,7 +151,7 @@ function WindowIntro({ heroRef, heroBflyRef, onReveal }) {
       const now = performance.now(), dt = Math.max(1, now - lastT)
       vel = vel * 0.6 + ((lastY - e.clientY) / dt) * 0.4; lastY = e.clientY; lastT = now
       let raw = startP + (startY - e.clientY) / G.travel
-      if (Math.abs(startY - e.clientY) > 3) { moved = true; hint.classList.remove('show') }
+      if (Math.abs(startY - e.clientY) > 3) moved = true
       if (raw > 1) raw = 1 + (raw - 1) * 0.18; if (raw < 0) raw = raw * 0.18
       setProgress(raw)
     }
@@ -167,14 +167,14 @@ function WindowIntro({ heroRef, heroBflyRef, onReveal }) {
     const onWheel = e => {
       if (opened || performance.now() - loadedAt < 700) return
       wheelAcc += -e.deltaY
-      if (wheelAcc > 0) { setProgress(Math.min(1, wheelAcc / 500)); hint.classList.remove('show') }
+      if (wheelAcc > 0) setProgress(Math.min(1, wheelAcc / 500))
       clearTimeout(wheelTimer); timers.delete(wheelTimer)
       wheelTimer = later(() => { if (opened) return; if (progress > 0.42) open(0); else { springTo(0, 0); wheelAcc = 0 } }, 140)
     }
     const onPointer = e => { if (dragging) return; F.pointer = [(e.clientX / innerWidth - 0.5) * 0.18, -(e.clientY / innerHeight - 0.5) * 0.18] }
 
     /* ---------------- open → escape → through the window → butterfly lands on the hero ---------------- */
-    function open(v) { if (opened) return; opened = true; hint.classList.remove('show'); sash.style.cursor = 'default'; springTo(1, Math.max(v || 0, 1.6), onOpened) }
+    function open(v) { if (opened) return; opened = true; sash.style.cursor = 'default'; springTo(1, Math.max(v || 0, 1.6), onOpened) }
     function onOpened() {
       B.state = 'escape'; B.flapRate = 3.5; B.timer = 1.2   // timer: go anyway if it can't quite reach the opening
       B.tx = G.gx + G.gw * 0.5; B.ty = G.gy + G.sh + G.sh * 0.62

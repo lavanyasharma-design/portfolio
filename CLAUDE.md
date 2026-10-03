@@ -40,7 +40,7 @@ public/motif.svg                   tiled page background
 
 - **Sequence:** paper veil with a hole cut where the glass is → the orb field shows through → butterfly roams and taps the pane → visitor opens the sash → butterfly escapes → camera pushes through the lower opening (2.2s) → site fades in at 55% of the push → butterfly flies an S-curve (3s) and lands exactly on the hero butterfly, then its glow fades off.
 - **Ways in:** drag the sash up (opens past 42% or on a fast upward flick), Enter / Space / ArrowUp on the focused sash, scroll up, or "skip".
-- **Hint:** "drag the window up" appears after 2.2s, or on a click that doesn't drag.
+- **Hint:** "drag the window up" (Cormorant Infant 600, 16px, #1a1a1a) appears 1s after page load, or on a click that doesn't drag, and stays until the camera push starts, fading out with "skip" (Cormorant Infant 600, 14px, #616161).
 - `prefers-reduced-motion`: push shortened to 0.7s and the butterfly flight is skipped.
 - **Tunables** in `WindowIntro.jsx` / `orbField.js`: `ORBS` (positions, orbits, depth), `DAY` palette, `WIN` (window image measurements as fractions, only touch if the artwork changes), spring stiffness/damping, push duration and `PUSH` easing, `F.sketch` / `F.grain`.
 - **Implementation notes:**
