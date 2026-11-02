@@ -58,6 +58,15 @@ public/motif.svg                   tiled page background
 - Footer: chandigarh → bengaluru · v1.0.0 · 0 notes played · colophon.
 - Blocks rise in (opacity, 14px, 4px blur) on reveal, staggered 0 to 0.55s.
 
+## Sound
+
+- The piano and music interaction is **staying** (decided 5 Oct 2026). "0 notes played" in the footer counts it.
+- Source: Lavanya's own sound package (handoff in `public/sound tryout/SOUND.md`, not yet moved into `src/` and `public/`). Each hover or tap plays a two-note motif: folk harp with grand piano under it, D major pentatonic, soft reverb. Plain Web Audio engine (`engine.js`), settings in `config.js`.
+- No Tone.js, Howler or other audio library. One `AudioContext`, owned by the engine. Change sounds in `config.js` only.
+- Browsers block audio until the visitor clicks, taps or presses a key. Dragging the window open, "skip" and Enter all count; scrolling in does not. Audio (~660 KB) loads after that first gesture, never blocking first paint.
+- Decided: "0 notes played" counts every note (+2 per motif). The mute control goes in the footer next to the counter ("sound on / off"), in the footer's Cormorant style. Not wired in yet.
+- Samples: folk harp from the Versilian Community Sample Library (CC0), grand piano from the Salamander Grand Piano by Alexander Holm (CC BY 3.0, credit required, e.g. in the colophon).
+
 ## Design Principles
 
 - Premium feel with strong, intentional typography
@@ -75,4 +84,4 @@ The pencil pass in `orbField.js` is adapted from Florian Berger's "notebook draw
 
 - Pages beyond the home screen: case studies (Bolt, EMI Card, BBPS), About, Archive/play. Where `[work]`, `[about]`, `[play]` lead.
 - LinkedIn and X links are still `#`.
-- The piano-bar sound interaction from the previous direction (hinted at by "0 notes played" in the footer): dropped, or coming back?
+- Sound: how the piano interaction plays, where it lives, and how it drives the "0 notes played" counter. See **Sound** above.
