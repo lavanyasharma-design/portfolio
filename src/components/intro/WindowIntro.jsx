@@ -262,6 +262,10 @@ function WindowIntro({ heroRef, heroBflyRef, onReveal }) {
           F.cam = camFrom + (1 - camFrom) * k         // frame and orbs ride the same curve
           F.soft = lerp(softFrom, 1.45, k)
           if (k > 0.55 && !siteShown) showSite()
+          // the push eases out, so its last ~0.9s has the frame creeping past the screen edge (on a
+          // phone it hung there visibly). The site is already fading in by then, so cross-fade the
+          // window away over that tail (k 0.8 to 0.94 is ~1.2s to 1.55s of the 2.2s push)
+          intro.style.opacity = 1 - smooth(0.8, 0.94, k)
         },
         // intro over: the field stops and its canvas goes, so its last frame can't show behind the page
         // (on phones it did, as a purple band whenever Safari bounced the page)
