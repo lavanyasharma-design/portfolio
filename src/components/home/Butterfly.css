@@ -1,0 +1,34 @@
+/* box size, position and tilt come from the page (.hero .bfly / .hero-soon .bfly) */
+.bfly{cursor:default;touch-action:manipulation}
+/* pointer-events off inside, so the hover area stays the butterfly's own box */
+.bfly-body{position:absolute;inset:0;pointer-events:none;perspective:calc(260*var(--u, 1px));transform-style:preserve-3d}
+/* each wing is the whole image, clipped to its half and hinged on the body (the box's centre line).
+   The halves overlap by a pixel on the body so no seam shows. */
+.bfly .wing{position:absolute;inset:0;transform-origin:50% 50%;backface-visibility:visible}
+.bfly .wing.l{clip-path:inset(0 calc(50% - 1px) 0 0)}
+.bfly .wing.r{clip-path:inset(0 0 0 calc(50% - 1px))}
+/* same crop Figma applies to the image fill; the shimmer is masked to exactly that crop */
+.bfly .wing img,
+.bfly .wing .holo{position:absolute;left:-35.55%;top:-10.42%;width:171.1%;height:121.5%;max-width:none;user-select:none}
+
+/* the holographic glow: soft pale purples with a breath of blue and pink, the way foil catches
+   light, only where the butterfly is opaque. "screen" lifts the colours towards light rather than
+   painting over them, so it reads as a glow from within; the strength is kept faded (TWITCH.glow) */
+.bfly .wing .holo{
+  opacity:0;mix-blend-mode:screen;
+  -webkit-mask:url(/assets/butterfly.png) 0 0/100% 100% no-repeat;mask:url(/assets/butterfly.png) 0 0/100% 100% no-repeat;
+  background:linear-gradient(115deg,
+    #b9a2f0 0%, #9fc4f0 16%, #d7a6e6 32%, #b39af2 48%, #a6d6e8 64%, #cfa3ea 80%, #b9a2f0 100%) 0% 50%/260% 260%;
+}
+
+/* ?tune panel */
+.tune-panel{
+  position:fixed;left:12px;top:12px;z-index:50;display:grid;gap:6px;width:270px;padding:12px;
+  background:#fffffff2;border:1px solid #d9cdf0;border-radius:8px;box-shadow:0 6px 24px #0000001a;
+  font:12px/1.3 var(--font-sans);color:#1e1e1e;
+}
+.tune-panel label{display:grid;grid-template-columns:78px 1fr 44px;align-items:center;gap:6px}
+.tune-panel output{color:#616161;font-size:11px;text-align:right}
+.tune-panel button{padding:4px 10px;border:1px solid #d9cdf0;border-radius:4px;background:#fff;cursor:pointer;font:inherit}
+.tune-panel .play{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.tune-panel .copy{justify-self:start}

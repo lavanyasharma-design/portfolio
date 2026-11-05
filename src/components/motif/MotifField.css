@@ -1,0 +1,14 @@
+/* fixed to the viewport so it never grows with the page; it re-aligns to its host's tiles every frame */
+.motif-field{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:0}
+/* everything else in the host paints above the canvas */
+.motif-field ~ *{position:relative;z-index:1}
+
+.motif-panel{
+  position:fixed;right:12px;top:12px;z-index:50;display:grid;gap:6px;width:300px;padding:12px;
+  background:#fffffff2;border:1px solid #d9cdf0;border-radius:8px;box-shadow:0 6px 24px #0000001a;
+  font:12px/1.3 var(--font-sans);color:#1e1e1e;
+}
+.motif-panel label{display:grid;grid-template-columns:72px 1fr;align-items:center;gap:2px 8px}
+.motif-panel output{grid-column:2;color:#616161;font-size:11px}
+.motif-panel output:empty{display:none}
+.motif-panel button{justify-self:start;padding:4px 10px;border:1px solid #d9cdf0;border-radius:4px;background:#fff;cursor:pointer}

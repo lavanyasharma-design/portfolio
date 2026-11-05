@@ -58,6 +58,22 @@ public/motif.svg                   tiled page background
 - Footer: chandigarh → bengaluru · v1.0.0 · 0 notes played · colophon.
 - Blocks rise in (opacity, 14px, 4px blur) on reveal, staggered 0 to 0.55s.
 
+## Coming soon (lavanyaaa.com)
+
+- `src/site.js` exports `SOON`: true on lavanyaaa.com (or with `?soon`). The intro then lands on a screen with only "Coming Soon" (Cormorant Infant 400, #1A1A1A) and the butterfly; the vercel.app address keeps the full hero.
+- Butterfly placement in soon mode is `--bs` / `--b-dy` / `--b-gap` on `.site.soon` (Hero.css), centred on the caps of the 108px type. `--u` divides by the line's real width so phones keep 16px gutters; re-measure if the type changes.
+
+## Motif hover (`src/components/motif`)
+
+- `MotifField` is a fixed canvas: near the pointer the background motif turns from #E8DBFF to the hover colour, as a soft blob with a wake (water-like). Reusable on any page whose host has the motif as its CSS background. Tunables in `motifConfig.js`; `?motif` shows a live panel.
+- The dark tile is rasterised at device pixel size with a thin same-colour outline (`weight`), because the motif's strokes are ~0.3px and read as dotted otherwise.
+- Elements marked `data-no-motif` (the butterfly) switch it off while hovered.
+
+## Butterfly (`src/components/home/Butterfly`)
+
+- Hover or tap: wings flinch (the image is split down the body and each half rotates in 3D), body scrunches and jolts away from the pointer, and it glows from within: slight brighten plus a faded pale-purple holographic shimmer masked to its shape, no halo. Tunables in `TWITCH`; `?tune` shows a live panel with a "twitch it" button.
+- `bflyRef` stays on the outer box; the intro's flight lands on it. `onTwitch` is the hook for sound.
+
 ## Sound
 
 - The piano and music interaction is **staying** (decided 5 Oct 2026). "0 notes played" in the footer counts it.

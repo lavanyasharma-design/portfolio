@@ -28,8 +28,27 @@
 .hero .tag{left:0;top:calc(262*var(--u));font-size:calc(20*var(--u));letter-spacing:calc(-.4*var(--u))}
 /* same crop Figma applies to the image fill; 112px wide, nudged 10px left of the design's centre.
    rotate (not transform) so the .rise entrance can't reset the tilt */
-.hero .bfly{left:calc(374.02*var(--u));top:calc(59.59*var(--u));width:calc(112*var(--u));height:calc(99.06*var(--u));overflow:hidden;rotate:18deg}
-.hero .bfly img{position:absolute;left:-35.55%;top:-10.42%;width:171.1%;height:121.5%;max-width:none}
+.hero .bfly{left:calc(374.02*var(--u));top:calc(59.59*var(--u));width:calc(112*var(--u));height:calc(99.06*var(--u));rotate:18deg}
+
+/* ---------- coming soon face (lavanyaaa.com / ?soon): no Figma frame, free-flow on the hero's type scale ---------- */
+/* just "Coming Soon" and the butterfly, centred on the screen.
+   --bs   butterfly size relative to the Figma 112px box. The caps of the 108px Cormorant are 69px tall;
+          the tilted box is 129*bs tall (106px at 0.82), so the wings overshoot the caps, which is
+          what makes an organic shape read as the same size as the letters.
+   --b-dy vertical nudge in design px. 0 centres the butterfly on the caps: the h1 box's centre
+          sits on the cap centre for this face (measured 378.8 vs 378.7).
+   --b-gap space between "Soon" and the butterfly.
+   The line is 581 text + gap + 112*bs butterfly, plus ~13*bs of tilt overhang, padded in so it
+   centres and keeps 16px gutters. Tune all three live with ?tune. */
+.site.soon{
+  --bs:0.89;--b-dy:-3;--b-gap:8;   /* chosen by Lavanya by eye, 2026-11-05 */
+  --u:min(1px, (100vw - 32px) / (581 + var(--b-gap) + 125 * var(--bs)));grid-template-rows:1fr;
+}
+.site.soon .center{padding:0}
+.hero-soon{display:flex;align-items:center;gap:calc(var(--b-gap)*var(--u));padding-right:calc(13*var(--bs)*var(--u))}
+.hero-soon > *{margin:0;white-space:nowrap}
+.hero-soon h1{font-size:calc(108*var(--u));font-weight:400;color:#1a1a1a}
+.hero-soon .bfly{position:relative;flex:none;width:calc(112*var(--bs)*var(--u));height:calc(99.06*var(--bs)*var(--u));rotate:18deg;translate:0 calc(var(--b-dy)*var(--u))}
 
 .links{display:flex;align-items:center;gap:clamp(32px, 7.143vw, 108px);font-size:24px;line-height:normal}
 .links .work{color:#551999}
