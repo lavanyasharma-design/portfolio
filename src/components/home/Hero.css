@@ -42,7 +42,12 @@
    centres and keeps 16px gutters. Tune all three live with ?tune. */
 .site.soon{
   --bs:0.89;--b-dy:-3;--b-gap:8;   /* chosen by Lavanya by eye, 2026-11-05 */
-  --u:min(1px, (100vw - 32px) / (581 + var(--b-gap) + 125 * var(--bs)));grid-template-rows:1fr;
+  --gutter:16px;                   /* space kept clear at each side once the line has to shrink */
+  --u:min(1px, (100vw - 2 * var(--gutter)) / (581 + var(--b-gap) + 125 * var(--bs)));grid-template-rows:1fr;
+}
+/* phones: more air at the sides, and a bigger butterfly beside the smaller type */
+@media (max-width:600px){
+  .site.soon{--gutter:28px;--bs:1.15}
 }
 .site.soon .center{padding:0}
 .hero-soon{display:flex;align-items:center;gap:calc(var(--b-gap)*var(--u));padding-right:calc(13*var(--bs)*var(--u))}
