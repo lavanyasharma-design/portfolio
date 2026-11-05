@@ -1,5 +1,6 @@
 /* fixed to the viewport so it never grows with the page; it re-aligns to its host's tiles every frame */
-.motif-field{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:0}
+/* width / height are set in px by MotifField (not 100vw / 100vh, which overshoot on iPhone) */
+.motif-field{position:fixed;left:0;top:0;pointer-events:none;z-index:0}
 /* everything else in the host paints above the canvas */
 .motif-field ~ *{position:relative;z-index:1}
 

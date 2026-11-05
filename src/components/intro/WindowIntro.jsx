@@ -41,8 +41,9 @@ function WindowIntro({ heroRef, heroBflyRef, onReveal }) {
     const intro = introRef.current, veil = veilRef.current, win = winRef.current, view = viewRef.current, sash = sashRef.current,
       bfly = flyerRef.current, hint = hintRef.current, wingL = wingLRef.current, wingR = wingRRef.current,
       heroBfly = heroBflyRef.current, heroBlock = heroRef.current
+    const canvas = canvasRef.current
     const F = fieldState()
-    const field = makeField(canvasRef.current, F)
+    const field = makeField(canvas, F)
     const glassPanel = new URLSearchParams(location.search).has('glass') ? mountGlassPanel(F) : null
 
     // everything that needs stopping if the component goes away mid-intro
@@ -262,7 +263,9 @@ function WindowIntro({ heroRef, heroBflyRef, onReveal }) {
           F.soft = lerp(softFrom, 1.45, k)
           if (k > 0.55 && !siteShown) showSite()
         },
-        onComplete: () => { introRunning = false; intro.style.display = 'none'; F.intro = 0 }
+        // intro over: the field stops and its canvas goes, so its last frame can't show behind the page
+        // (on phones it did, as a purple band whenever Safari bounced the page)
+        onComplete: () => { introRunning = false; intro.style.display = 'none'; F.intro = 0; canvas.style.display = 'none' }
       })
     }
     function showSite() {
@@ -280,8 +283,8 @@ function WindowIntro({ heroRef, heroBflyRef, onReveal }) {
     function loop(now) {
       const dt = Math.min(0.05, (now - last) / 1000) / SLOW; last = now; t += dt
       if (introRunning) { cutVeil(); if (B.state !== 'flying') stepButterfly(dt, t) }
-      if (field && introRunning) field.render(t, dt)   // afterwards the opaque site covers the canvas
-      raf = requestAnimationFrame(loop)
+      if (field && introRunning) field.render(t, dt)
+      raf = introRunning ? requestAnimationFrame(loop) : 0   // nothing left to draw once the intro is done
     }
     const onResize = () => { if (!opened) { layout(); setProgress(progress); cutVeil() } else field?.size() }
 
@@ -317,7 +320,7 @@ function WindowIntro({ heroRef, heroBflyRef, onReveal }) {
       field?.destroy()
       glassPanel?.remove()
       // back to the untouched markup, so a remount (StrictMode, HMR) starts clean
-      for (const el of [intro, win, sash, bfly]) el.removeAttribute('style')
+      for (const el of [intro, win, sash, bfly, canvas]) el.removeAttribute('style')
       intro.classList.remove('pushing'); hint.classList.remove('show'); bfly.classList.remove('plain')
       heroBfly.style.visibility = ''
     }

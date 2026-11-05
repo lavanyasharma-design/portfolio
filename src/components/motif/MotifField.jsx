@@ -55,6 +55,10 @@ function MotifField() {
       dpr = Math.min(devicePixelRatio || 1, 2)
       W = innerWidth; H = innerHeight
       canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr)
+      // sized in px to exactly what it draws. CSS 100vh is taller than the visible screen on iPhone
+      // (it counts the space behind Safari's bars), which stretched the canvas and misaligned the dark
+      // motifs against the light ones
+      canvas.style.width = W + 'px'; canvas.style.height = H + 'px'
     }
     resize()
 
