@@ -5,7 +5,10 @@
 .window{position:relative;will-change:transform;transform-origin:50% 50%}
 .window img{position:absolute;display:block;pointer-events:none;user-select:none;-webkit-user-drag:none}
 .wback{left:0;top:0;width:100%;height:100%;z-index:3}
-.wback,.sash img{filter:url(#clear-glass)}
+/* the *-clean.webp images are the originals with the glass frost and the painted grey shadow made
+   clear, baked once rather than filtered live: a filter on an image scaled ~10x in the push is
+   recomputed every frame, which phones couldn't keep up with (the frame edge hung on screen).
+   Kept: window-back.webp / window-sash.webp, the untouched artwork. */
 .glass{position:absolute}
 .sash{position:absolute;z-index:4;cursor:grab;will-change:transform}
 .sash img{left:0;top:0;width:100%;height:100%}

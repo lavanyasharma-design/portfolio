@@ -330,27 +330,14 @@ function WindowIntro({ heroRef, heroBflyRef, onReveal }) {
     <>
       <canvas ref={canvasRef} className="orb-field" aria-hidden="true" />
 
-      {/* cleans the window artwork, leaving the wood exactly as drawn:
-          1. the faint frost speckle painted across the glass (alpha under ~25%) goes clear, so the
-             view through it reads clean, not patchy
-          2. the soft grey shadow painted around the frame goes clear: it is light and neutral, while
-             wood is warm (red well above blue) and pencil is dark, so alpha keeps only pixels where
-             2(r-b) + darkness clears a threshold */}
-      <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
-        <filter id="clear-glass" colorInterpolationFilters="sRGB">
-          <feComponentTransfer result="noFrost"><feFuncA type="table" tableValues="0 0 0.15 1 1" /></feComponentTransfer>
-          <feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  17.01 -5.87 -21.14 0 8.7" result="warmOrDark" />
-          <feComposite in="noFrost" in2="warmOrDark" operator="in" />
-        </filter>
-      </svg>
       <div ref={introRef} className="intro" aria-label="Intro. Drag the window up to enter.">
         <div ref={veilRef} className="veil" />
         <div className="stage">
           <div ref={winRef} className="window">
-            <img className="wback" src="/assets/window-back.webp" alt="" width="1355" height="1830" decoding="async" />
+            <img className="wback" src="/assets/window-back-clean.webp" alt="" width="1355" height="1830" decoding="async" />
             <div ref={viewRef} className="glass" />
             <div ref={sashRef} className="sash" role="button" tabIndex={0} aria-label="Window sash. Drag up or press Enter to open.">
-              <img src="/assets/window-sash.webp" alt="" width="1017" height="842" decoding="async" />
+              <img src="/assets/window-sash-clean.webp" alt="" width="1017" height="842" decoding="async" />
             </div>
           </div>
           <p ref={hintRef} className="hint">
