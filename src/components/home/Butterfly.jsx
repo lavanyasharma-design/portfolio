@@ -52,7 +52,7 @@ function Butterfly({ bflyRef, onTwitch }) {
     const glowing = Promise.all([
       animate(box.querySelectorAll('.wing img'), { filter: [filter(1, 1), lit, lit, filter(1, 1)] }, glowAt),
       animate(box.querySelectorAll('.holo'), {
-        opacity: [0, glow, glow * 0.8, 0],
+        opacity: [0.001, glow, glow * 0.8, 0.001],   // never quite 0, so it stays painted (see Butterfly.css)
         backgroundPosition: ['0% 50%', '35% 50%', '65% 50%', '100% 50%'],   // the colours drift as it glows
       }, glowAt),
     ])

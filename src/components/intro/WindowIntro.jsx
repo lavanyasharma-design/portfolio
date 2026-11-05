@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { animate, cubicBezier } from 'motion'
 import { fieldState, makeField, lerp } from './orbField'
+import { mountGlassPanel } from './glassPanel'
 import './WindowIntro.css'
 
 // measured on the render: fractions of the cropped window box
@@ -42,6 +43,7 @@ function WindowIntro({ heroRef, heroBflyRef, onReveal }) {
       heroBfly = heroBflyRef.current, heroBlock = heroRef.current
     const F = fieldState()
     const field = makeField(canvasRef.current, F)
+    const glassPanel = new URLSearchParams(location.search).has('glass') ? mountGlassPanel(F) : null
 
     // everything that needs stopping if the component goes away mid-intro
     const anims = new Set(), timers = new Set(), taps = new Set()
@@ -232,7 +234,12 @@ function WindowIntro({ heroRef, heroBflyRef, onReveal }) {
           const [tx, ty] = target(); place(tx, ty, TILT, 1, 1)
           heroBfly.style.visibility = ''                      // identical, underneath
           bfly.classList.add('plain')                         // the shine fades off, then the flyer goes
-          later(() => { bfly.style.display = 'none' }, 650 * SLOW)
+          // touched while the flyer still covers it (a natural moment to reach for it): the flyer steps
+          // aside at once, or the hero's twitch and glow would play hidden underneath a still copy
+          const dropFlyer = () => { bfly.style.display = 'none' }
+          heroBfly.addEventListener('pointerenter', dropFlyer, { once: true })
+          heroBfly.addEventListener('pointerdown', dropFlyer, { once: true })
+          later(() => { dropFlyer(); heroBfly.removeEventListener('pointerenter', dropFlyer); heroBfly.removeEventListener('pointerdown', dropFlyer) }, 650 * SLOW)
         }
       })
     }
@@ -261,7 +268,7 @@ function WindowIntro({ heroRef, heroBflyRef, onReveal }) {
     function showSite() {
       siteShown = true
       onRevealRef.current?.()
-      run(F.sketch, 0.55, { duration: 2.4 * SLOW, ease: 'easeOut', onUpdate: v => { F.sketch = v; F.grain = (0.85 - v) * 0.06 } })
+      // (the pencil pass used to rise and add grain here; with the clean glass it stays where it is)
       // settle: slower orbits, thinner and softer orbs, so type sits comfortably on top
       const s0 = { speed: F.speed, amt: F.amt, soft: 1.45 }
       run(0, 1, { duration: 3.2 * SLOW, ease: 'easeOut', delay: 0.6 * SLOW, onUpdate: e => { F.speed = lerp(s0.speed, 0.35, e); F.amt = lerp(s0.amt, 0.72, e); if (!zoomStarted || zoomK >= 1) F.soft = lerp(s0.soft, 1.6, e) } })
@@ -308,6 +315,7 @@ function WindowIntro({ heroRef, heroBflyRef, onReveal }) {
       removeEventListener('pointermove', onPointer)
       removeEventListener('resize', onResize)
       field?.destroy()
+      glassPanel?.remove()
       // back to the untouched markup, so a remount (StrictMode, HMR) starts clean
       for (const el of [intro, win, sash, bfly]) el.removeAttribute('style')
       intro.classList.remove('pushing'); hint.classList.remove('show'); bfly.classList.remove('plain')
@@ -319,6 +327,19 @@ function WindowIntro({ heroRef, heroBflyRef, onReveal }) {
     <>
       <canvas ref={canvasRef} className="orb-field" aria-hidden="true" />
 
+      {/* cleans the window artwork, leaving the wood exactly as drawn:
+          1. the faint frost speckle painted across the glass (alpha under ~25%) goes clear, so the
+             view through it reads clean, not patchy
+          2. the soft grey shadow painted around the frame goes clear: it is light and neutral, while
+             wood is warm (red well above blue) and pencil is dark, so alpha keeps only pixels where
+             2(r-b) + darkness clears a threshold */}
+      <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
+        <filter id="clear-glass" colorInterpolationFilters="sRGB">
+          <feComponentTransfer result="noFrost"><feFuncA type="table" tableValues="0 0 0.15 1 1" /></feComponentTransfer>
+          <feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  17.01 -5.87 -21.14 0 8.7" result="warmOrDark" />
+          <feComposite in="noFrost" in2="warmOrDark" operator="in" />
+        </filter>
+      </svg>
       <div ref={introRef} className="intro" aria-label="Intro. Drag the window up to enter.">
         <div ref={veilRef} className="veil" />
         <div className="stage">

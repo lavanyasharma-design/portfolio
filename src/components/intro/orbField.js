@@ -39,7 +39,7 @@ void main(){
   col = mix(col, uPaper + glow*1.1, uNight);
   float haze = fbm(w*1.1 + vec2(uTime*0.018, -uTime*0.011));
   haze = smoothstep(0.35, 0.75, haze);
-  col = mix(col, mix(uPaper, vec3(1.), 0.6), haze*0.42);
+  col = mix(col, mix(uPaper, vec3(1.), 0.6), haze*0.14);   // was 0.42: drifting white blotches read as patchy glass
   float fibre = noise(w*vec2(38.,42.) + vec2(3.1,7.7)) * noise(w*vec2(9.,11.)+1.3);
   col += (fibre-.25)*0.012;
 
@@ -79,7 +79,7 @@ void main(){
     }
   }
   float g = hash(gl_FragCoord.xy + fract(uTime*3.7)*97.) - .5;
-  col += g*uGrain;
+  col += g*uGrain + g/255.;   // the second term dithers away 8-bit banding in the scene texture
   gl_FragColor = vec4(col,1.);
 }`
 
@@ -135,14 +135,51 @@ void main(){
   float tooth = getRand(pos*vec2(0.9,1.6)).x;
   lined *= 1. - 0.14*(tooth-.5);
   float l = dot(lined, vec3(.299,.587,.114)); lined = mix(vec3(l), lined, 1.08);
-  gl_FragColor = vec4(mix(scene, lined, uSketch), 1.);
+  // dither: a sub-step of noise so the soft gradients don't break into 8-bit bands, which crawl
+  // as the orbs drift and read as the colour glitching
+  float dn = fract(sin(dot(gl_FragCoord.xy + fract(uTime)*61.7, vec2(12.9898,78.233)))*43758.5453) - .5;
+  gl_FragColor = vec4(mix(scene, lined, uSketch) + dn/255., 1.);
 }`
 
 const hex = h => [parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255]
 export const lerp = (a, b, k) => a + (b - a) * k
 const lerp3 = (a, b, k) => [lerp(a[0], b[0], k), lerp(a[1], b[1], k), lerp(a[2], b[2], k)]
-// pastel purple, pink and teal orbs, each at the lightness of the blue/green it replaced
-const DAY = { paper: '#fafbf9', c: ['#b9a3ee', '#d5c7f5', '#f4c3d7', '#eda6c6', '#8fd8cc', '#cdeee8', '#ece6fa'] }
+
+/* the view through the glass, in the home page's section colours: [work] purple, [about] blue,
+   [play] pink, each mixed with plenty of white so the glass reads light and inviting rather than
+   as a block of colour. GLASS.tint is how much brand colour goes in (0 = white, 1 = full colour);
+   each orb takes a share of it, so some are clearer tints and some barely there. ?glass tunes it. */
+export const BRAND = { work: '#551999', about: '#46b2d7', play: '#e821ba' }
+export const GLASS = { tint: 0.65, sketch: 0, light: 0.72 }   // tint, sketch chosen by Lavanya by eye, 2026-11-05
+const ORB_TINTS = [['work', 1], ['about', 1], ['play', 0.85], ['work', 0.55], ['about', 0.5], ['play', 0.45], ['work', 0.25]]
+const DAY = { paper: '#fafbf9', c: [] }
+
+// rgb <-> hsl, to lift a colour's lightness while keeping its hue and saturation
+function toHsl([r, g, b]) {
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn
+  if (!d) return [0, 0, l]
+  const s = d / (1 - Math.abs(2 * l - 1))
+  const h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4
+  return [h * 60, s, l]
+}
+function fromHsl([h, s, l]) {
+  const c = (1 - Math.abs(2 * l - 1)) * s, x = c * (1 - Math.abs(((h / 60) % 2) - 1)), m = l - c / 2
+  const [r, g, b] = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x]
+  return [r + m, g + m, b + m]
+}
+
+/* The brand colours are deep ([work] #551999 is 35% light), so mixing them with white went grey and
+   dull. Each orb instead mixes towards a light, vivid version of its colour: same hue and saturation,
+   lightness raised to GLASS.light. More tint now means more colour, never darker. */
+export function setGlassTint(t = GLASS.tint) {
+  GLASS.tint = t
+  const white = [1, 1, 1]
+  DAY.c = ORB_TINTS.map(([k, share]) => {
+    const [h, s] = toHsl(hex(BRAND[k]))
+    return lerp3(white, fromHsl([h < 0 ? h + 360 : h, Math.min(1, s * 1.05), GLASS.light]), t * share)
+  })
+}
+setGlassTint()
 const NIGHT = { paper: '#0e131a', c: ['#2f6fa8', '#3b86c9', '#3f8f66', '#2b6b4a', '#4aa3a0', '#6a9a5a', '#3a5a8a'] }
 const ORBS = [
   { x: -0.16, y: 0.22, ax: 0.14, ay: 0.12, sx: 0.23, sy: 0.19, ph: 0.0, r: 0.17, z: 0.60 },
@@ -157,7 +194,11 @@ const ORDER = ORBS.map((o, i) => i).sort((a, b) => ORBS[b].z - ORBS[a].z)
 
 // the field's live parameters; the intro writes to these and the next frame picks them up
 export function fieldState() {
-  return { cam: 0, night: 0, grain: 0.0, amt: 0.95, soft: 1.0, speed: 1.0, pointer: [0, 0], tOrb: 0, sketch: 0.85, intro: 0, win: [0, 0, 1, 1], w0: 360, prog: 0 }
+  // sketch: the pencil pass over the field. It was 0.85, which hatched and greyed the glass into a
+  // rusty texture; a whisper of it keeps the drawn feel while the view stays clean and bright
+  // amt / soft / speed: the glass before the window opens, chosen by Lavanya 2026-11-05 (?glass);
+  // the intro eases them to its own settled values after the reveal
+  return { cam: 0, night: 0, grain: 0.0, amt: 0.76, soft: 0.98, speed: 1.15, pointer: [0, 0], tOrb: 0, sketch: GLASS.sketch, intro: 0, win: [0, 0, 1, 1], w0: 360, prog: 0 }
 }
 
 export function makeField(canvas, F) {
@@ -195,7 +236,7 @@ export function makeField(canvas, F) {
     F.tOrb += dt * F.speed
     const k = F.night, T = F.tOrb
     for (let n = 0; n < 7; n++) {
-      const i = ORDER[n], o = ORBS[i], c = lerp3(hex(DAY.c[i]), hex(NIGHT.c[i]), k)
+      const i = ORDER[n], o = ORBS[i], c = lerp3(DAY.c[i], hex(NIGHT.c[i]), k)
       cols[n * 3] = c[0]; cols[n * 3 + 1] = c[1]; cols[n * 3 + 2] = c[2]
       orbs[n * 4] = o.x + Math.sin(T * o.sx + o.ph) * o.ax
       orbs[n * 4 + 1] = o.y + Math.cos(T * o.sy + o.ph * 1.3) * o.ay

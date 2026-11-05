@@ -42,7 +42,9 @@ public/motif.svg                   tiled page background
 - **Ways in:** drag the sash up (opens past 42% or on a fast upward flick), Enter / Space / ArrowUp on the focused sash, scroll up, or "skip".
 - **Hint:** "drag the window up" (Cormorant Infant 600, 16px, #1a1a1a) appears 1s after page load, or on a click that doesn't drag, and stays until the camera push starts, fading out with "skip" (Cormorant Infant 600, 14px, #616161).
 - `prefers-reduced-motion`: push shortened to 0.7s and the butterfly flight is skipped.
-- **Tunables** in `WindowIntro.jsx` / `orbField.js`: `ORBS` (positions, orbits, depth), `DAY` palette, `WIN` (window image measurements as fractions, only touch if the artwork changes), spring stiffness/damping, push duration and `PUSH` easing, `F.sketch` / `F.grain`.
+- **Glass:** the view through the window is tinted in the hero's section colours ([work] #551999, [about] #46b2d7, [play] #e821ba), each lifted to a light vivid version and mixed with white by `GLASS.tint` (orbField.js), with the pencil pass off (`GLASS.sketch` 0) and a dither against banding. `?glass` shows a live panel. The `#clear-glass` SVG filter strips the frost speckle and the painted grey shadow from the window artwork, keeping only warm wood and dark pencil.
+- **Landing:** the flyer covers the hero butterfly for 650ms after landing; touching it in that window drops the flyer at once so the hero's twitch is visible.
+- **Tunables** in `WindowIntro.jsx` / `orbField.js`: `ORBS` (positions, orbits, depth), `GLASS` / `BRAND` palette, `WIN` (window image measurements as fractions, only touch if the artwork changes), spring stiffness/damping, push duration and `PUSH` easing, `F.sketch` / `F.grain`.
 - **Implementation notes:**
   - The logic is one imperative mount effect (refs, rAF loop, Motion `animate`), ported as-is from the prototype. Keep it that way rather than driving per-frame motion through React state.
   - The flying butterfly is portalled to `document.body` and `position: fixed` for the whole intro, tracking the window's rect, so it survives the intro being hidden before it lands.
