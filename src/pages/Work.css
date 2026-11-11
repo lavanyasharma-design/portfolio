@@ -1,0 +1,28 @@
+/* Figma frame 290:12780, drawn at 1512 wide: 130px sides, tiles 606 wide with a 40px gap */
+.work-page {
+  min-height: 100%;
+  background: #fff;
+  padding: clamp(48px, 8.7vw, 131px) clamp(16px, 8.6vw, 130px) 96px;
+}
+
+.work-page h1 {
+  max-width: 1252px;
+  margin: 0 auto;
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: clamp(40px, 3.7vw, 56px);
+  line-height: 1;
+  color: #6729ae;
+}
+
+.work-page .tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(16px, 2.65vw, 40px);
+  max-width: 1252px;
+  margin: 50px auto 0;
+}
+
+@media (max-width: 720px) {
+  .work-page .tiles { grid-template-columns: 1fr; margin-top: 32px; }
+}

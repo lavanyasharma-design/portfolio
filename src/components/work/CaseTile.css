@@ -1,0 +1,52 @@
+/* Card state from Figma node 298:12978 (606x396) */
+.case-tile {
+  position: relative;
+  display: block;
+  aspect-ratio: 606 / 396;
+  background: #f7f2ff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  container-type: inline-size;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.case-tile .stage {
+  position: absolute;
+  inset: 0;
+  /* one design pixel of the 606px tile */
+  --u: calc(100cqw / 606);
+}
+
+.case-tile .layer {
+  position: absolute;
+  left: calc(var(--x) * var(--u));
+  top: calc(var(--y) * var(--u));
+  width: calc(var(--w) * var(--u));
+  transform: rotate(calc(var(--rot) * 1deg));
+  transition: transform .7s var(--ease-out);
+}
+
+/* the mockups are finished images: shown as they are, no shadow or overlay */
+.case-tile .layer img {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .case-tile:not(.tuning):hover .layer {
+    transform: translate(calc(var(--lx) * var(--u)), calc(var(--ly) * var(--u))) rotate(calc(var(--rot) * 1deg));
+  }
+}
+
+.case-tile:focus-visible {
+  outline: 2px solid #6729ae;
+  outline-offset: 3px;
+}
+
+/* dev tuner */
+.case-tile.tuning .layer { cursor: grab; transition: none; }
+.case-tile.tuning .layer:active { cursor: grabbing; }
+.case-tile.tuning .layer.selected { outline: 2px dashed #ff33d0; }
