@@ -3,19 +3,27 @@
   position: relative;
   display: block;
   aspect-ratio: 606 / 396;
-  background: #f7f2ff;
-  border: 1px solid #ddd;
+  /* the ratio is for the inside, so the 1px border doesn't squash the 606x396 design */
+  box-sizing: content-box;
+  /* background, border and shadow come from LOOK in tiles.js, set as variables by Work.jsx */
+  border: 1px solid var(--tile-border, transparent);
   border-radius: 8px;
   overflow: hidden;
   container-type: inline-size;
   -webkit-tap-highlight-color: transparent;
 }
 
-.case-tile .stage {
+.case-tile .tile-stage {
   position: absolute;
   inset: 0;
   /* one design pixel of the 606px tile */
   --u: calc(100cqw / 606);
+  background: var(--tile-bg, #f7f2ff);
+}
+
+/* motif mode: the home page's background motif, at its Figma spacing in tile units */
+.case-tile .tile-stage.motif {
+  background: url(/motif.svg) calc(-57 * var(--u)) calc(-39 * var(--u)) / calc(46.4 * var(--u)) calc(46 * var(--u)) repeat, var(--tile-bg);
 }
 
 .case-tile .layer {
@@ -33,6 +41,13 @@
   width: 100%;
   height: auto;
   user-select: none;
+}
+
+/* two drop-shadows that follow the device's shape: tight contact, then soft and wide */
+.case-tile.shadow .layer img {
+  filter:
+    drop-shadow(calc(var(--sh-x) * .12 * var(--u)) calc(var(--sh-y) * .12 * var(--u)) calc(var(--sh-blur) * .12 * var(--u)) rgb(var(--sh-rgb) / var(--sh-ca)))
+    drop-shadow(calc(var(--sh-x) * var(--u)) calc(var(--sh-y) * var(--u)) calc(var(--sh-blur) * var(--u)) rgb(var(--sh-rgb) / var(--sh-a)));
 }
 
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {

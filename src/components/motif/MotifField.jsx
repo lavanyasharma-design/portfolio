@@ -173,6 +173,8 @@ function MotifField() {
       if (dpr !== old) buildTile().then(kick); else kick()
     }
     addEventListener('resize', onResize)
+    // pages that scroll (work): the motif moves under a still pointer, so redraw the water over it
+    addEventListener('scroll', kick, { passive: true })
 
     const panel = new URLSearchParams(location.search).has('motif') ? mountPanel(cfg, buildTile, kick) : null
 
@@ -184,6 +186,7 @@ function MotifField() {
       document.removeEventListener('pointerout', onOut)
       removeEventListener('blur', onLeave)
       removeEventListener('resize', onResize)
+      removeEventListener('scroll', kick)
       panel?.remove()
     }
   }, [])

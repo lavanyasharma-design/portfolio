@@ -1,7 +1,8 @@
 /* Figma frame 290:12780, drawn at 1512 wide: 130px sides, tiles 606 wide with a 40px gap */
 .work-page {
   min-height: 100%;
-  background: #fff;
+  /* the home page's motif, same spacing (Hero.css); MotifField adds the hover */
+  background: #fff url(/motif.svg) -57px -39px / 46.4px 46px repeat;
   padding: clamp(48px, 8.7vw, 131px) clamp(16px, 8.6vw, 130px) 96px;
 }
 

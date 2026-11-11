@@ -5,10 +5,15 @@ import './CaseTile.css'
  * Everything inside scales with the tile width (see --u in CaseTile.css).
  * `tuning` hands pointer events to the dev tuner so layers can be dragged.
  */
-function CaseTile({ tile, href = '#', tuning, selected, onLayerPointerDown }) {
+const fill = bg => bg.mode === 'linear' ? `linear-gradient(${bg.angle}deg, ${bg.c1}, ${bg.c2})`
+  : bg.mode === 'radial' ? `radial-gradient(120% 100% at 50% 0%, ${bg.c1}, ${bg.c2})`
+  : bg.c1
+
+function CaseTile({ tile, look, bg, href = '#', tuning, selected, onLayerPointerDown }) {
   return (
-    <a className={`case-tile${tuning ? ' tuning' : ''}`} href={href} aria-label={tile.label}>
-      <div className="stage">
+    <a className={`case-tile${tuning ? ' tuning' : ''}${look.shadow.on ? ' shadow' : ''}`} href={href} aria-label={tile.label} style={{ '--tile-bg': fill(bg) }}>
+      {/* not "stage": the window intro's global .stage rule would shift it up */}
+      <div className={`tile-stage${bg.mode === 'motif' ? ' motif' : ''}`}>
         {tile.layers.filter(l => l.on).map(l => (
           <div
             key={l.id}

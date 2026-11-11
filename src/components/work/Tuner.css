@@ -29,6 +29,14 @@
 .tuner input[type="range"] { width: 100%; accent-color: #6729ae; }
 .tuner input[type="number"] { width: 100%; padding: 1px 4px; border: 1px solid #e8dbff; border-radius: 4px; background: #fff; }
 
+.tuner.look { right: auto; left: 16px; width: 280px; }
+.tuner label.check { display: flex; gap: 6px; margin-top: 6px; color: #1a1a1a; }
+.tuner label.colour input[type="color"] { width: 100%; height: 22px; padding: 0; border: 1px solid #e8dbff; border-radius: 4px; background: #fff; }
+.tuner label.colour code { font-size: 11px; color: #616161; }
+.tuner .modes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 10px; }
+.tuner .modes button { padding: 4px 0; border-radius: 4px; border: 1px solid #e8dbff; color: #551999; }
+.tuner .modes button.on { background: #e8dbff; }
+
 .tuner footer { display: flex; gap: 6px; margin-top: 10px; }
 .tuner footer button { flex: 1; padding: 6px; border-radius: 4px; background: #e8dbff; color: #551999; }
 .tuner footer button:last-child { background: none; border: 1px solid #e8dbff; }
