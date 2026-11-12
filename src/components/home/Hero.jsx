@@ -3,12 +3,25 @@ import './Hero.css'
 import MotifField from '../motif/MotifField'
 import Butterfly from './Butterfly'
 import SectionLink from './SectionLink'
-import { useNotesPlayed, pressSound, playButterflySound } from '../../lib/sound/notes'
+import { Volume2, VolumeX } from 'lucide-react'
+import { useNotesPlayed, useMuted, toggleMute, pressSound, playButterflySound } from '../../lib/sound/notes'
 import { mountSoundPanel } from '../../lib/sound/soundPanel'
 import { SOON } from '../../site'
 
 const Dot = () => <img src="/assets/dot.svg" alt="" />
 const Bfly = Butterfly
+
+// sound on / off, beside the count of notes it drives. Starts on; muting lasts for the visit
+function SoundSwitch() {
+  const muted = useMuted()
+  const Icon = muted ? VolumeX : Volume2
+  return (
+    <button type="button" className="sound-switch" onClick={toggleMute}
+      aria-pressed={muted} aria-label={muted ? 'Turn sound on' : 'Turn sound off'} title={muted ? 'Sound off' : 'Sound on'}>
+      <Icon aria-hidden="true" strokeWidth={1.75} />
+    </button>
+  )
+}
 
 /**
  * The single-screen home page from Figma: desktop "home page" (90:13) and "home page - mobile"
@@ -48,7 +61,7 @@ function Hero({ revealed, heroRef, bflyRef }) {
         <section ref={heroRef} className="hero">
           <p className="hi sans rise" data-no-motif="" style={{ animationDelay: '.1s' }}>Hello, I’m Lavanya</p>
           <h1 className="serif rise" style={{ animationDelay: '.2s' }}><span className="l1" data-no-motif="">Product</span> <span className="l2" data-no-motif="">Designer</span></h1>
-          <Bfly bflyRef={bflyRef} onPress={playButterflySound} />
+          <Bfly bflyRef={bflyRef} onTwitch={playButterflySound} />
           <p className="tag sans rise" data-no-motif="" style={{ animationDelay: '.3s' }}>systems thinker, backend literate &amp; stubborn about clarity</p>
         </section>
         <nav className="links sans rise" style={{ animationDelay: '.45s' }} aria-label="Sections">
@@ -64,7 +77,7 @@ function Hero({ revealed, heroRef, bflyRef }) {
         <div className="foot-row" data-no-motif="">
           <span>Chandigarh → Bengaluru</span><Dot />
           <span>v1.0.0</span><Dot />
-          <span>{notes} {notes === 1 ? 'note' : 'notes'} played</span><Dot />
+          <span className="notes">{notes} {notes === 1 ? 'note' : 'notes'} played<SoundSwitch /></span><Dot />
           <span>Colophon</span>
         </div>
       </footer>}

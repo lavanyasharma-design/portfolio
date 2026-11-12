@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react'
-import { playMotif, playButterfly, unlockSound, isMuted } from './engine'
+import { playMotif, playButterfly, unlockSound, isMuted, setMuted } from './engine'
 import { SOUND } from './config'
 
 // Plays a motif and counts its notes for the footer's "notes played": a motif adds as many notes
@@ -34,3 +34,11 @@ export const pressSound = (name) => ({
 
 const subscribe = (fn) => { listeners.add(fn); return () => listeners.delete(fn) }
 export const useNotesPlayed = () => useSyncExternalStore(subscribe, () => count)
+
+// The footer's sound switch. The site starts with sound on; muting lasts for the visit
+// (a reload starts unmuted again).
+export function toggleMute() {
+  setMuted(!isMuted())
+  listeners.forEach((fn) => fn())
+}
+export const useMuted = () => useSyncExternalStore(subscribe, isMuted)

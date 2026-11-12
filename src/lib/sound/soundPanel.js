@@ -23,7 +23,7 @@ const MOTIFS = [
 ]
 const VOICES = { 'grand piano': 'grand-piano', 'folk harp': 'folk-harp' }
 const voiceName = (folder) => Object.keys(VOICES).find((k) => VOICES[k] === folder) ?? null
-const KEY = 'sound-panel-v4'   // bumped when config.js changes, so old tuning doesn't hide it
+const KEY = 'sound-panel-v5'   // bumped when config.js changes, so old tuning doesn't hide it
 
 const midiName = (m) => NAMES[m % 12] + (Math.floor(m / 12) - 1)
 const toMidi = (n) => NAMES.indexOf(n.slice(0, -1)) + 12 * (Number(n.slice(-1)) + 1)

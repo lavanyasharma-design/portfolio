@@ -11,7 +11,8 @@ import './Butterfly.css'
  * The image is split down the body into two wings, each flexing in 3D about the centre line.
  * bflyRef stays on the outer box, which is what the intro's flying butterfly lands on.
  * data-no-motif keeps the background's hover effect off while the pointer is on it.
- * onPress fires on a click or tap only (never hover): the home page plays the butterfly's sound there.
+ * onTwitch fires each time a twitch starts (hover or tap, not while one is running): the home page
+ * plays the butterfly's sound there.
  *
  * Add ?tune to the URL for a live panel. Values chosen by Lavanya on 2026-11-05.
  */
@@ -33,7 +34,7 @@ const Wing = ({ side, wingRef }) => (
   </div>
 )
 
-function Butterfly({ bflyRef, onTwitch, onPress }) {
+function Butterfly({ bflyRef, onTwitch }) {
   const bodyRef = useRef(null), leftRef = useRef(null), rightRef = useRef(null)
   const busy = useRef(false)
 
@@ -84,8 +85,7 @@ function Butterfly({ bflyRef, onTwitch, onPress }) {
   }, [bflyRef])
 
   return (
-    <div ref={bflyRef} className="bfly" data-no-motif="" onPointerEnter={twitch}
-      onPointerDown={(e) => { if (e.button === 0) onPress?.(); twitch(e) }}>
+    <div ref={bflyRef} className="bfly" data-no-motif="" onPointerEnter={twitch} onPointerDown={twitch}>
       <div ref={bodyRef} className="bfly-body">
         <Wing side="l" wingRef={leftRef} />
         <Wing side="r" wingRef={rightRef} />

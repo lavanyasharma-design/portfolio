@@ -43,12 +43,12 @@ export const SOUND = {
   },
 
   // The butterfly's own sound, deliberately unlike the buttons' harp and used nowhere else.
-  // Plays on click or tap (it still twitches on hover). Pick a style with ?sound.
+  // Plays whenever it twitches: hover with a mouse, tap on a phone. Pick a style with ?sound.
   //   flutter: a quick, quiet run of high harp notes, like wings
   //   glass:   a soft synthesised glow (root, fifth and octave) with a slight waver
   //   chime:   a bell-like ting and a softer echo, synthesised
   butterfly: {
-    style: 'glass',
+    style: 'flutter',   // her pick, 12 Nov 2026
     level: 0.6,
     retriggerMs: 450,
     styles: {

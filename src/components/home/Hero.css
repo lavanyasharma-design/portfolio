@@ -82,6 +82,11 @@ html:has(.site.soon),html:has(.site.soon) body{overscroll-behavior:none}
 .foot{align-self:end;display:flex;padding:0 36px 30px;font-size:16px;color:var(--black-highlight)}
 .foot-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 .foot img{display:block;width:5px;height:5px}
+/* sound on / off: a lucide speaker at the text's size, in the footer grey, tucked after the count */
+.foot .notes{display:inline-flex;align-items:center;gap:.3em}
+.sound-switch{display:inline-flex;padding:8px;margin:-8px;/* a bigger target for a finger, same footprint */border:0;background:none;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.sound-switch svg{width:1em;height:1em;display:block}
+.sound-switch:focus-visible{outline:1px solid currentColor;outline-offset:2px;border-radius:2px}
 
 /* ---------- phones: Figma "home page - mobile" (21:2), drawn at 402 wide ---------- */
 /* its own layout, not the desktop one shrunk: the tagline wraps and centres, the nav spans the body.
