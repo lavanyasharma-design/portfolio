@@ -17,5 +17,13 @@ export function play(name) {
   return false
 }
 
+// Props for any link or button that should play a motif when pressed: the note sounds on the press
+// itself (finger or mouse down), or on Enter / Space from the keyboard. The element's own click
+// (opening a page, a mail app) is left alone.
+export const pressSound = (name) => ({
+  onPointerDown: (e) => { if (e.button === 0) play(name) },
+  onClick: (e) => { if (e.detail === 0) play(name) },   // detail 0: a keyboard "click"
+})
+
 const subscribe = (fn) => { listeners.add(fn); return () => listeners.delete(fn) }
 export const useNotesPlayed = () => useSyncExternalStore(subscribe, () => count)

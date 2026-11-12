@@ -3,7 +3,7 @@ import './Hero.css'
 import MotifField from '../motif/MotifField'
 import Butterfly from './Butterfly'
 import SectionLink from './SectionLink'
-import { useNotesPlayed } from '../../lib/sound/notes'
+import { useNotesPlayed, pressSound } from '../../lib/sound/notes'
 import { mountSoundPanel } from '../../lib/sound/soundPanel'
 import { SOON } from '../../site'
 
@@ -31,10 +31,10 @@ function Hero({ revealed, heroRef, bflyRef }) {
     <main ref={siteRef} className={`site${revealed ? ' in' : ''}${SOON ? ' soon' : ''}`}>
       <MotifField />
       {!SOON && <header className="top serif rise">
-        <a href="mailto:hi@lavanyaaa.com" data-no-motif="">hi@lavanyaaa.com</a>
+        <a href="mailto:hi@lavanyaaa.com" data-no-motif="" {...pressSound('email')}>hi@lavanyaaa.com</a>
         <nav className="social" aria-label="Social" data-no-motif="">
-          <a href="https://www.linkedin.com/in/lavanyaaasharmaaa/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-          <a href="https://x.com/lavanyaaasharma" target="_blank" rel="noopener noreferrer">X</a>
+          <a href="https://www.linkedin.com/in/lavanyaaasharmaaa/" target="_blank" rel="noopener noreferrer" {...pressSound('linkedin')}>LinkedIn</a>
+          <a href="https://x.com/lavanyaaasharma" target="_blank" rel="noopener noreferrer" {...pressSound('linkedin')}>X</a>
         </nav>
       </header>}
 
