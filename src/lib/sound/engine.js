@@ -52,6 +52,38 @@ function buildGraph() {
   shelf.connect(dry); dry.connect(comp);
   shelf.connect(predelay); predelay.connect(conv); conv.connect(wet); wet.connect(comp);
   comp.connect(out); out.connect(ctx.destination);
+  impulseSeconds = T.reverb.seconds;
+}
+
+let impulseSeconds = 0;
+
+// Re-applies SOUND.tone to the running graph, for the ?sound panel. A new reverb length builds a
+// fresh convolver and swaps it in, since a convolver's impulse can't always be replaced in place.
+export function retune() {
+  if (!ctx) return;
+  const T = SOUND.tone;
+  lp.frequency.value = T.lowpassHz;
+  shelf.frequency.value = T.lowShelf.hz; shelf.gain.value = T.lowShelf.db;
+  dry.gain.value = 1 - T.reverb.wet * 0.55;
+  wet.gain.value = T.reverb.wet * 1.6;
+  predelay.delayTime.value = T.reverb.predelayMs / 1000;
+  Object.entries(T.compressor).forEach(([k, v]) => { comp[k].value = v; });
+  out.gain.value = Math.pow(10, T.outputDb / 20) * 0.9;
+  if (T.reverb.seconds !== impulseSeconds) {
+    const next = ctx.createConvolver();
+    next.buffer = makeImpulse(T.reverb.seconds);
+    predelay.connect(next); next.connect(wet);
+    predelay.disconnect(conv); conv.disconnect();
+    conv = next;
+    impulseSeconds = T.reverb.seconds;
+  }
+}
+
+// Loads any voice in SOUND.voices that isn't loaded yet (after the panel switches instrument).
+export function loadVoices() {
+  if (!ctx) return Promise.resolve();
+  const { main, layer } = SOUND.voices;
+  return Promise.all([main, layer].filter(Boolean).map((v) => buffers[v.folder] || loadFolder(v.folder)));
 }
 
 /* ---------- loading ---------- */
@@ -63,16 +95,19 @@ function decode(ab) {
   });
 }
 
+const inFlight = {};
 function loadFolder(folder) {
+  if (inFlight[folder]) return inFlight[folder];
   const files = Object.entries(SOUND.samples[folder]);
-  return Promise.all(
+  return inFlight[folder] = Promise.all(
     files.map(([midi, name]) =>
       fetch(`/sounds/${folder}/${name}.mp3`)
         .then((r) => r.arrayBuffer())
         .then(decode)
         .then((buf) => [Number(midi), buf])
     )
-  ).then((list) => { buffers[folder] = list.sort((a, b) => a[0] - b[0]); });
+  ).then((list) => { buffers[folder] = list.sort((a, b) => a[0] - b[0]); })
+    .catch((e) => { delete inFlight[folder]; throw e; });
 }
 
 function loadAll() {

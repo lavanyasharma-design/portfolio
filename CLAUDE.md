@@ -82,10 +82,10 @@ public/motif.svg                   tiled page background
 ## Sound
 
 - The piano and music interaction is **staying** (decided 5 Oct 2026). "0 notes played" in the footer counts it.
-- Source: Lavanya's own sound package (handoff in `public/sound tryout/SOUND.md`), now in `src/lib/sound/` and `public/sounds/`. Wired to the home section links only (click/tap, not hover); `armUnlockOnFirstGesture` runs in App, never on the Coming Soon face. Each hover or tap plays a two-note motif: folk harp with grand piano under it, D major pentatonic, soft reverb. Plain Web Audio engine (`engine.js`), settings in `config.js`.
+- Source: Lavanya's own sound package (handoff in `public/sound tryout/SOUND.md`), now in `src/lib/sound/` and `public/sounds/`. Wired to the home section links only (click/tap, not hover); `armUnlockOnFirstGesture` runs in App, never on the Coming Soon face. Each press plays one grand piano note (her bench settings of 12 Nov 2026: C major pentatonic, middle register, one note per motif, warm and dry-ish). The 3 Oct version was two notes, folk harp over piano, in D. `?sound` opens a live panel mirroring her bench (voice, layer, key, scale, register, notes per press, tone, reverb, compressor); changes apply to the next note, persist on that device, and "copy settings" gives her bench's JSON. The engine's `retune()` / `loadVoices()` exist for that panel. Plain Web Audio engine (`engine.js`), settings in `config.js`.
 - No Tone.js, Howler or other audio library. One `AudioContext`, owned by the engine. Change sounds in `config.js` only.
 - Browsers block audio until the visitor clicks, taps or presses a key. Dragging the window open, "skip" and Enter all count; scrolling in does not. Audio (~660 KB) loads after that first gesture, never blocking first paint.
-- Decided: "0 notes played" counts every note (+2 per motif). The mute control goes in the footer next to the counter ("sound on / off"), in the footer's Cormorant style. Not wired in yet.
+- Decided: "0 notes played" counts every note (+1 per press now, +2 if a motif has two notes). The mute control goes in the footer next to the counter ("sound on / off"), in the footer's Cormorant style. Not wired in yet.
 - Samples: folk harp from the Versilian Community Sample Library (CC0), grand piano from the Salamander Grand Piano by Alexander Holm (CC BY 3.0, credit required, e.g. in the colophon).
 
 ## Design Principles

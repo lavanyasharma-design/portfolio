@@ -4,7 +4,7 @@ import MotifField from '../motif/MotifField'
 import Butterfly from './Butterfly'
 import SectionLink from './SectionLink'
 import { useNotesPlayed } from '../../lib/sound/notes'
-import { SOUND } from '../../lib/sound/config'
+import { mountSoundPanel } from '../../lib/sound/soundPanel'
 import { SOON } from '../../site'
 
 const Dot = () => <img src="/assets/dot.svg" alt="" />
@@ -64,7 +64,7 @@ function Hero({ revealed, heroRef, bflyRef }) {
         <div className="foot-row" data-no-motif="">
           <span>Chandigarh → Bengaluru</span><Dot />
           <span>v1.0.0</span><Dot />
-          <span>{notes} notes played</span><Dot />
+          <span>{notes} {notes === 1 ? 'note' : 'notes'} played</span><Dot />
           <span>Colophon</span>
         </div>
       </footer>}
@@ -90,30 +90,6 @@ function mountSpacingPanel(site) {
   })
   // the page swallows touches for the motif; let the panel's sliders have theirs
   el.style.touchAction = 'auto'
-  document.body.append(el)
-  return el
-}
-
-/* ?sound: the gap between a motif's two notes and how loud the second one is. Press a section
-   link to hear it; "copy values" gives the numbers for config.js */
-function mountSoundPanel() {
-  const el = document.createElement('div')
-  el.className = 'tune-panel'
-  el.style.cssText = 'top:auto;bottom:70px;left:12px;right:12px;width:auto;max-width:360px'
-  const p = SOUND.pair
-  el.innerHTML = `<b>sound</b>
-    <label><span>note gap</span><input type="range" data-k="gapMs" min="0" max="400" step="10" value="${p.gapMs}"><output>${p.gapMs}ms</output></label>
-    <label><span>2nd note</span><input type="range" data-k="secondLevel" min="0" max="1" step="0.05" value="${p.secondLevel}"><output>${p.secondLevel}</output></label>
-    <button type="button" class="copy">copy values</button>`
-  el.addEventListener('input', (e) => {
-    const k = e.target.dataset.k
-    p[k] = +e.target.value
-    e.target.nextElementSibling.textContent = e.target.value + (k === 'gapMs' ? 'ms' : '')
-  })
-  el.querySelector('.copy').addEventListener('click', (e) => {
-    navigator.clipboard?.writeText(`pair: { gapMs: ${p.gapMs}, secondLevel: ${p.secondLevel} }`)
-    e.target.textContent = 'copied'
-  })
   document.body.append(el)
   return el
 }

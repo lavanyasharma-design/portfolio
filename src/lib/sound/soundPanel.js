@@ -1,0 +1,208 @@
+import { SOUND } from './config'
+import { playMotif, retune, loadVoices } from './engine'
+
+/*
+ * ?sound: a live panel mirroring Lavanya's sound bench. Every change applies at once (the next
+ * note uses it), survives a reload on this device, and "copy settings" gives the same JSON the
+ * bench exports, ready for config.js. "reset" goes back to config.js.
+ * Plain DOM, outside React, like the other tuning panels.
+ */
+
+const NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+const SCALES = {
+  majpent: [0, 2, 4, 7, 9],
+  minpent: [0, 3, 5, 7, 10],
+  major: [0, 2, 4, 5, 7, 9, 11],
+  minor: [0, 2, 3, 5, 7, 8, 10],
+}
+const REGISTER = { low: 3, middle: 4, high: 5 }
+const MOTIFS = [
+  ['logo', 'logo'], ['work', 'work'], ['about', 'about'], ['play', 'play'],
+  ['nextCaseStudy', 'next case study'], ['letsTalk', "let's talk"], ['email', 'email'],
+  ['linkedin', 'linkedin / x'], ['resume', 'resume'], ['centrepiece', 'centrepiece'],
+]
+const VOICES = { 'grand piano': 'grand-piano', 'folk harp': 'folk-harp' }
+const voiceName = (folder) => Object.keys(VOICES).find((k) => VOICES[k] === folder) ?? null
+const KEY = 'sound-panel-v1'
+
+const midiName = (m) => NAMES[m % 12] + (Math.floor(m / 12) - 1)
+const toMidi = (n) => NAMES.indexOf(n.slice(0, -1)) + 12 * (Number(n.slice(-1)) + 1)
+
+// consecutive scale notes from the key, one per motif; the answering note sits a fifth above
+function buildNotes({ key, scale, register, notesPerTrigger }) {
+  const sc = SCALES[scale], root = 12 * (REGISTER[register] + 1) + NAMES.indexOf(key)
+  const deg = (i) => root + sc[i % sc.length] + 12 * Math.floor(i / sc.length)
+  const fifth = sc.length === 5 ? 3 : 4
+  return Object.fromEntries(MOTIFS.map(([id], i) =>
+    [id, notesPerTrigger === 2 ? [midiName(deg(i)), midiName(deg(i + fifth))] : [midiName(deg(i))]]))
+}
+
+// the bench's export format <-> SOUND
+function exportSettings() {
+  const T = SOUND.tone, L = SOUND.ladder, two = L.notesPerTrigger === 2
+  return {
+    voice: voiceName(SOUND.voices.main.folder),
+    layer: SOUND.voices.layer ? { voice: voiceName(SOUND.voices.layer.folder), levelPercent: Math.round(SOUND.voices.layer.level * 100) } : null,
+    scale: L.scale, key: L.key, register: L.register,
+    notesPerTrigger: L.notesPerTrigger,
+    secondNote: two ? 'fifth above' : null,
+    gapMs: two ? SOUND.pair.gapMs : null,
+    secondNoteLevelPercent: two ? Math.round(SOUND.pair.secondLevel * 100) : null,
+    motifNotes: MOTIFS.map(([id, label]) => `${label}: ${SOUND.motifNotes[id].join(' + ')}`),
+    lowpassHz: T.lowpassHz,
+    lowShelf: { hz: T.lowShelf.hz, db: T.lowShelf.db },
+    reverbWetPercent: Math.round(T.reverb.wet * 100),
+    reverbSeconds: T.reverb.seconds,
+    ringSeconds: T.ringSeconds,
+    attackMs: T.attackMs,
+    outputDb: T.outputDb,
+    compressor: { threshold: T.compressor.threshold, ratio: T.compressor.ratio, knee: T.compressor.knee },
+    humanisePercent: Math.round(T.humanise * 100),
+  }
+}
+
+// every control: [path, label, min, max, step, unit, toSound, fromSound]
+const pct = [(v) => v / 100, (v) => Math.round(v * 100)]
+const SLIDERS = [
+  ['layerLevel', 'layer level', 0, 100, 5, '%', ...pct],
+  ['gapMs', '2nd note gap', 0, 500, 10, 'ms'],
+  ['secondLevel', '2nd note level', 0, 100, 5, '%', ...pct],
+  ['lowpassHz', 'brightness', 800, 12000, 100, 'Hz'],
+  ['shelfHz', 'warmth at', 60, 400, 10, 'Hz'],
+  ['shelfDb', 'warmth', 0, 12, 0.5, 'dB'],
+  ['wet', 'reverb', 0, 80, 1, '%', ...pct],
+  ['seconds', 'reverb length', 0.5, 5, 0.1, 's'],
+  ['ringSeconds', 'ring', 0.4, 4, 0.1, 's'],
+  ['attackMs', 'attack', 0, 60, 1, 'ms'],
+  ['outputDb', 'volume', -18, 3, 0.5, 'dB'],
+  ['threshold', 'comp threshold', -40, 0, 1, 'dB'],
+  ['ratio', 'comp ratio', 1, 12, 0.5, ':1'],
+  ['knee', 'comp knee', 0, 30, 1, 'dB'],
+  ['humanise', 'humanise', 0, 100, 1, '%', ...pct],
+]
+const T = () => SOUND.tone
+const GET = {
+  layerLevel: () => SOUND.voices.layer?.level ?? 0.4, gapMs: () => SOUND.pair.gapMs, secondLevel: () => SOUND.pair.secondLevel,
+  lowpassHz: () => T().lowpassHz, shelfHz: () => T().lowShelf.hz, shelfDb: () => T().lowShelf.db,
+  wet: () => T().reverb.wet, seconds: () => T().reverb.seconds, ringSeconds: () => T().ringSeconds,
+  attackMs: () => T().attackMs, outputDb: () => T().outputDb, threshold: () => T().compressor.threshold,
+  ratio: () => T().compressor.ratio, knee: () => T().compressor.knee, humanise: () => T().humanise,
+}
+const SET = {
+  layerLevel: (v) => { layerLevel = v; if (SOUND.voices.layer) SOUND.voices.layer.level = v },
+  gapMs: (v) => { SOUND.pair.gapMs = v }, secondLevel: (v) => { SOUND.pair.secondLevel = v },
+  lowpassHz: (v) => { T().lowpassHz = v }, shelfHz: (v) => { T().lowShelf.hz = v }, shelfDb: (v) => { T().lowShelf.db = v },
+  wet: (v) => { T().reverb.wet = v }, seconds: (v) => { T().reverb.seconds = v }, ringSeconds: (v) => { T().ringSeconds = v },
+  attackMs: (v) => { T().attackMs = v }, outputDb: (v) => { T().outputDb = v }, threshold: (v) => { T().compressor.threshold = v },
+  ratio: (v) => { T().compressor.ratio = v }, knee: (v) => { T().compressor.knee = v }, humanise: (v) => { T().humanise = v },
+}
+let layerLevel = 0.4
+
+// a snapshot of everything the panel can change, for saving and resetting
+const snapshot = () => JSON.parse(JSON.stringify({
+  voices: SOUND.voices, ladder: SOUND.ladder, motifNotes: SOUND.motifNotes, pair: SOUND.pair, tone: SOUND.tone,
+}))
+const restore = (s) => {
+  Object.assign(SOUND, JSON.parse(JSON.stringify(s)))
+  retune(); loadVoices()
+}
+
+export function mountSoundPanel() {
+  const fromConfig = snapshot()
+  try { const saved = JSON.parse(localStorage.getItem(KEY)); if (saved) restore(saved) } catch { /* private mode */ }
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(snapshot())) } catch { /* private mode */ } }
+
+  const el = document.createElement('div')
+  el.className = 'tune-panel sound-panel'
+  el.dataset.noMotif = ''
+  el.style.cssText = 'top:auto;bottom:12px;left:12px;right:auto;width:min(320px, calc(100vw - 24px));max-height:min(70vh, 640px);overflow:auto;touch-action:auto;overscroll-behavior:contain'
+
+  const select = (k, label, options) =>
+    `<label><span>${label}</span><select data-s="${k}" style="grid-column:2 / span 2">${options.map((o) => `<option>${o}</option>`).join('')}</select></label>`
+  el.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center"><b>sound</b><button type="button" data-a="fold">hide</button></div>
+    <div class="sp-body" style="display:grid;gap:6px">
+      <div class="sp-notes" style="display:flex;flex-wrap:wrap;gap:4px"></div>
+      <small class="sp-shift" style="color:#616161"></small>
+      ${select('voice', 'voice', Object.keys(VOICES))}
+      ${select('layer', 'layer', ['none', ...Object.keys(VOICES)])}
+      ${select('key', 'key', NAMES)}
+      ${select('scale', 'scale', Object.keys(SCALES))}
+      ${select('register', 'register', Object.keys(REGISTER))}
+      ${select('notesPerTrigger', 'notes per press', ['1', '2'])}
+      ${SLIDERS.map(([k, label, min, max, step]) =>
+        `<label data-row="${k}"><span>${label}</span><input type="range" data-k="${k}" min="${min}" max="${max}" step="${step}"><output></output></label>`).join('')}
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button type="button" class="play" data-a="copy">copy settings</button>
+        <button type="button" data-a="reset">reset to config</button>
+      </div>
+    </div>`
+
+  const body = el.querySelector('.sp-body')
+  const sliderOf = (k) => SLIDERS.find((s) => s[0] === k)
+
+  const sync = () => {
+    const L = SOUND.ladder
+    el.querySelector('[data-s=voice]').value = voiceName(SOUND.voices.main.folder)
+    el.querySelector('[data-s=layer]').value = SOUND.voices.layer ? voiceName(SOUND.voices.layer.folder) : 'none'
+    el.querySelector('[data-s=key]').value = L.key
+    el.querySelector('[data-s=scale]').value = L.scale
+    el.querySelector('[data-s=register]').value = L.register
+    el.querySelector('[data-s=notesPerTrigger]').value = String(L.notesPerTrigger)
+    for (const [k, , , , , unit, , from = (v) => v] of SLIDERS) {
+      const input = el.querySelector(`[data-k=${k}]`)
+      input.value = from(GET[k]())
+      input.nextElementSibling.textContent = input.value + unit
+    }
+    // only show what applies
+    el.querySelector('[data-row=layerLevel]').style.display = SOUND.voices.layer ? '' : 'none'
+    for (const k of ['gapMs', 'secondLevel']) el.querySelector(`[data-row=${k}]`).style.display = L.notesPerTrigger === 2 ? '' : 'none'
+    // a button per motif to hear it, and how far the furthest note is stretched from a real sample
+    el.querySelector('.sp-notes').innerHTML = MOTIFS.map(([id, label]) =>
+      `<button type="button" data-m="${id}" title="${label}">${label.split(' ')[0]} ${SOUND.motifNotes[id][0]}</button>`).join('')
+    let worst = { by: 0, note: '' }
+    for (const v of [SOUND.voices.main, SOUND.voices.layer].filter(Boolean)) {
+      const have = Object.keys(SOUND.samples[v.folder]).map(Number)
+      for (const n of Object.values(SOUND.motifNotes).flat()) {
+        const by = Math.min(...have.map((h) => Math.abs(h - toMidi(n))))
+        if (by > worst.by) worst = { by, note: `${n} on ${voiceName(v.folder)}` }
+      }
+    }
+    el.querySelector('.sp-shift').textContent = worst.by > 1
+      ? `furthest stretch: ${worst.by} semitones (${worst.note}); more than 2 can sound dull`
+      : 'every note is within a semitone of a real sample'
+  }
+
+  el.addEventListener('pointerdown', (e) => {
+    const m = e.target.closest('[data-m]')
+    if (m) playMotif(m.dataset.m)
+  })
+  el.addEventListener('click', (e) => {
+    const a = e.target.closest('[data-a]')?.dataset.a
+    if (a === 'fold') { const hide = body.style.display !== 'none'; body.style.display = hide ? 'none' : 'grid'; e.target.textContent = hide ? 'show' : 'hide' }
+    if (a === 'copy') { navigator.clipboard?.writeText(JSON.stringify(exportSettings(), null, 2)); e.target.textContent = 'copied' }
+    if (a === 'reset') { restore(fromConfig); try { localStorage.removeItem(KEY) } catch { /* private mode */ } sync() }
+  })
+  el.addEventListener('input', (e) => {
+    const k = e.target.dataset.k
+    if (!k) return
+    const [, , , , , , to = (v) => v] = sliderOf(k)
+    SET[k](to(+e.target.value))
+    retune(); save(); sync()
+  })
+  el.addEventListener('change', (e) => {
+    const s = e.target.dataset.s
+    if (!s) return
+    const v = e.target.value, L = SOUND.ladder
+    if (s === 'voice') SOUND.voices.main = { folder: VOICES[v], level: 1 }
+    if (s === 'layer') SOUND.voices.layer = v === 'none' ? null : { folder: VOICES[v], level: layerLevel }
+    if (s === 'key' || s === 'scale' || s === 'register') L[s] = v
+    if (s === 'notesPerTrigger') L.notesPerTrigger = +v
+    SOUND.motifNotes = buildNotes(L)
+    loadVoices(); save(); sync()
+  })
+
+  sync()
+  document.body.append(el)
+  return el
+}
