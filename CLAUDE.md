@@ -59,7 +59,7 @@ public/motif.svg                   tiled page background
 - Copy: "Hello, I'm Lavanya" / "Product Designer" / "systems thinker, backend literate & stubborn about clarity".
 - Top bar: `hi@lavanyaaa.com` (mailto), LinkedIn (linkedin.com/in/lavanyaaasharmaaa), X (x.com/lavanyaaasharma), both in a new tab. Section links (`SectionLink`): `[work]` #6729ae, `[about]` #46b2d7, `[play]` #ff33d0, the Figma colour variables.
 - Section links: on click or tap (never hover) the brackets ease out and back (`BRACKETS`) and the section's sound motif plays. `[work]` then opens `/work`; about and play stay put until their "soon" state is designed.
-- Footer: Chandigarh → Bengaluru · v1.0.0 · N notes played · Colophon, in #616161. The counter is live (`src/lib/sound/notes.js`, +2 per motif played).
+- Footer: Chandigarh → Bengaluru · v1.0.0 · N notes played [sound switch] · Colophon, in #616161. On phones v1.0.0 and its dot are hidden so the switch fits on one line (up to 999 notes). The counter is live (`src/lib/sound/notes.js`, +2 per motif played).
 - Blocks rise in (opacity, 14px, 4px blur) on reveal, staggered 0 to 0.55s.
 - Routing is `src/router.js` (pushState, no library), so moving between pages keeps the AudioContext and returning home skips the intro. On lavanyaaa.com every path shows Coming Soon.
 

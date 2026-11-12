@@ -8,7 +8,7 @@ import { useNotesPlayed, useMuted, toggleMute, pressSound, playButterflySound } 
 import { mountSoundPanel } from '../../lib/sound/soundPanel'
 import { SOON } from '../../site'
 
-const Dot = () => <img src="/assets/dot.svg" alt="" />
+const Dot = ({ className }) => <img className={className} src="/assets/dot.svg" alt="" />
 const Bfly = Butterfly
 
 // sound on / off, beside the count of notes it drives. Starts on; muting lasts for the visit
@@ -76,7 +76,7 @@ function Hero({ revealed, heroRef, bflyRef }) {
         {/* the row hugs its text, so the motif stays off over the words and the gaps between them only */}
         <div className="foot-row" data-no-motif="">
           <span>Chandigarh → Bengaluru</span><Dot />
-          <span>v1.0.0</span><Dot />
+          <span className="ver">v1.0.0</span><Dot className="ver" />
           <span className="notes">{notes} {notes === 1 ? 'note' : 'notes'} played<SoundSwitch /></span><Dot />
           <span>Colophon</span>
         </div>
