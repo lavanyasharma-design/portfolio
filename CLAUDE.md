@@ -106,5 +106,5 @@ The pencil pass in `orbField.js` is adapted from Florian Berger's "notebook draw
 
 - Pages beyond the home screen: case studies (Bolt, EMI Card, BBPS), About, Archive/play. Where `[work]`, `[about]`, `[play]` lead.
 - Instagram (her poems and photography) goes on the play page, not the top bar (decided 2026-11-12).
-- Colophon (footer link): opens on hover, content and design still to decide. It must carry the sound credits (`SOUND_CREDITS` in config.js: Salamander Grand Piano, CC BY 3.0, required; VCSL folk harp, CC0) and should credit the pencil shader (see Credit / licence). Hover-only needs a tap and keyboard way in too.
+- Colophon (footer link): a dialog that opens on click / tap / Enter (decided 2026-11-12, not hover, so it works everywhere). Lavanya is designing it in Figma. Its content is ready in `src/components/home/colophon.js`: piano (Salamander, CC BY 3.0, required), harp (VCSL, CC0), the pencil shader (Florian Berger, CC BY-NC-SA 3.0, required), fonts and Lucide.
 - Sound: how the piano interaction plays, where it lives, and how it drives the "0 notes played" counter. See **Sound** above.
