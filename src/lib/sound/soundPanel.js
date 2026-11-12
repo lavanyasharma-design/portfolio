@@ -1,5 +1,5 @@
 import { SOUND } from './config'
-import { playMotif, retune, loadVoices } from './engine'
+import { playMotif, playButterfly, retune, loadVoices } from './engine'
 
 /*
  * ?sound: a live panel mirroring Lavanya's sound bench. Every change applies at once (the next
@@ -19,11 +19,11 @@ const REGISTER = { low: 3, middle: 4, high: 5 }
 const MOTIFS = [
   ['logo', 'logo'], ['work', 'work'], ['about', 'about'], ['play', 'play'],
   ['nextCaseStudy', 'next case study'], ['letsTalk', "let's talk"], ['email', 'email'],
-  ['linkedin', 'linkedin / x'], ['resume', 'resume'], ['centrepiece', 'centrepiece'],
+  ['linkedin', 'linkedin'], ['x', 'x'], ['resume', 'resume'], ['centrepiece', 'centrepiece'],
 ]
 const VOICES = { 'grand piano': 'grand-piano', 'folk harp': 'folk-harp' }
 const voiceName = (folder) => Object.keys(VOICES).find((k) => VOICES[k] === folder) ?? null
-const KEY = 'sound-panel-v3'   // bumped when config.js changes, so old tuning doesn't hide it
+const KEY = 'sound-panel-v4'   // bumped when config.js changes, so old tuning doesn't hide it
 
 const midiName = (m) => NAMES[m % 12] + (Math.floor(m / 12) - 1)
 const toMidi = (n) => NAMES.indexOf(n.slice(0, -1)) + 12 * (Number(n.slice(-1)) + 1)
@@ -58,6 +58,7 @@ function exportSettings() {
     outputDb: T.outputDb,
     compressor: { threshold: T.compressor.threshold, ratio: T.compressor.ratio, knee: T.compressor.knee },
     humanisePercent: Math.round(T.humanise * 100),
+    butterfly: { style: SOUND.butterfly.style, levelPercent: Math.round(SOUND.butterfly.level * 100) },
   }
 }
 
@@ -115,7 +116,7 @@ let layerLevel = 0.4
 
 // a snapshot of everything the panel can change, for saving and resetting
 const snapshot = () => JSON.parse(JSON.stringify({
-  voices: SOUND.voices, ladder: SOUND.ladder, motifNotes: SOUND.motifNotes, pair: SOUND.pair, tone: SOUND.tone,
+  voices: SOUND.voices, ladder: SOUND.ladder, motifNotes: SOUND.motifNotes, pair: SOUND.pair, tone: SOUND.tone, butterfly: SOUND.butterfly,
 }))
 const restore = (s) => {
   Object.assign(SOUND, JSON.parse(JSON.stringify(s)))
@@ -142,6 +143,12 @@ export function mountSoundPanel() {
     <div class="sp-body" style="display:grid;gap:6px">
       <div class="sp-notes" style="display:flex;flex-wrap:wrap;gap:4px"></div>
       <small class="sp-shift" style="color:#616161"></small>
+      <b style="margin-top:4px">butterfly</b>
+      ${select('bflyStyle', 'its sound', [
+        { value: 'glass', label: 'glass shimmer' }, { value: 'chime', label: 'wind chime' }, { value: 'flutter', label: 'wing flutter' }],
+        'only the butterfly makes this. Glass: a soft glowing tone. Chime: a bell-like ting. Flutter: a quick run of high harp notes')}
+      <div data-row="bflyLevel"><label><span>its volume</span><input type="range" data-b="level" min="0" max="100" step="5"><output></output></label></div>
+      <button type="button" data-a="bfly">hear the butterfly</button>
       <b style="margin-top:4px">instrument</b>
       ${select('voice', 'instrument', Object.keys(VOICES), 'what plays the note (voice)')}
       ${select('layer', 'underneath', ['none', ...Object.keys(VOICES)], 'a second instrument blended under the first, for body (layer)')}
@@ -177,6 +184,8 @@ export function mountSoundPanel() {
     el.querySelector('[data-s=scale]').value = L.scale
     el.querySelector('[data-s=register]').value = L.register
     el.querySelector('[data-s=notesPerTrigger]').value = String(L.notesPerTrigger)
+    el.querySelector('[data-s=bflyStyle]').value = SOUND.butterfly.style
+    const bl = el.querySelector('[data-b=level]'); bl.value = Math.round(SOUND.butterfly.level * 100); bl.nextElementSibling.textContent = bl.value + '%'
     for (const { k, unit, from = (v) => v } of SLIDERS) {
       const input = el.querySelector(`[data-k=${k}]`)
       input.value = from(GET[k]())
@@ -208,10 +217,12 @@ export function mountSoundPanel() {
   el.addEventListener('click', (e) => {
     const a = e.target.closest('[data-a]')?.dataset.a
     if (a === 'fold') { const hide = body.style.display !== 'none'; body.style.display = hide ? 'none' : 'grid'; e.target.textContent = hide ? 'show' : 'hide' }
+    if (a === 'bfly') playButterfly()
     if (a === 'copy') { navigator.clipboard?.writeText(JSON.stringify(exportSettings(), null, 2)); e.target.textContent = 'copied' }
     if (a === 'reset') { restore(fromConfig); try { localStorage.removeItem(KEY) } catch { /* private mode */ } sync() }
   })
   el.addEventListener('input', (e) => {
+    if (e.target.dataset.b === 'level') { SOUND.butterfly.level = +e.target.value / 100; save(); sync(); return }
     const k = e.target.dataset.k
     if (!k) return
     const { to = (v) => v } = sliderOf(k)
@@ -222,6 +233,7 @@ export function mountSoundPanel() {
     const s = e.target.dataset.s
     if (!s) return
     const v = e.target.value, L = SOUND.ladder
+    if (s === 'bflyStyle') { SOUND.butterfly.style = v; save(); sync(); playButterfly(); return }
     if (s === 'voice') SOUND.voices.main = { folder: VOICES[v], level: 1 }
     if (s === 'layer') SOUND.voices.layer = v === 'none' ? null : { folder: VOICES[v], level: layerLevel }
     if (s === 'key' || s === 'scale' || s === 'register') L[s] = v

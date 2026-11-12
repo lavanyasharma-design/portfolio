@@ -23,7 +23,8 @@ export const SOUND = {
   },
 
   // One note per press: G major pentatonic, middle register. A second entry in a list would play
-  // as an answering note (pair.gapMs later, at pair.secondLevel); linkedin covers X too.
+  // as an answering note (pair.gapMs later, at pair.secondLevel). X got its own note on 12 Nov
+  // (it shared LinkedIn's before), which moved resume and centrepiece up one.
   // Where sound lives (decided 12 Nov 2026): [work] [about] [play], email, LinkedIn, X, the nav bar
   // on every page, and a "next" button at the end of a case study. Nothing else (the about and
   // play pages' own content stay silent). logo, letsTalk, resume and centrepiece are spare.
@@ -36,8 +37,25 @@ export const SOUND = {
     letsTalk:      ['G5'],
     email:         ['A5'],
     linkedin:      ['B5'],
-    resume:        ['D6'],
-    centrepiece:   ['E6'],
+    x:             ['D6'],
+    resume:        ['E6'],
+    centrepiece:   ['G6'],
+  },
+
+  // The butterfly's own sound, deliberately unlike the buttons' harp and used nowhere else.
+  // Plays on click or tap (it still twitches on hover). Pick a style with ?sound.
+  //   flutter: a quick, quiet run of high harp notes, like wings
+  //   glass:   a soft synthesised glow (root, fifth and octave) with a slight waver
+  //   chime:   a bell-like ting and a softer echo, synthesised
+  butterfly: {
+    style: 'glass',
+    level: 0.6,
+    retriggerMs: 450,
+    styles: {
+      flutter: { kind: 'samples', notes: ['B5', 'D6', 'E6', 'G6'], spacingMs: 45, level: 0.45 },
+      glass:   { kind: 'synth', base: 'G5', partials: [[1, 1], [1.5, 0.55], [2, 0.3]], attackMs: 60, seconds: 1.8, vibratoCents: 5, glideCents: 14, strikes: [[0, 1]] },
+      chime:   { kind: 'synth', base: 'B5', partials: [[1, 1], [2, 0.45], [2.76, 0.3], [5.4, 0.12]], attackMs: 2, seconds: 2.4, vibratoCents: 0, glideCents: 0, strikes: [[0, 1], [130, 0.4]] },
+    },
   },
 
   // only used when a motif has a second note

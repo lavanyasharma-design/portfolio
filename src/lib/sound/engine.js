@@ -171,6 +171,56 @@ function note(midi, when, level) {
   if (layer) voice(layer.folder, midi, 0.9 * level * layer.level, when);
 }
 
+/* ---------- the butterfly's own sound ---------- */
+
+// One synthesised tone (no samples): sine partials over a base pitch, each fading on its own clock
+// (higher partials die sooner, like a struck bell), with an optional slow waver and upward glide.
+function synth(baseMidi, when, level, s) {
+  const base = 440 * Math.pow(2, (baseMidi - 69) / 12);
+  const g = ctx.createGain();
+  g.connect(input);
+  let lfo = null;
+  if (s.vibratoCents) {
+    lfo = ctx.createOscillator(); lfo.frequency.value = 5.5;
+    lfo.start(when); lfo.stop(when + s.seconds + 0.3);
+  }
+  for (const [ratio, gain] of s.partials) {
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(base * ratio, when);
+    if (s.glideCents) {
+      osc.detune.setValueAtTime(-s.glideCents, when);
+      osc.detune.linearRampToValueAtTime(0, when + 0.35);
+    }
+    if (lfo) { const depth = ctx.createGain(); depth.gain.value = s.vibratoCents; lfo.connect(depth); depth.connect(osc.detune); }
+    const env = ctx.createGain();
+    const peak = level * gain * 0.22;
+    const fade = s.seconds / (1 + (ratio - 1) * 0.6);
+    env.gain.setValueAtTime(0, when);
+    env.gain.linearRampToValueAtTime(peak, when + s.attackMs / 1000);
+    env.gain.setTargetAtTime(0, when + s.attackMs / 1000, fade / 4);
+    osc.connect(env); env.connect(g);
+    osc.start(when); osc.stop(when + s.seconds + 0.3);
+  }
+  setTimeout(() => g.disconnect(), (s.seconds + 0.6) * 1000);
+}
+
+// Plays SOUND.butterfly in its chosen style. Same rules as playMotif: false if silent.
+export function playButterfly() {
+  if (!ctx || muted || !ready || ctx.state !== 'running') return false;
+  const B = SOUND.butterfly, s = B.styles[B.style];
+  const now = performance.now();
+  if (now - (lastFired.butterfly || 0) < B.retriggerMs) return false;
+  lastFired.butterfly = now;
+  const t = ctx.currentTime;
+  if (s.kind === 'samples') {
+    s.notes.forEach((n, i) => voice(SOUND.voices.main.folder, toMidi(n), B.level * s.level * (1 - i * 0.12), t + (i * s.spacingMs) / 1000));
+  } else {
+    for (const [delayMs, lvl] of s.strikes) synth(toMidi(s.base), t + delayMs / 1000, B.level * lvl, s);
+  }
+  return true;
+}
+
 /* ---------- public API ---------- */
 
 // Call from the first real gesture (the loader drag). Safe to call repeatedly.

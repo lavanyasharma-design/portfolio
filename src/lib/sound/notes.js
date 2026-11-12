@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react'
-import { playMotif, unlockSound, isMuted } from './engine'
+import { playMotif, playButterfly, unlockSound, isMuted } from './engine'
 import { SOUND } from './config'
 
 // Plays a motif and counts its notes for the footer's "notes played": a motif adds as many notes
@@ -15,6 +15,13 @@ export function play(name) {
   // happened is a gesture, so wake the context with it and play once it is running
   if (!isMuted()) unlockSound().then(() => { if (playMotif(name)) bump(name) })
   return false
+}
+
+// The butterfly's own sound; it counts as one note however many it is made of
+export function playButterflySound() {
+  const done = () => { count += 1; listeners.forEach((fn) => fn()) }
+  if (playButterfly()) { done(); return }
+  if (!isMuted()) unlockSound().then(() => { if (playButterfly()) done() })
 }
 
 // Props for any link or button that should play a motif when pressed: the note sounds on the press

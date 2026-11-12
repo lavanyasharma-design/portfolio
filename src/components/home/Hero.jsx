@@ -3,7 +3,7 @@ import './Hero.css'
 import MotifField from '../motif/MotifField'
 import Butterfly from './Butterfly'
 import SectionLink from './SectionLink'
-import { useNotesPlayed, pressSound } from '../../lib/sound/notes'
+import { useNotesPlayed, pressSound, playButterflySound } from '../../lib/sound/notes'
 import { mountSoundPanel } from '../../lib/sound/soundPanel'
 import { SOON } from '../../site'
 
@@ -34,7 +34,7 @@ function Hero({ revealed, heroRef, bflyRef }) {
         <a href="mailto:hi@lavanyaaa.com" data-no-motif="" {...pressSound('email')}>hi@lavanyaaa.com</a>
         <nav className="social" aria-label="Social" data-no-motif="">
           <a href="https://www.linkedin.com/in/lavanyaaasharmaaa/" target="_blank" rel="noopener noreferrer" {...pressSound('linkedin')}>LinkedIn</a>
-          <a href="https://x.com/lavanyaaasharma" target="_blank" rel="noopener noreferrer" {...pressSound('linkedin')}>X</a>
+          <a href="https://x.com/lavanyaaasharma" target="_blank" rel="noopener noreferrer" {...pressSound('x')}>X</a>
         </nav>
       </header>}
 
@@ -48,7 +48,7 @@ function Hero({ revealed, heroRef, bflyRef }) {
         <section ref={heroRef} className="hero">
           <p className="hi sans rise" data-no-motif="" style={{ animationDelay: '.1s' }}>Hello, I’m Lavanya</p>
           <h1 className="serif rise" style={{ animationDelay: '.2s' }}><span className="l1" data-no-motif="">Product</span> <span className="l2" data-no-motif="">Designer</span></h1>
-          <Bfly bflyRef={bflyRef} />
+          <Bfly bflyRef={bflyRef} onPress={playButterflySound} />
           <p className="tag sans rise" data-no-motif="" style={{ animationDelay: '.3s' }}>systems thinker, backend literate &amp; stubborn about clarity</p>
         </section>
         <nav className="links sans rise" style={{ animationDelay: '.45s' }} aria-label="Sections">
