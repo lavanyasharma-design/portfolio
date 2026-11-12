@@ -13,9 +13,10 @@
 .bfly .wing img{filter:brightness(1) saturate(1);will-change:filter}
 .bfly .wing.l{clip-path:inset(0 calc(50% - 1px) 0 0)}
 .bfly .wing.r{clip-path:inset(0 0 0 calc(50% - 1px))}
-/* same crop Figma applies to the image fill; the shimmer is masked to exactly that crop */
+/* same crop Figma applies to the image fill (the page can set its own, e.g. the mobile logo's);
+   the shimmer is masked to exactly that crop */
 .bfly .wing img,
-.bfly .wing .holo{position:absolute;left:-35.55%;top:-10.42%;width:171.1%;height:121.5%;max-width:none;user-select:none}
+.bfly .wing .holo{position:absolute;left:var(--crop-l,-35.55%);top:var(--crop-t,-10.42%);width:var(--crop-w,171.1%);height:var(--crop-h,121.5%);max-width:none;user-select:none}
 
 /* the holographic glow: soft pale purples with a breath of blue and pink, the way foil catches
    light, only where the butterfly is opaque. "screen" lifts the colours towards light rather than

@@ -54,11 +54,13 @@ public/motif.svg                   tiled page background
 
 ## Hero (single screen)
 
-- Built to the Figma frame at 1512x982. `--u` is one design pixel and only shrinks when the 521px hero block no longer fits (`min(1px, (100vw - 32px)/521)`).
-- Copy: "Hi, I'm Lavanya" / "Product Designer" / "systems thinker, backend literate & stubborn about clarity".
-- Top bar: `hi@lavanyaaa.com` (mailto), LinkedIn, X. Section links: `[work]` #551999, `[about]` #46b2d7, `[play]` #e821ba.
-- Footer: chandigarh → bengaluru · v1.0.0 · 0 notes played · colophon.
+- Desktop is Figma 90:13 (1512x982); at 600px and below it switches to the mobile frame 21:2 (402x874), its own layout (tagline wraps centred, nav spans the body), not the desktop shrunk. `--u` is one design pixel: `min(1px, (100vw - 32px)/484)` on desktop, `min(1px, 100vw/402)` on phones. Rows are `1fr auto 1fr` so the body sits on the screen's centre, as in both frames.
+- Copy: "Hello, I'm Lavanya" / "Product Designer" / "systems thinker, backend literate & stubborn about clarity".
+- Top bar: `hi@lavanyaaa.com` (mailto), LinkedIn, X. Section links (`SectionLink`): `[work]` #6729ae, `[about]` #46b2d7, `[play]` #ff33d0, the Figma colour variables.
+- Section links: on click or tap (never hover) the brackets ease out and back (`BRACKETS`) and the section's sound motif plays. `[work]` then opens `/work`; about and play stay put until their "soon" state is designed.
+- Footer: Chandigarh → Bengaluru · v1.0.0 · N notes played · Colophon, in #616161. The counter is live (`src/lib/sound/notes.js`, +2 per motif played).
 - Blocks rise in (opacity, 14px, 4px blur) on reveal, staggered 0 to 0.55s.
+- Routing is `src/router.js` (pushState, no library), so moving between pages keeps the AudioContext and returning home skips the intro. On lavanyaaa.com every path shows Coming Soon.
 
 ## Coming soon (lavanyaaa.com)
 
@@ -79,7 +81,7 @@ public/motif.svg                   tiled page background
 ## Sound
 
 - The piano and music interaction is **staying** (decided 5 Oct 2026). "0 notes played" in the footer counts it.
-- Source: Lavanya's own sound package (handoff in `public/sound tryout/SOUND.md`, not yet moved into `src/` and `public/`). Each hover or tap plays a two-note motif: folk harp with grand piano under it, D major pentatonic, soft reverb. Plain Web Audio engine (`engine.js`), settings in `config.js`.
+- Source: Lavanya's own sound package (handoff in `public/sound tryout/SOUND.md`), now in `src/lib/sound/` and `public/sounds/`. Wired to the home section links only (click/tap, not hover); `armUnlockOnFirstGesture` runs in App, never on the Coming Soon face. Each hover or tap plays a two-note motif: folk harp with grand piano under it, D major pentatonic, soft reverb. Plain Web Audio engine (`engine.js`), settings in `config.js`.
 - No Tone.js, Howler or other audio library. One `AudioContext`, owned by the engine. Change sounds in `config.js` only.
 - Browsers block audio until the visitor clicks, taps or presses a key. Dragging the window open, "skip" and Enter all count; scrolling in does not. Audio (~660 KB) loads after that first gesture, never blocking first paint.
 - Decided: "0 notes played" counts every note (+2 per motif). The mute control goes in the footer next to the counter ("sound on / off"), in the footer's Cormorant style. Not wired in yet.

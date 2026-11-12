@@ -3,10 +3,16 @@ import WindowIntro from '../components/intro/WindowIntro'
 import Hero from '../components/home/Hero'
 import { SOON } from '../site'
 
+// the window intro plays once per visit: coming back from another page lands straight on the hero
+let introDone = false
+
 function Home() {
   const heroRef = useRef(null)
   const bflyRef = useRef(null)
-  const [revealed, setRevealed] = useState(false)
+  const [skipIntro] = useState(introDone)
+  const [revealed, setRevealed] = useState(introDone)
+
+  useEffect(() => { if (revealed) introDone = true }, [revealed])
 
   // the page doesn't scroll until the intro has let you through; the coming soon screen never does
   // (one screen, nothing below it, and a still page lets a finger sweep the motif)
@@ -17,7 +23,7 @@ function Home() {
 
   return (
     <>
-      <WindowIntro heroRef={heroRef} heroBflyRef={bflyRef} onReveal={() => setRevealed(true)} />
+      {!skipIntro && <WindowIntro heroRef={heroRef} heroBflyRef={bflyRef} onReveal={() => setRevealed(true)} />}
       <Hero revealed={revealed} heroRef={heroRef} bflyRef={bflyRef} />
     </>
   )
