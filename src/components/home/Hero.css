@@ -83,9 +83,12 @@ html:has(.site.soon),html:has(.site.soon) body{overscroll-behavior:none}
 /* its own layout, not the desktop one shrunk: the tagline wraps and centres, the nav spans the body.
    1 design px here is 1/402 of the screen (capped at 1px), so narrower phones keep the proportions */
 @media (max-width:600px){
-  .site:not(.soon){--u:min(1px, 100vw/402)}
+  /* --top-pad / --foot-pad: gaps above the top bar and below the footer, in design px.
+     Figma's 56 / 32 leave room for the phone's status bar and home indicator, which a browser
+     already keeps outside the page, so they're pulled in. Chosen by eye on a phone (?tune=mobile) */
+  .site:not(.soon){--u:min(1px, 100vw/402);--top-pad:20;--foot-pad:26}
   /* Mobile/caption 2 */
-  .site:not(.soon) .top{padding:calc(56*var(--u)) calc(20*var(--u)) 0;font-size:calc(16*var(--u));letter-spacing:.01em}
+  .site:not(.soon) .top{padding:calc(var(--top-pad)*var(--u)) calc(20*var(--u)) 0;font-size:calc(16*var(--u));letter-spacing:.01em}
   .site:not(.soon) .center{gap:calc(80*var(--u))}
   /* centre piece 268 x 201: intro (hi 21 + headline 126), 12, tagline (2 lines, 42) */
   .site:not(.soon) .hero{width:calc(268*var(--u));height:calc(201*var(--u))}
@@ -101,9 +104,16 @@ html:has(.site.soon),html:has(.site.soon) body{overscroll-behavior:none}
   }
   /* Mobile/Button: the three spread across the body's width */
   .site:not(.soon) .links{width:calc(268*var(--u));justify-content:space-between;gap:0;font-size:calc(18*var(--u));font-weight:500}
-  /* Mobile/h7 */
-  .site:not(.soon) .foot{gap:calc(5*var(--u));padding:0 calc(20*var(--u)) calc(32*var(--u));font-size:calc(14*var(--u));letter-spacing:.01em}
+  /* Mobile/h7 but 12 rather than 14, so a two-digit "notes played" keeps Colophon on the line */
+  .site:not(.soon) .foot{gap:calc(5*var(--u));padding:0 calc(20*var(--u)) calc(var(--foot-pad)*var(--u));font-size:calc(12*var(--u));letter-spacing:.01em}
   .site:not(.soon) .foot img{width:calc(4*var(--u));height:calc(4*var(--u))}
+}
+/* phones upright: exactly one screen that never moves, like the coming soon face, so a finger
+   sweeping across it drives the motif instead of scrolling the page. Only when everything fits
+   (top bar + body + footer is ~500 design px); a phone on its side still scrolls */
+@media (max-width:600px) and (min-height:540px){
+  html:has(.site.in:not(.soon)),html:has(.site.in:not(.soon)) body{overscroll-behavior:none}
+  .site:not(.soon){height:100vh;height:100svh;min-height:0;overflow:hidden;touch-action:none}
 }
 
 .rise{opacity:0;transform:translateY(14px);filter:blur(4px)}

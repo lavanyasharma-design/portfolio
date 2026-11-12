@@ -55,6 +55,7 @@ public/motif.svg                   tiled page background
 ## Hero (single screen)
 
 - Desktop is Figma 90:13 (1512x982); at 600px and below it switches to the mobile frame 21:2 (402x874), its own layout (tagline wraps centred, nav spans the body), not the desktop shrunk. `--u` is one design pixel: `min(1px, (100vw - 32px)/484)` on desktop, `min(1px, 100vw/402)` on phones. Rows are `1fr auto 1fr` so the body sits on the screen's centre, as in both frames.
+- Phones differ from the mobile frame on purpose (Lavanya, 2026-11-12): top gap `--top-pad` 20 and bottom gap `--foot-pad` 26 instead of Figma's 56 / 32 (those left room for the status bar and home indicator), footer at 12px instead of 14 so it stays on one line, and an upright phone gets one screen that never scrolls (`touch-action:none`) so a finger sweep drives the motif. `?spacing` shows sliders for the two gaps.
 - Copy: "Hello, I'm Lavanya" / "Product Designer" / "systems thinker, backend literate & stubborn about clarity".
 - Top bar: `hi@lavanyaaa.com` (mailto), LinkedIn, X. Section links (`SectionLink`): `[work]` #6729ae, `[about]` #46b2d7, `[play]` #ff33d0, the Figma colour variables.
 - Section links: on click or tap (never hover) the brackets ease out and back (`BRACKETS`) and the section's sound motif plays. `[work]` then opens `/work`; about and play stay put until their "soon" state is designed.

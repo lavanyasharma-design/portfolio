@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import './Hero.css'
 import MotifField from '../motif/MotifField'
 import Butterfly from './Butterfly'
@@ -16,8 +17,14 @@ const Bfly = Butterfly
  */
 function Hero({ revealed, heroRef, bflyRef }) {
   const notes = useNotesPlayed()
+  const siteRef = useRef(null)
+  useEffect(() => {
+    if (SOON || !new URLSearchParams(location.search).has('spacing')) return
+    const panel = mountSpacingPanel(siteRef.current)
+    return () => panel.remove()
+  }, [])
   return (
-    <main className={`site${revealed ? ' in' : ''}${SOON ? ' soon' : ''}`}>
+    <main ref={siteRef} className={`site${revealed ? ' in' : ''}${SOON ? ' soon' : ''}`}>
       <MotifField />
       {!SOON && <header className="top serif rise">
         <a href="mailto:hi@lavanyaaa.com">hi@lavanyaaa.com</a>
@@ -53,6 +60,28 @@ function Hero({ revealed, heroRef, bflyRef }) {
       </footer>}
     </main>
   )
+}
+
+/* ?spacing: on a phone, slide the gap above the top bar and below the footer (design px) */
+function mountSpacingPanel(site) {
+  const css = getComputedStyle(site)
+  const read = (k, fallback) => parseFloat(css.getPropertyValue(k)) || fallback
+  const vals = { '--top-pad': read('--top-pad', 20), '--foot-pad': read('--foot-pad', 26) }
+  const el = document.createElement('div')
+  el.className = 'tune-panel'
+  el.style.cssText = 'top:56px;left:12px;right:12px;width:auto'
+  const slider = (k, label) =>
+    `<label><span>${label}</span><input type="range" data-k="${k}" min="0" max="60" step="1" value="${vals[k]}"><output>${vals[k]}px</output></label>`
+  el.innerHTML = `<b>phone spacing</b>${slider('--top-pad', 'top gap')}${slider('--foot-pad', 'bottom gap')}`
+  el.addEventListener('input', (e) => {
+    const k = e.target.dataset.k
+    site.style.setProperty(k, e.target.value)
+    e.target.nextElementSibling.textContent = e.target.value + 'px'
+  })
+  // the page swallows touches for the motif; let the panel's sliders have theirs
+  el.style.touchAction = 'auto'
+  document.body.append(el)
+  return el
 }
 
 export default Hero
