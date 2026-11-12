@@ -23,7 +23,7 @@ const MOTIFS = [
 ]
 const VOICES = { 'grand piano': 'grand-piano', 'folk harp': 'folk-harp' }
 const voiceName = (folder) => Object.keys(VOICES).find((k) => VOICES[k] === folder) ?? null
-const KEY = 'sound-panel-v1'
+const KEY = 'sound-panel-v2'   // bumped when config.js changes, so old tuning doesn't hide it
 
 const midiName = (m) => NAMES[m % 12] + (Math.floor(m / 12) - 1)
 const toMidi = (n) => NAMES.indexOf(n.slice(0, -1)) + 12 * (Number(n.slice(-1)) + 1)
@@ -61,24 +61,39 @@ function exportSettings() {
   }
 }
 
-// every control: [path, label, min, max, step, unit, toSound, fromSound]
-const pct = [(v) => v / 100, (v) => Math.round(v * 100)]
+// every slider, named in plain words with a one-line hint (the bench's name is in brackets)
+const pct = { to: (v) => v / 100, from: (v) => Math.round(v * 100) }
 const SLIDERS = [
-  ['layerLevel', 'layer level', 0, 100, 5, '%', ...pct],
-  ['gapMs', '2nd note gap', 0, 500, 10, 'ms'],
-  ['secondLevel', '2nd note level', 0, 100, 5, '%', ...pct],
-  ['lowpassHz', 'brightness', 800, 12000, 100, 'Hz'],
-  ['shelfHz', 'warmth at', 60, 400, 10, 'Hz'],
-  ['shelfDb', 'warmth', 0, 12, 0.5, 'dB'],
-  ['wet', 'reverb', 0, 80, 1, '%', ...pct],
-  ['seconds', 'reverb length', 0.5, 5, 0.1, 's'],
-  ['ringSeconds', 'ring', 0.4, 4, 0.1, 's'],
-  ['attackMs', 'attack', 0, 60, 1, 'ms'],
-  ['outputDb', 'volume', -18, 3, 0.5, 'dB'],
-  ['threshold', 'comp threshold', -40, 0, 1, 'dB'],
-  ['ratio', 'comp ratio', 1, 12, 0.5, ':1'],
-  ['knee', 'comp knee', 0, 30, 1, 'dB'],
-  ['humanise', 'humanise', 0, 100, 1, '%', ...pct],
+  { k: 'layerLevel', label: 'its volume', min: 0, max: 100, step: 5, unit: '%', ...pct,
+    hint: 'how loud the second instrument is under the first (layer level)' },
+  { k: 'gapMs', label: 'pause', min: 0, max: 500, step: 10, unit: 'ms',
+    hint: 'wait before the second note (gap)' },
+  { k: 'secondLevel', label: '2nd note volume', min: 0, max: 100, step: 5, unit: '%', ...pct,
+    hint: 'the answering note; quieter feels like an echo (second note level)' },
+  { k: 'lowpassHz', label: 'brightness', min: 800, max: 12000, step: 100, unit: 'Hz',
+    hint: 'low: soft and muffled, like through a wall. High: crisp and sparkly (lowpass)' },
+  { k: 'shelfDb', label: 'warmth', min: 0, max: 12, step: 0.5, unit: 'dB',
+    hint: 'adds body to the bottom of the sound. Too much gets boomy (low shelf dB)' },
+  { k: 'shelfHz', label: 'warmth depth', min: 60, max: 400, step: 10, unit: 'Hz',
+    hint: 'how deep the warmth reaches: low is a felt rumble, high is a fuller middle (low shelf Hz)' },
+  { k: 'wet', label: 'room echo', min: 0, max: 80, step: 1, unit: '%', ...pct,
+    hint: '0: played right next to you. Higher: in a hall (reverb wet)' },
+  { k: 'seconds', label: 'room size', min: 0.5, max: 5, step: 0.1, unit: 's',
+    hint: 'how long the echo hangs: small room to cathedral (reverb length)' },
+  { k: 'ringSeconds', label: 'note length', min: 0.4, max: 4, step: 0.1, unit: 's',
+    hint: 'how long each note keeps sounding before it fades (ring)' },
+  { k: 'attackMs', label: 'soft start', min: 0, max: 60, step: 1, unit: 'ms',
+    hint: '0: a crisp pluck. Higher: the note swells in gently (attack)' },
+  { k: 'outputDb', label: 'volume', min: -18, max: 3, step: 0.5, unit: 'dB',
+    hint: 'overall loudness. Every 6 down is about half as loud (output)' },
+  { k: 'humanise', label: 'human touch', min: 0, max: 100, step: 1, unit: '%', ...pct,
+    hint: 'tiny random changes in pitch and loudness, so repeats never sound robotic (humanise)' },
+  { k: 'threshold', label: 'evening out', min: -40, max: 0, step: 1, unit: 'dB', group: 'advanced',
+    hint: 'stops loud notes jumping out. Lower evens more (compressor threshold)' },
+  { k: 'ratio', label: 'evening strength', min: 1, max: 12, step: 0.5, unit: ':1', group: 'advanced',
+    hint: 'how hard loud bits get pulled back (compressor ratio)' },
+  { k: 'knee', label: 'evening softness', min: 0, max: 30, step: 1, unit: 'dB', group: 'advanced',
+    hint: 'how gently that kicks in (compressor knee)' },
 ]
 const T = () => SOUND.tone
 const GET = {
@@ -117,21 +132,34 @@ export function mountSoundPanel() {
   el.dataset.noMotif = ''
   el.style.cssText = 'top:auto;bottom:12px;left:12px;right:auto;width:min(320px, calc(100vw - 24px));max-height:min(70vh, 640px);overflow:auto;touch-action:auto;overscroll-behavior:contain'
 
-  const select = (k, label, options) =>
-    `<label><span>${label}</span><select data-s="${k}" style="grid-column:2 / span 2">${options.map((o) => `<option>${o}</option>`).join('')}</select></label>`
+  const hint = (t) => `<small style="display:block;margin:-2px 0 4px;color:#616161;line-height:1.35">${t}</small>`
+  const select = (k, label, options, h) =>
+    `<div data-row="${k}"><label><span>${label}</span><select data-s="${k}" style="grid-column:2 / span 2">${options.map((o) => `<option value="${o.value ?? o}">${o.label ?? o}</option>`).join('')}</select></label>${hint(h)}</div>`
+  const slider = ({ k, label, min, max, step, hint: h }) =>
+    `<div data-row="${k}"><label><span>${label}</span><input type="range" data-k="${k}" min="${min}" max="${max}" step="${step}"><output></output></label>${hint(h)}</div>`
   el.innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center"><b>sound</b><button type="button" data-a="fold">hide</button></div>
     <div class="sp-body" style="display:grid;gap:6px">
       <div class="sp-notes" style="display:flex;flex-wrap:wrap;gap:4px"></div>
       <small class="sp-shift" style="color:#616161"></small>
-      ${select('voice', 'voice', Object.keys(VOICES))}
-      ${select('layer', 'layer', ['none', ...Object.keys(VOICES)])}
-      ${select('key', 'key', NAMES)}
-      ${select('scale', 'scale', Object.keys(SCALES))}
-      ${select('register', 'register', Object.keys(REGISTER))}
-      ${select('notesPerTrigger', 'notes per press', ['1', '2'])}
-      ${SLIDERS.map(([k, label, min, max, step]) =>
-        `<label data-row="${k}"><span>${label}</span><input type="range" data-k="${k}" min="${min}" max="${max}" step="${step}"><output></output></label>`).join('')}
+      <b style="margin-top:4px">instrument</b>
+      ${select('voice', 'instrument', Object.keys(VOICES), 'what plays the note (voice)')}
+      ${select('layer', 'underneath', ['none', ...Object.keys(VOICES)], 'a second instrument blended under the first, for body (layer)')}
+      ${slider(SLIDERS[0])}
+      <b style="margin-top:4px">notes</b>
+      ${select('key', 'starting note', NAMES, 'moves every note up or down together. Shifts the mood a little, never the tune (key)')}
+      ${select('scale', 'note family', [
+        { value: 'majpent', label: 'bright, never clashes' }, { value: 'minpent', label: 'wistful, never clashes' },
+        { value: 'major', label: 'bright, full' }, { value: 'minor', label: 'moody, full' }],
+        'which notes the buttons use. "Never clashes" sounds good in any order, even pressed fast (scale)')}
+      ${select('register', 'pitch', ['low', 'middle', 'high'], 'deeper or higher overall (register)')}
+      ${select('notesPerTrigger', 'notes per press', ['1', '2'], '2 adds a softer answering note after the first')}
+      ${slider(SLIDERS[1])}${slider(SLIDERS[2])}
+      <b style="margin-top:4px">tone</b>
+      ${SLIDERS.slice(3).filter((x) => !x.group).map(slider).join('')}
+      <details><summary style="cursor:pointer">advanced: evening out (fine to leave)</summary>
+        ${SLIDERS.filter((x) => x.group).map(slider).join('')}
+      </details>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
         <button type="button" class="play" data-a="copy">copy settings</button>
         <button type="button" data-a="reset">reset to config</button>
@@ -139,7 +167,7 @@ export function mountSoundPanel() {
     </div>`
 
   const body = el.querySelector('.sp-body')
-  const sliderOf = (k) => SLIDERS.find((s) => s[0] === k)
+  const sliderOf = (k) => SLIDERS.find((x) => x.k === k)
 
   const sync = () => {
     const L = SOUND.ladder
@@ -149,7 +177,7 @@ export function mountSoundPanel() {
     el.querySelector('[data-s=scale]').value = L.scale
     el.querySelector('[data-s=register]').value = L.register
     el.querySelector('[data-s=notesPerTrigger]').value = String(L.notesPerTrigger)
-    for (const [k, , , , , unit, , from = (v) => v] of SLIDERS) {
+    for (const { k, unit, from = (v) => v } of SLIDERS) {
       const input = el.querySelector(`[data-k=${k}]`)
       input.value = from(GET[k]())
       input.nextElementSibling.textContent = input.value + unit
@@ -168,9 +196,9 @@ export function mountSoundPanel() {
         if (by > worst.by) worst = { by, note: `${n} on ${voiceName(v.folder)}` }
       }
     }
-    el.querySelector('.sp-shift').textContent = worst.by > 1
-      ? `furthest stretch: ${worst.by} semitones (${worst.note}); more than 2 can sound dull`
-      : 'every note is within a semitone of a real sample'
+    el.querySelector('.sp-shift').textContent = worst.by > 2
+      ? `heads up: ${worst.note} is stretched ${worst.by} steps from a real recording; past 2 it can sound dull or wobbly`
+      : 'every note is close to a real recording, so all sound natural'
   }
 
   el.addEventListener('pointerdown', (e) => {
@@ -186,7 +214,7 @@ export function mountSoundPanel() {
   el.addEventListener('input', (e) => {
     const k = e.target.dataset.k
     if (!k) return
-    const [, , , , , , to = (v) => v] = sliderOf(k)
+    const { to = (v) => v } = sliderOf(k)
     SET[k](to(+e.target.value))
     retune(); save(); sync()
   })
