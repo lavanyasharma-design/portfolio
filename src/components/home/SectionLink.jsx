@@ -50,7 +50,8 @@ function SectionLink({ name, to }) {
   const label = <>
     <span ref={left} className="br" aria-hidden="true">[</span>{name}<span ref={right} className="br" aria-hidden="true">]</span>
   </>
-  const props = { className: `sec ${name}`, onPointerDown, onClick }
+  // data-no-motif: the background's hover stays off over the button, just the pointer cursor
+  const props = { className: `sec ${name}`, onPointerDown, onClick, 'data-no-motif': '' }
 
   return to
     ? <a href={to} {...props}>{label}</a>

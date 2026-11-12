@@ -28,7 +28,10 @@
 .hero > *{position:absolute;margin:0;white-space:nowrap}
 .hero .hi{left:0;top:0;font-size:calc(20*var(--u))}                  /* Desktop/H6 */
 .hero h1{inset:0;font-size:calc(108*var(--u));font-weight:600}        /* Desktop/H1 */
-.hero h1 span{position:absolute}
+/* the h1 box spans the whole centre piece; only its words take the pointer, so "Hello" under it
+   and the empty corners behave as their own */
+.hero h1{pointer-events:none}
+.hero h1 span{position:absolute;pointer-events:auto}
 .hero h1 .l1{left:0;top:calc(20.5*var(--u))}
 .hero h1 .l2{left:calc(93*var(--u));top:calc(102*var(--u))}
 .hero .tag{left:0;top:calc(245*var(--u));font-size:calc(18*var(--u))}  /* Desktop/Body */
@@ -76,7 +79,8 @@ html:has(.site.soon),html:has(.site.soon) body{overscroll-behavior:none}
 .links .sec:focus-visible{outline:1px solid currentColor;outline-offset:2px;border-radius:2px}
 
 /* Desktop/Caption 2 */
-.foot{align-self:end;display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:0 36px 30px;font-size:16px;color:var(--black-highlight)}
+.foot{align-self:end;display:flex;padding:0 36px 30px;font-size:16px;color:var(--black-highlight)}
+.foot-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 .foot img{display:block;width:5px;height:5px}
 
 /* ---------- phones: Figma "home page - mobile" (21:2), drawn at 402 wide ---------- */
@@ -106,7 +110,8 @@ html:has(.site.soon),html:has(.site.soon) body{overscroll-behavior:none}
   .site:not(.soon) .links{width:calc(268*var(--u));justify-content:space-between;gap:0;font-size:calc(18*var(--u));font-weight:500}
   /* Mobile/h7 without its 1% letter spacing, items 4 apart rather than 5 (Lavanya, 2026-11-12),
      so a longer "notes played" count keeps Colophon on the line */
-  .site:not(.soon) .foot{gap:calc(4*var(--u));padding:0 calc(20*var(--u)) calc(var(--foot-pad)*var(--u));font-size:calc(14*var(--u))}
+  .site:not(.soon) .foot-row{gap:calc(4*var(--u))}
+  .site:not(.soon) .foot{padding:0 calc(20*var(--u)) calc(var(--foot-pad)*var(--u));font-size:calc(14*var(--u))}
   .site:not(.soon) .foot img{width:calc(4*var(--u));height:calc(4*var(--u))}
 }
 /* phones upright: exactly one screen that never moves, like the coming soon face, so a finger

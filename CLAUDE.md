@@ -57,7 +57,7 @@ public/motif.svg                   tiled page background
 - Desktop is Figma 90:13 (1512x982); at 600px and below it switches to the mobile frame 21:2 (402x874), its own layout (tagline wraps centred, nav spans the body), not the desktop shrunk. `--u` is one design pixel: `min(1px, (100vw - 32px)/484)` on desktop, `min(1px, 100vw/402)` on phones. Rows are `1fr auto 1fr` so the body sits on the screen's centre, as in both frames.
 - Phones differ from the mobile frame on purpose (Lavanya, 2026-11-12): top gap `--top-pad` 20 and bottom gap `--foot-pad` 20 instead of Figma's 56 / 32 (those left room for the status bar and home indicator), footer (Mobile/h7, 14px SemiBold) with no letter spacing and items 4 apart instead of 5, so it stays on one line up to 999 notes played, and an upright phone gets one screen that never scrolls (`touch-action:none`) so a finger sweep drives the motif. `?spacing` shows sliders for the two gaps.
 - Copy: "Hello, I'm Lavanya" / "Product Designer" / "systems thinker, backend literate & stubborn about clarity".
-- Top bar: `hi@lavanyaaa.com` (mailto), LinkedIn, X. Section links (`SectionLink`): `[work]` #6729ae, `[about]` #46b2d7, `[play]` #ff33d0, the Figma colour variables.
+- Top bar: `hi@lavanyaaa.com` (mailto), LinkedIn (linkedin.com/in/lavanyaaasharmaaa), X (x.com/lavanyaaasharma), both in a new tab. Section links (`SectionLink`): `[work]` #6729ae, `[about]` #46b2d7, `[play]` #ff33d0, the Figma colour variables.
 - Section links: on click or tap (never hover) the brackets ease out and back (`BRACKETS`) and the section's sound motif plays. `[work]` then opens `/work`; about and play stay put until their "soon" state is designed.
 - Footer: Chandigarh → Bengaluru · v1.0.0 · N notes played · Colophon, in #616161. The counter is live (`src/lib/sound/notes.js`, +2 per motif played).
 - Blocks rise in (opacity, 14px, 4px blur) on reveal, staggered 0 to 0.55s.
@@ -72,7 +72,7 @@ public/motif.svg                   tiled page background
 
 - `MotifField` is a fixed canvas: near the pointer the background motif turns from #E8DBFF to the hover colour, as a soft blob with a wake (water-like). Reusable on any page whose host has the motif as its CSS background. Tunables in `motifConfig.js`; `?motif` shows a live panel.
 - The dark tile is rasterised at device pixel size with a thin same-colour outline (`weight`), because the motif's strokes are ~0.3px and read as dotted otherwise.
-- Elements marked `data-no-motif` (the butterfly) switch it off while hovered.
+- Elements marked `data-no-motif` switch it off while hovered. On the home page that is every bit of text (top bar links, hello, Product / Designer, tagline, section links, the footer row) and the butterfly; the empty space between them keeps the hover.
 
 ## Butterfly (`src/components/home/Butterfly`)
 
@@ -104,5 +104,5 @@ The pencil pass in `orbField.js` is adapted from Florian Berger's "notebook draw
 ## Open (to decide)
 
 - Pages beyond the home screen: case studies (Bolt, EMI Card, BBPS), About, Archive/play. Where `[work]`, `[about]`, `[play]` lead.
-- LinkedIn and X links are still `#`.
+- Instagram (her poems and photography) goes on the play page, not the top bar (decided 2026-11-12).
 - Sound: how the piano interaction plays, where it lives, and how it drives the "0 notes played" counter. See **Sound** above.

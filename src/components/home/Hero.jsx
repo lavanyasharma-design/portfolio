@@ -31,8 +31,11 @@ function Hero({ revealed, heroRef, bflyRef }) {
     <main ref={siteRef} className={`site${revealed ? ' in' : ''}${SOON ? ' soon' : ''}`}>
       <MotifField />
       {!SOON && <header className="top serif rise">
-        <a href="mailto:hi@lavanyaaa.com">hi@lavanyaaa.com</a>
-        <nav className="social" aria-label="Social"><a href="#">LinkedIn</a><a href="#">X</a></nav>
+        <a href="mailto:hi@lavanyaaa.com" data-no-motif="">hi@lavanyaaa.com</a>
+        <nav className="social" aria-label="Social" data-no-motif="">
+          <a href="https://www.linkedin.com/in/lavanyaaasharmaaa/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <a href="https://x.com/lavanyaaasharma" target="_blank" rel="noopener noreferrer">X</a>
+        </nav>
       </header>}
 
       <div className="center">
@@ -43,10 +46,10 @@ function Hero({ revealed, heroRef, bflyRef }) {
           </section>
         ) : <>
         <section ref={heroRef} className="hero">
-          <p className="hi sans rise" style={{ animationDelay: '.1s' }}>Hello, I’m Lavanya</p>
-          <h1 className="serif rise" style={{ animationDelay: '.2s' }}><span className="l1">Product</span> <span className="l2">Designer</span></h1>
+          <p className="hi sans rise" data-no-motif="" style={{ animationDelay: '.1s' }}>Hello, I’m Lavanya</p>
+          <h1 className="serif rise" style={{ animationDelay: '.2s' }}><span className="l1" data-no-motif="">Product</span> <span className="l2" data-no-motif="">Designer</span></h1>
           <Bfly bflyRef={bflyRef} />
-          <p className="tag sans rise" style={{ animationDelay: '.3s' }}>systems thinker, backend literate &amp; stubborn about clarity</p>
+          <p className="tag sans rise" data-no-motif="" style={{ animationDelay: '.3s' }}>systems thinker, backend literate &amp; stubborn about clarity</p>
         </section>
         <nav className="links sans rise" style={{ animationDelay: '.45s' }} aria-label="Sections">
           <SectionLink name="work" to="/work" />
@@ -57,10 +60,13 @@ function Hero({ revealed, heroRef, bflyRef }) {
       </div>
 
       {!SOON && <footer className="foot serif rise" style={{ animationDelay: '.55s' }}>
-        <span>Chandigarh → Bengaluru</span><Dot />
-        <span>v1.0.0</span><Dot />
-        <span>{notes} notes played</span><Dot />
-        <span>Colophon</span>
+        {/* the row hugs its text, so the motif stays off over the words and the gaps between them only */}
+        <div className="foot-row" data-no-motif="">
+          <span>Chandigarh → Bengaluru</span><Dot />
+          <span>v1.0.0</span><Dot />
+          <span>{notes} notes played</span><Dot />
+          <span>Colophon</span>
+        </div>
       </footer>}
     </main>
   )
