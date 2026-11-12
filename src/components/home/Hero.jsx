@@ -66,7 +66,7 @@ function Hero({ revealed, heroRef, bflyRef }) {
 function mountSpacingPanel(site) {
   const css = getComputedStyle(site)
   const read = (k, fallback) => parseFloat(css.getPropertyValue(k)) || fallback
-  const vals = { '--top-pad': read('--top-pad', 20), '--foot-pad': read('--foot-pad', 26) }
+  const vals = { '--top-pad': read('--top-pad', 20), '--foot-pad': read('--foot-pad', 20) }
   const el = document.createElement('div')
   el.className = 'tune-panel'
   el.style.cssText = 'top:56px;left:12px;right:12px;width:auto'

@@ -86,7 +86,7 @@ html:has(.site.soon),html:has(.site.soon) body{overscroll-behavior:none}
   /* --top-pad / --foot-pad: gaps above the top bar and below the footer, in design px.
      Figma's 56 / 32 leave room for the phone's status bar and home indicator, which a browser
      already keeps outside the page, so they're pulled in. Chosen by eye on a phone (?tune=mobile) */
-  .site:not(.soon){--u:min(1px, 100vw/402);--top-pad:20;--foot-pad:26}
+  .site:not(.soon){--u:min(1px, 100vw/402);--top-pad:20;--foot-pad:20}
   /* Mobile/caption 2 */
   .site:not(.soon) .top{padding:calc(var(--top-pad)*var(--u)) calc(20*var(--u)) 0;font-size:calc(16*var(--u));letter-spacing:.01em}
   .site:not(.soon) .center{gap:calc(80*var(--u))}
@@ -104,8 +104,8 @@ html:has(.site.soon),html:has(.site.soon) body{overscroll-behavior:none}
   }
   /* Mobile/Button: the three spread across the body's width */
   .site:not(.soon) .links{width:calc(268*var(--u));justify-content:space-between;gap:0;font-size:calc(18*var(--u));font-weight:500}
-  /* Mobile/h7 but 12 rather than 14, so a two-digit "notes played" keeps Colophon on the line */
-  .site:not(.soon) .foot{gap:calc(5*var(--u));padding:0 calc(20*var(--u)) calc(var(--foot-pad)*var(--u));font-size:calc(12*var(--u));letter-spacing:.01em}
+  /* Mobile/h7 at Regular rather than SemiBold: narrower, so a three-digit "notes played" keeps Colophon on the line */
+  .site:not(.soon) .foot{gap:calc(5*var(--u));padding:0 calc(20*var(--u)) calc(var(--foot-pad)*var(--u));font-size:calc(14*var(--u));font-weight:400;letter-spacing:.01em}
   .site:not(.soon) .foot img{width:calc(4*var(--u));height:calc(4*var(--u))}
 }
 /* phones upright: exactly one screen that never moves, like the coming soon face, so a finger
