@@ -104,8 +104,9 @@ html:has(.site.soon),html:has(.site.soon) body{overscroll-behavior:none}
   }
   /* Mobile/Button: the three spread across the body's width */
   .site:not(.soon) .links{width:calc(268*var(--u));justify-content:space-between;gap:0;font-size:calc(18*var(--u));font-weight:500}
-  /* Mobile/h7 at Regular rather than SemiBold: narrower, so a three-digit "notes played" keeps Colophon on the line */
-  .site:not(.soon) .foot{gap:calc(5*var(--u));padding:0 calc(20*var(--u)) calc(var(--foot-pad)*var(--u));font-size:calc(14*var(--u));font-weight:400;letter-spacing:.01em}
+  /* Mobile/h7 without its 1% letter spacing, items 4 apart rather than 5 (Lavanya, 2026-11-12),
+     so a longer "notes played" count keeps Colophon on the line */
+  .site:not(.soon) .foot{gap:calc(4*var(--u));padding:0 calc(20*var(--u)) calc(var(--foot-pad)*var(--u));font-size:calc(14*var(--u))}
   .site:not(.soon) .foot img{width:calc(4*var(--u));height:calc(4*var(--u))}
 }
 /* phones upright: exactly one screen that never moves, like the coming soon face, so a finger
