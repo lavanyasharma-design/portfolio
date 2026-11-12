@@ -10,6 +10,10 @@
   background:#fff url(/motif.svg) -57px -39px/46.4px 46px repeat;color:var(--black);
   /* 1 design px, shrinking only when the 484px body no longer fits the screen */
   --u:min(1px, (100vw - 32px)/484);
+  /* the blocks rise in from 14px lower; without this the footer's start position pokes past the
+     bottom of the screen, a scrollbar flashes up for a few seconds and the page jumps sideways.
+     clip (not hidden) so the page doesn't become its own scroll box */
+  overflow:clip;
 }
 .site.in{opacity:1;visibility:visible}
 .site a{text-decoration:none}
