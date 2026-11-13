@@ -1,10 +1,47 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import CaseTile from '../components/work/CaseTile'
 import Tuner from '../components/work/Tuner'
 import LookTuner from '../components/work/LookTuner'
-import MotifField from '../components/motif/MotifField'
+import NavBar from '../components/nav/NavBar'
+import PageFooter from '../components/footer/PageFooter'
 import { TILES, LOOK, DEFAULT_BG, TILE_W } from '../components/work/tiles'
 import './Work.css'
+
+/**
+ * Phones (Figma note beside "Work - full scroll"): the bottom nav bar hides once the page has
+ * scrolled 50px into the gap between the last case study and the footer, so it never sits over
+ * the footer, and comes back when you scroll up past that line again.
+ */
+const NAV_HIDE_AFTER = 50   // px into that gap
+const PHONE = '(max-width: 600px)'
+
+function useNavHidden(lineRef) {
+  const [hidden, setHidden] = useState(false)
+  useEffect(() => {
+    const phone = matchMedia(PHONE)
+    let raf = 0
+    const check = () => {
+      raf = 0
+      const line = lineRef.current
+      const dock = document.querySelector('.nav-dock')
+      if (!phone.matches || !line || !dock) return setHidden(false)
+      // the line has risen above the band the bar sits on
+      setHidden(line.getBoundingClientRect().top <= innerHeight - dock.offsetHeight)
+    }
+    const queue = () => { if (!raf) raf = requestAnimationFrame(check) }
+    addEventListener('scroll', queue, { passive: true })
+    addEventListener('resize', queue)
+    phone.addEventListener('change', queue)
+    check()
+    return () => {
+      cancelAnimationFrame(raf)
+      removeEventListener('scroll', queue)
+      removeEventListener('resize', queue)
+      phone.removeEventListener('change', queue)
+    }
+  }, [lineRef])
+  return hidden
+}
 
 // In dev, ?tune opens the tile background panel; ?tune=layout also makes the mockups
 // draggable and opens the position panel. Tuned values survive reloads in localStorage.
@@ -31,8 +68,10 @@ function lookVars({ shadow: s, border }) {
   }
 }
 
-/** "selected work", Figma frame 290:12780 */
+/** The Work page: Figma "Work" (290:12780, desktop 1512) and "Work - full scroll" (346:9449, phone 402) */
 function Work() {
+  const hideLine = useRef(null)
+  const navHidden = useNavHidden(hideLine)
   const [tiles, setTiles] = useState(TUNE ? () => load(KEY, TILES) : TILES)
   const [bgs, setBgs] = useState(BG_TUNE ? () => ({ ...BGS, ...load(BG_KEY, {}) }) : BGS)
   const [active, setActive] = useState({ tile: 'bolt', layer: 'bolt-1' })
@@ -67,22 +106,34 @@ function Work() {
 
   return (
     <>
+    <NavBar active="work" hidden={navHidden} />
     <main className="work-page">
-      <MotifField />
-      <h1 className="serif">selected work</h1>
-      <div className="tiles" style={lookVars(LOOK)} onClickCapture={TUNE ? e => e.preventDefault() : undefined}>
-        {tiles.map(t => (
-          <CaseTile
-            key={t.id}
-            tile={t}
-            look={LOOK}
-            bg={bgs[t.id] ?? DEFAULT_BG}
-            tuning={TUNE}
-            selected={TUNE && active.tile === t.id ? active.layer : null}
-            onLayerPointerDown={TUNE ? drag(t.id) : undefined}
-          />
-        ))}
-      </div>
+      <section className="work-section" aria-labelledby="work-title">
+        <h1 id="work-title">Work</h1>
+        <div className="cases" style={lookVars(LOOK)} onClickCapture={TUNE ? e => e.preventDefault() : undefined}>
+          {tiles.map(t => (
+            <article className="case" key={t.id}>
+              <CaseTile
+                tile={t}
+                look={LOOK}
+                bg={bgs[t.id] ?? DEFAULT_BG}
+                tuning={TUNE}
+                selected={TUNE && active.tile === t.id ? active.layer : null}
+                onLayerPointerDown={TUNE ? drag(t.id) : undefined}
+              />
+              <div className="case-copy">
+                <h2>{t.title}</h2>
+                <ul className="case-tags">
+                  {t.tags.map(tag => <li key={tag}>{`{${tag}}`}</li>)}
+                </ul>
+              </div>
+            </article>
+          ))}
+        </div>
+        {/* the line the phone nav bar hides at: NAV_HIDE_AFTER below the last case study */}
+        <div ref={hideLine} className="nav-hide-line" style={{ '--after': `${NAV_HIDE_AFTER}px` }} aria-hidden="true" />
+      </section>
+      <PageFooter />
     </main>
     {/* panels sit outside main: MotifField makes main's other children position: relative */}
       {TUNE && (

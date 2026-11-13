@@ -1,5 +1,6 @@
 /**
- * Tile compositions, in design pixels on the 606x396 Figma tile (node 298:12978).
+ * The four case studies: copy (title, tags) from the Work page in Figma (290:12780), and
+ * tile compositions, in design pixels on the 606x396 Figma tile (node 298:12978).
  * Each layer is one finished mockup from /work/mockups, placed as-is: x, y and w set its
  * box (height follows the image), rot turns it, z stacks it. Layers may run off the tile.
  * `lift` is how far a layer drifts on hover (0 for now). Tune in dev with ?tune.
@@ -47,6 +48,8 @@ export const TILES = [
   {
     id: 'bolt',
     label: 'Bolt, fleet management',
+    title: 'Mobile friendly fleet management SaaS that gives users flexibility',
+    tags: ['cross platform', 'prioritisation'],
     // one phone rising from the bottom, one hanging from the top: PAD on all four sides,
     // the same width, 28 between them
     layers: [
@@ -57,6 +60,8 @@ export const TILES = [
   {
     id: 'fci',
     label: 'FCI, release order dashboard',
+    title: 'Role based supply chain for Gujarat government’s food grain distribution',
+    tags: ['offline to digital', 'systems thinking'],
     // laptop running off the right and bottom, lid PAD from the top and left
     layers: [
       layer('fci-1', PAD - 700 * LID_IN, PAD, 700),
@@ -65,6 +70,8 @@ export const TILES = [
   {
     id: 'emi',
     label: 'BharatPe, EMI credit card',
+    title: 'End to end experience of BharatPe’s EMI Card for first time credit users',
+    tags: ['0 to 1 launch', 'edge case mapping'],
     // two phones side by side, top-aligned, running off the bottom; the gap between
     // them comes out at PAD too
     layers: [
@@ -75,6 +82,8 @@ export const TILES = [
   {
     id: 'bbps',
     label: 'BharatPe, bill payments',
+    title: 'Audit and redesign of bill payments on BharatPe’s UPI app for consistency',
+    tags: ['legacy revamp', 'journey optimisation'],
     // scale: the recharge plans large behind, bill payments smaller in front, overlapping 15
     layers: [
       layer('bbps-2', R - 288, TOP, 288),

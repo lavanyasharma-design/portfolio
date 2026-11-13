@@ -9,9 +9,12 @@ const fill = bg => bg.mode === 'linear' ? `linear-gradient(${bg.angle}deg, ${bg.
   : bg.mode === 'radial' ? `radial-gradient(120% 100% at 50% 0%, ${bg.c1}, ${bg.c2})`
   : bg.c1
 
-function CaseTile({ tile, look, bg, href = '#', tuning, selected, onLayerPointerDown }) {
+// a link once the case study has a page (href); until then a picture
+function CaseTile({ tile, look, bg, href, tuning, selected, onLayerPointerDown }) {
+  const Tag = href ? 'a' : 'div'
+  const role = href ? {} : { role: 'img' }
   return (
-    <a className={`case-tile${tuning ? ' tuning' : ''}${look.shadow.on ? ' shadow' : ''}`} href={href} aria-label={tile.label} style={{ '--tile-bg': fill(bg) }}>
+    <Tag className={`case-tile${tuning ? ' tuning' : ''}${look.shadow.on ? ' shadow' : ''}`} href={href} aria-label={tile.label} {...role} style={{ '--tile-bg': fill(bg) }}>
       {/* not "stage": the window intro's global .stage rule would shift it up */}
       <div className={`tile-stage${bg.mode === 'motif' ? ' motif' : ''}`}>
         {tile.layers.filter(l => l.on).map(l => (
@@ -25,7 +28,7 @@ function CaseTile({ tile, look, bg, href = '#', tuning, selected, onLayerPointer
           </div>
         ))}
       </div>
-    </a>
+    </Tag>
   )
 }
 

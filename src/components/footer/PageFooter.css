@@ -1,0 +1,41 @@
+/* ---------- page footer: Figma 346:205 (desktop, 1512 wide), 346:9493 (phone, 402 wide) ---------- */
+.page-foot{
+  --side:clamp(20px, 8.6vw, 130px);
+  display:flex;flex-direction:column;gap:70px;
+  color:var(--color-black-default);
+}
+
+/* heading 613 and paragraph 508 with 130 between, on the page's 1252 content column; both shrink
+   together below 1512, keeping Figma's proportions */
+.pf-note{
+  display:grid;grid-template-columns:minmax(0, 613fr) minmax(0, 508fr);align-items:center;
+  column-gap:clamp(40px, 8.6vw, 130px);
+  width:100%;max-width:calc(1252px + 2 * var(--side));margin-inline:auto;padding-inline:var(--side);
+  box-sizing:border-box;
+}
+/* Desktop/H3 */
+.pf-why{margin:0;font-family:var(--font-serif);font-weight:600;font-size:56px;line-height:normal}
+/* Desktop/H6, links in purple/default */
+.pf-hi{margin:0;font-family:var(--font-sans);font-weight:400;font-variation-settings:"opsz" 14;font-size:20px;line-height:normal}
+.pf-hi a{color:var(--color-purple-default);text-decoration:none;-webkit-tap-highlight-color:transparent}
+.pf-hi a:focus-visible{outline:1px solid currentColor;outline-offset:2px;border-radius:2px}
+
+/* the footer visual, full bleed: 324 tall at 1512 wide, keeping that shape on narrower windows
+   down to 180 tall, and 150 on phones */
+.pf-visual{height:clamp(180px, 21.43vw, 324px)}
+.pf-garden{display:block;width:100%;height:100%}
+
+/* a narrow window before the phone layout: heading over paragraph */
+@media (max-width:900px) and (min-width:601px){
+  .pf-note{grid-template-columns:minmax(0, 613px);row-gap:24px}
+}
+
+/* ---------- phones: heading (Mobile/h3, 268 wide) on the left, paragraph (14px, 267 wide)
+   right-aligned on the right, 24 apart; the visual 40 below, 150 tall ---------- */
+@media (max-width:600px){
+  .page-foot{gap:40px}
+  .pf-note{display:flex;flex-direction:column;align-items:stretch;gap:24px;padding-inline:20px}
+  .pf-why{max-width:268px;font-size:28px;font-weight:500}
+  .pf-hi{max-width:267px;margin-left:auto;text-align:right;font-size:14px}
+  .pf-visual{height:150px}
+}

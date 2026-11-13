@@ -1,29 +1,67 @@
-/* Figma frame 290:12780, drawn at 1512 wide: 130px sides, tiles 606 wide with a 40px gap */
-.work-page {
-  min-height: 100%;
-  /* the home page's motif, same spacing (Hero.css); MotifField adds the hover */
-  background: #fff url(/motif.svg) -57px -39px / 46.4px 46px repeat;
-  padding: clamp(48px, 8.7vw, 131px) clamp(16px, 8.6vw, 130px) 96px;
+/* ---------- Work page: Figma "Work" (290:12780), drawn at 1512 wide ----------
+   content column 1252 with 130 at each side (shrinking with the window), title 131 from the top,
+   title to tiles 30, two columns 40 apart, rows 50 apart, 120 down to the footer
+   (Lavanya's changes to the Figma spacing, 2026-11-13/14: 50 / 100 / 240 became 30 / 50 / 120).
+   No motif here (Lavanya, 2026-11-13): flat color/white/default. */
+html:has(.work-page),html:has(.work-page) body{background:var(--color-white-default)}
+
+.work-page{
+  --side:clamp(20px, 8.6vw, 130px);
+  min-height:100%;
+  background:var(--color-white-default);
+  color:var(--color-black-default);
+  padding-top:131px;
 }
 
-.work-page h1 {
-  max-width: 1252px;
-  margin: 0 auto;
-  font-family: var(--font-serif);
-  font-weight: 600;
-  font-size: clamp(40px, 3.7vw, 56px);
-  line-height: 1;
-  color: #6729ae;
+.work-section{
+  max-width:calc(1252px + 2 * var(--side));margin:0 auto 120px;padding-inline:var(--side);
+  box-sizing:border-box;position:relative;
 }
 
-.work-page .tiles {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(16px, 2.65vw, 40px);
-  max-width: 1252px;
-  margin: 50px auto 0;
+/* Desktop/H3 in purple/default */
+.work-section h1{
+  margin:0 0 30px;
+  font-family:var(--font-serif);font-weight:600;font-size:56px;line-height:normal;
+  color:var(--color-purple-default);
 }
 
-@media (max-width: 720px) {
-  .work-page .tiles { grid-template-columns: 1fr; margin-top: 32px; }
+.cases{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:50px 40px;align-items:start}
+
+/* a case: tile, 24, then title and tags 16 apart */
+.case{display:flex;flex-direction:column;gap:24px;min-width:0}
+.case-copy{display:flex;flex-direction:column;gap:16px}
+/* Desktop/H7: Cormorant Infant SemiBold 24, letter spacing 2% */
+.case-copy h2{
+  margin:0;font-family:var(--font-serif);font-weight:600;font-size:24px;line-height:normal;letter-spacing:.02em;
+}
+/* Desktop/Caption in black/highlight, 12 apart */
+.case-tags{
+  display:flex;flex-wrap:wrap;gap:4px 12px;margin:0;padding:0;list-style:none;
+  font-family:var(--font-sans);font-weight:400;font-variation-settings:"opsz" 14;font-size:16px;line-height:normal;
+  color:var(--color-black-highlight);white-space:nowrap;
+}
+
+/* the phone nav bar's hide line, an invisible marker below the last case study */
+.nav-hide-line{position:absolute;left:0;bottom:calc(-1 * var(--after));width:1px;height:0;pointer-events:none}
+
+/* between desktop and phone: one column, tiles no wider than Figma's 606 */
+@media (max-width:840px){
+  .cases{grid-template-columns:minmax(0, 606px);justify-content:center}
+  .work-section h1{max-width:606px;margin-inline:auto}
+}
+
+/* ---------- phones: "Work - full scroll" (346:9449), 402 wide ----------
+   20 at the sides, title 70 from the top, title to tiles 16, tiles 24 apart, 12 to the title,
+   8 to the tags; 120 down to the footer (Figma 100, plus her extra 20). The tiles keep the tuned 606 x 396 compositions
+   (Figma's grey 362 x 240 tiles are placeholders) */
+@media (max-width:600px){
+  .work-page{--side:20px;padding-top:70px}
+  .work-section{margin-bottom:120px}
+  /* Mobile/h2 is set in Cormorant Garamond in Figma; Cormorant Infant Medium here, see notes */
+  .work-section h1{margin:0 0 16px;max-width:none;font-size:40px;font-weight:500}
+  .cases{grid-template-columns:minmax(0, 1fr);row-gap:24px}
+  .case{gap:12px}
+  .case-copy{gap:8px}
+  .case-copy h2{font-size:20px;letter-spacing:0}   /* Mobile/h5 */
+  .case-tags{font-size:14px}                       /* Mobile/Caption */
 }

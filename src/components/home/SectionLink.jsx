@@ -14,7 +14,7 @@ const BRACKETS = {
   duration: 0.45,   // s, out and back in
 }
 
-function SectionLink({ name, to }) {
+function SectionLink({ name, to, current = false }) {
   const left = useRef(null), right = useRef(null)
   const busy = useRef(null)      // the running bracket animation
   const pressed = useRef(0)      // when the last press started, so its click doesn't play twice
@@ -50,8 +50,12 @@ function SectionLink({ name, to }) {
   const label = <>
     <span ref={left} className="br" aria-hidden="true">[</span>{name}<span ref={right} className="br" aria-hidden="true">]</span>
   </>
-  // data-no-motif: the background's hover stays off over the button, just the pointer cursor
-  const props = { className: `sec ${name}`, onPointerDown, onClick, 'data-no-motif': '' }
+  // data-no-motif: the background's hover stays off over the button, just the pointer cursor.
+  // current: the page you're on (the nav bar's selected item)
+  const props = {
+    className: `sec ${name}${current ? ' current' : ''}`, onPointerDown, onClick, 'data-no-motif': '',
+    'aria-current': current ? 'page' : undefined,
+  }
 
   return to
     ? <a href={to} {...props}>{label}</a>
