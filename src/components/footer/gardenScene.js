@@ -1,36 +1,45 @@
 /**
- * The footer garden (Figma note on the Work page, 1:2): purple grass, light and dark purple flowers
- * with pink petals, and the logo butterfly in purple monochrome. The butterfly never leaves: it
- * flies in loops, drifting from the right side to the left and back, with quick chirpy hops
- * (Lavanya, 2026-11-14). Painted on a canvas in layers, far to near: hazy far grass, lavender
- * spikes, middle grass, flowers, the butterfly, a mound of leafy ground, then the near grass in
- * front, so the butterfly dips behind the closest blades. Everything sways in a soft wind.
+ * The footer garden (Figma note on the Work page, 1:2), drawn to match the window intro's coloured
+ * pencil (Lavanya, 2026-11-14): the visitor opened the window and let the butterfly out, and here it
+ * is, enjoying the garden. Light purple grass, pale rose-pink sunflowers with dark brown hearts, and
+ * the logo butterfly in its own colours, exactly as it flies out of the window.
  *
- * The scene is drawn from a seeded random generator, so it's the same garden on every visit and
- * only rebuilds when the band's size changes. It only animates while on screen.
- * prefers-reduced-motion: one still picture, the butterfly resting on a flower.
- * ?garden opens a live panel; "copy values" gives the numbers to paste into GARDEN.
+ * The butterfly never leaves: it loops in slow circles drifting from side to side, and now and then
+ * glides down to a sunflower, touches down softly (the flower dips under it), rests with its wings
+ * slowly opening and closing, and lifts off again. It has no sound and doesn't react to the pointer.
+ *
+ * Pencil: every layer is painted, then a paper-tooth grain (fine specks with streaks running up the
+ * strokes) is rubbed out of it, and each blade gets a soft pencil edge. The grain is fixed to the
+ * "paper", so the grass sways over it like a drawing. The butterfly stays crisp, as over the window.
+ * Layers, far to near: hazy far grass, middle grass, sunflowers, the butterfly, then the ground and
+ * the near grass in front, so it dips behind the closest blades.
+ *
+ * Seeded, so it's the same garden on every visit; it only rebuilds when the band's size changes and
+ * only animates while on screen. prefers-reduced-motion: one still picture, the butterfly resting on
+ * a sunflower. ?garden opens a live panel; "copy values" gives the numbers to paste into GARDEN.
  */
 export const GARDEN = {
-  seed: 7,         // which garden: another number lays it out differently
-  density: 1,      // how much grass
-  flowers: 1,      // how many flowers
-  light: 0,        // 0 as set below; up to 0.6 washes every purple lighter
-  round: 0.22,     // grass tips: 0 pointed, 1 blunt as the blade is wide
-  sway: 1,         // how far the grass moves in the wind
+  seed: 12,        // which garden: another number lays it out differently
+  density: 1.05,   // how much grass
+  flowers: 1,      // how many sunflowers
+  light: 0.22,     // washes every purple lighter (0 to 0.6)
+  round: 0.1,      // grass tips: 0 pointed, 1 blunt as the blade is wide
+  grain: 0.55,     // pencil grain: how much paper shows through the colour
+  edge: 0.4,       // pencil edge along each blade
+  sway: 0.65,      // how far the grass moves in the wind
   wind: 1,         // how fast the wind moves
-  haze: 0.4,       // how much the far grass fades into the page
+  haze: 0.51,      // how much the far grass fades into the page
   bSize: 52,       // butterfly width, px on the desktop band (324 tall); scales with the band
-  bSpeed: 70,      // how fast it drifts from side to side, px a second on the desktop band
+  bSpeed: 125,     // how fast it drifts from side to side, px a second on the desktop band
   loop: 36,        // size of its loops, px on the desktop band
-  loopRate: 0.55,  // loops a second
+  loopRate: 0.15,  // loops a second
   flap: 11,        // wing beats a second
-  hop: 1,          // how much it jumps up and down as it flies (the chirpiness)
-  brush: 0.25,     // how much the grass bends away as it flies past
+  hop: 1,          // how much it bobs up and down as it flies (the chirpiness)
+  visit: 5,        // seconds of flying between visits to a sunflower
+  stay: 2.4,       // seconds it rests on a sunflower
 }
+/* Lavanya's values, 2026-11-14 (seed to haze, bSize to hop). grain, edge, visit and stay are new */
 
-/* colours, all from the site's purple and pink family, kept light (Lavanya, 2026-11-14: the first
-   take was too dark) */
 const PAL = {
   back: ['#e6dafb', '#ddcef8', '#d3c1f4', '#e0d2f9'],      // far grass, palest
   mid: ['#c4aaee', '#b79be4', '#ab8ddf', '#bea2ea'],       // middle grass
@@ -39,14 +48,15 @@ const PAL = {
   bush: ['#8457c9', '#8f63cf', '#7d50c3', '#9a72d6', '#7649bf'],
   stem: ['#8457c9', '#8f63cf'],
   leaf: ['#9a72d6', '#8f63cf', '#ab8ddf'],
-  spike: ['#c4aaee', '#b79be4', '#d3c1f4'],
-  petal: ['#ff33d0', '#ff5cd9', '#ff8fe3', '#e821ba'],     // color/pink/default, pressed and lighter
-  discDark: '#6729ae',                                      // color/purple/default
-  discLight: '#d6c3f7',
-  daisyLight: ['#efe6ff', '#e0d2f9'],
-  daisyDark: ['#8f63cf', '#9a72d6'],
   page: '#fcfaff',                                          // color/white/default
-  bfly: ['#4e2281', '#8f63cf', '#f3ecff'],                  // the butterfly's monochrome: shadow, mid, light
+}
+/* the sunflowers: pale rose-pink petals (the back ring a shade deeper) around a dark brown heart.
+   Not washed by `light` */
+const ROSE = {
+  front: ['#f7c3d1', '#f5b6c7', '#f9cdd9', '#f3adc0'],
+  back: ['#eba0b5', '#ee9fb6', '#e897ad'],
+  edge: 'rgba(190,95,125,.4)',
+  heart: '#4a2c1f', heartDeep: '#2f1b12', seed: '#6e4632',
 }
 
 const TAU = Math.PI * 2
@@ -64,17 +74,44 @@ function rng(seed) {
 const rgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16))
 const mixRGB = (p, q, t) => p.map((v, i) => Math.round(v + (q[i] - v) * t))
 const css = ([r, g, b], a = 1) => (a === 1 ? `rgb(${r},${g},${b})` : `rgba(${r},${g},${b},${a})`)
+const smooth = (u) => { const t = Math.min(1, Math.max(0, u)); return t * t * (3 - 2 * t) }
+const wrap = (a) => Math.atan2(Math.sin(a), Math.cos(a))
 
-// the palette as used: every purple washed towards white by `light`; the pinks stay as they are
+// the purples as used: every one washed towards white by `light`
 function palette(light) {
-  const W = [255, 255, 255]
-  const lift = (h) => mixRGB(rgb(h), W, light)
+  const lift = (h) => mixRGB(rgb(h), [255, 255, 255], light)
   const P = {}
-  for (const [k, v] of Object.entries(PAL)) {
-    if (k === 'petal' || k === 'bfly' || k === 'page') P[k] = Array.isArray(v) ? v.map(rgb) : rgb(v)
-    else P[k] = Array.isArray(v) ? v.map(lift) : lift(v)
-  }
+  for (const [k, v] of Object.entries(PAL)) P[k] = k === 'page' ? rgb(v) : Array.isArray(v) ? v.map(lift) : lift(v)
   return P
+}
+
+/* ---------- the paper ---------- */
+
+// a tile of paper tooth: fine specks, with streaks stretched upwards so it reads as pencil strokes
+// running up the grass. Its alpha is how much colour gets rubbed out there
+function paperTooth(size = 256) {
+  const r = rng(3)
+  const gx = 64, gy = 12
+  const lat = Array.from({ length: gx * gy }, r)
+  const at = (i, j) => lat[(((j % gy) + gy) % gy) * gx + (((i % gx) + gx) % gx)]
+  const noise = (x, y) => {
+    const i = Math.floor(x), j = Math.floor(y), fx = x - i, fy = y - j
+    const sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy)
+    const a = at(i, j), b = at(i + 1, j), c = at(i, j + 1), d = at(i + 1, j + 1)
+    return a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy
+  }
+  const c = document.createElement('canvas')
+  c.width = c.height = size
+  const x = c.getContext('2d')
+  const img = x.createImageData(size, size)
+  for (let py = 0; py < size; py++) {
+    for (let px = 0; px < size; px++) {
+      const v = r() * 0.6 + noise((px / size) * gx, (py / size) * gy) * 0.4
+      img.data[(py * size + px) * 4 + 3] = smooth((v - 0.4) / 0.45) * 255
+    }
+  }
+  x.putImageData(img, 0, 0)
+  return c
 }
 
 /* ---------- the scene ---------- */
@@ -116,55 +153,44 @@ function build(W, H, G) {
         })
       }
     }
-    // one fill per colour: group the blades by colour, keeping their order inside each group.
-    // Each colour is a gradient up the blade, deeper at the roots and lighter at the tips, which
-    // gives the clumps their painted depth
+    // one fill per colour: group the blades by colour. Each colour is a gradient up the blade,
+    // deeper at the roots and lighter at the tips; the edge is a deeper pencil line around it
     const byColor = new Map()
     for (const b of blades) (byColor.get(b.color) ?? byColor.set(b.color, []).get(b.color)).push(b)
-    return [...byColor].map(([color, list]) => ({
-      blades: list,
-      color: css(color), root: css(mixRGB(color, P.ground, 0.4)), tip: css(mixRGB(color, [255, 255, 255], 0.22)), grad: null,
-    }))
+    return [...byColor].map(([color, list]) => {
+      const root = mixRGB(color, P.ground, 0.4)
+      return {
+        blades: list, grad: null,
+        color: css(color), root: css(root), tip: css(mixRGB(color, [255, 255, 255], 0.22)),
+        edge: mixRGB(root, [40, 20, 70], 0.25),
+      }
+    })
   })
 
-  // lavender-like spikes among the far and middle grass
-  const spikes = []
-  const nSpikes = Math.round((W / (150 * s)) * G.flowers)
-  for (let i = 0; i < nSpikes; i++) {
-    const h = between(0.36, 0.62) * H
-    const dots = []
-    const k = Math.round(between(10, 16))
-    for (let j = 0; j < k; j++) {
-      dots.push({ at: 0.55 + (j / k) * 0.45, side: j % 2 ? 1 : -1, size: between(2.4, 3.8) * s * (1 - (j / k) * 0.4), color: css(pick(P.spike)) })
-    }
-    spikes.push({ x: ((i + r()) / nSpikes) * W, y: H * 0.94, h, lean: (r() - 0.5) * 0.3, phase: r() * TAU, dots, stalk: css(P.mid[1]) })
-  }
-
-  // flowers: big ones with pink petals around a dark or light purple heart, small daisies with
-  // light or dark purple petals around a pink heart
+  // sunflowers, all one kind: two rings of pointed rose-pink petals around a dark brown heart
   const flowers = []
   const nFlowers = Math.max(2, Math.round((W / (230 * s)) * G.flowers))
   for (let i = 0; i < nFlowers; i++) {
-    const big = r() < 0.6
-    const rad = (big ? between(20, 28) : between(11, 15)) * s
-    const petals = big ? Math.round(between(12, 15)) : Math.round(between(8, 10))
-    const dark = r() < 0.5
+    const rad = between(19, 26) * s
+    const n = Math.round(between(16, 20))
+    const ring = (shades, len, wid, off) => Array.from({ length: n }, (_, p) => ({
+      a: ((p + off) / n) * TAU + (r() - 0.5) * 0.12,
+      len: len * between(0.9, 1.08), wid: wid * between(0.85, 1.1), color: pick(shades),
+    }))
     flowers.push({
       x: ((i + 0.2 + r() * 0.6) / nFlowers) * W,
-      y: H * 1.0,
-      h: between(big ? 0.36 : 0.26, big ? 0.62 : 0.46) * H,
+      y: H,
+      h: between(0.36, 0.6) * H,
       lean: (r() - 0.5) * 0.35,
       phase: r() * TAU,
       rad,
       tilt: (r() - 0.5) * 0.5,
-      petals: Array.from({ length: petals }, (_, p) => ({
-        a: (p / petals) * TAU + (r() - 0.5) * 0.2,
-        len: between(0.9, 1.08),
-        color: css(big ? pick(P.petal) : pick(dark ? P.daisyDark : P.daisyLight)),
-      })),
-      disc: css(big ? (dark ? P.discDark : P.discLight) : P.petal[0]),
+      back: ring(ROSE.back, 1.0, 0.2, 0.5),
+      front: ring(ROSE.front, 0.92, 0.22, 0),
+      seeds: Array.from({ length: 16 }, (_, k) => ({ a: k * 2.4, d: Math.sqrt((k + 0.5) / 16) * 0.32 })),
       stem: css(pick(P.stem)),
       leaves: [0.28, 0.5].map((at, li) => ({ at: at + (r() - 0.5) * 0.1, side: li % 2 ? 1 : -1, len: between(24, 36) * s, color: css(pick(P.leaf)) })),
+      dip: 0, dipV: 0,   // the flower head sinking a little under the butterfly, springing back
     })
   }
 
@@ -187,122 +213,90 @@ function build(W, H, G) {
   }
 
   return {
-    W, H, s, layers, spikes, flowers, ground, bushes,
+    W, H, s, layers, flowers, ground, bushes,
     colors: { ground: css(P.ground), page: P.page, back: P.back[2], mid: P.mid[1], front: css(P.front[1]) },
   }
 }
 
-/* ---------- the butterfly, in purple monochrome ---------- */
+/* ---------- the butterfly, as it flies out of the window ---------- */
 
-// the logo image, cropped the way Figma crops it, with each pixel's lightness mapped onto a purple
-// ramp (a gradient map), so the wing pattern stays and only the colour goes
-function tint(img) {
-  const sx = 142, sy = 40, sw = 385, sh = 293
+// the logo image with the window flyer's crop (Design System logo 330:3) and its colour lift
+// (saturate 1.3, brightness 1.06, as in WindowIntro.css), baked once
+function prepare(img) {
+  const sx = 139, sy = 32, sw = 391, sh = 307
   const c = document.createElement('canvas')
   c.width = sw; c.height = sh
   const x = c.getContext('2d', { willReadFrequently: true })
   x.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh)
   const d = x.getImageData(0, 0, sw, sh), px = d.data
-  const [a, b, e] = PAL.bfly.map(rgb)
   for (let i = 0; i < px.length; i += 4) {
-    const L = (0.299 * px[i] + 0.587 * px[i + 1] + 0.114 * px[i + 2]) / 255
-    const [p, q, t] = L < 0.5 ? [a, b, L * 2] : [b, e, (L - 0.5) * 2]
-    px[i] = p[0] + (q[0] - p[0]) * t
-    px[i + 1] = p[1] + (q[1] - p[1]) * t
-    px[i + 2] = p[2] + (q[2] - p[2]) * t
+    const L = 0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2]
+    for (let k = 0; k < 3; k++) px[i + k] = Math.min(255, (L + (px[i + k] - L) * 1.3) * 1.06)
   }
   x.putImageData(d, 0, 0)
   return c
 }
-
-const wrap = (a) => Math.atan2(Math.sin(a), Math.cos(a))
+const BODY = 0.496   // where the body is across the cropped image (the flyer's wing split)
 
 /* ---------- mounting ---------- */
 
-// onTouch: called when a pointer touches the butterfly (the page plays its wing flutter there)
-export function mountGarden(canvas, { onTouch } = {}) {
+export function mountGarden(canvas) {
   const G = GARDEN
-  const ctx = canvas.getContext('2d')
+  const main = canvas.getContext('2d')
+  const nearCanvas = document.createElement('canvas')    // ground and near grass, grained apart
+  const near = nearCanvas.getContext('2d')                // so the butterfly between stays crisp
+  let ctx = main
   const reduce = matchMedia('(prefers-reduced-motion: reduce)')
-  let scene = null, bfly = null, dpr = 1
+  let scene = null, bfly = null, dpr = 1, tooth = null, toothMain = null, toothNear = null
   let raf = 0, visible = false, last = 0, T = 0, cost = 0
-  let shown = null          // where the butterfly was last drawn, for touching it
-  let touchedAt = -9        // so one touch doesn't startle it twice
 
-  /* the flight. cx drifts between the sides (starting on the right, heading left); the butterfly
-     circles around it (theta). ox/oy is a springy offset for hops and darts. rot follows the
-     direction it's flying, smoothed so it turns rather than snaps */
-  const fly = { cx: null, dir: -1, theta: 0, ox: 0, oy: 0, vx: 0, vy: 0, x: 0, y: 0, rot: 0, flap: 0, flapping: true, until: 0, hopAt: 0.4 }
+  /* the flight. cruise: loops round a centre (cx) that drifts between the sides. approach / perch /
+     takeoff: `w` blends it from the loops onto a sunflower and back */
+  const fly = {
+    cx: null, dir: -1, theta: 0, ox: 0, oy: 0, vy: 0, x: 0, y: 0, rot: 0,
+    flap: 0, flapping: true, until: 0, hopAt: 0.4,
+    mode: 'cruise', since: 0, next: 3, flower: null, last: null, w: 0,
+  }
 
   const img = new Image()
   img.src = '/assets/butterfly.png'
-  img.decode().then(() => { bfly = tint(img); draw() }).catch(() => {})
-
-  // touched (mouse over it, or a finger or click on it): it plays its sound and darts away from
-  // the pointer, beating hard, then settles back into its loops
-  function onPointer(e) {
-    if (!shown || T - touchedAt < 0.8) return
-    const r = canvas.getBoundingClientRect()
-    const px = e.clientX - r.left, py = e.clientY - r.top
-    const dx = shown.x - px, dy = shown.y - py
-    const d = Math.hypot(dx, dy)
-    if (d > shown.r) return
-    touchedAt = T
-    onTouch?.()
-    if (reduce.matches) return
-    const k = (scene.H * 4) / (d || 1)
-    fly.vx += dx * k
-    fly.vy += dy * k - scene.H * 1.2
-    fly.flapping = true
-    fly.until = T + 0.5
-    fly.hopAt = T + 0.6
-  }
-  canvas.addEventListener('pointermove', onPointer)
-  canvas.addEventListener('pointerdown', onPointer)
+  img.decode().then(() => { bfly = prepare(img); draw() }).catch(() => {})
 
   function resize() {
     const W = canvas.clientWidth, H = canvas.clientHeight
     if (!W || !H) return
     dpr = Math.min(2, devicePixelRatio || 1)
-    canvas.width = Math.round(W * dpr)
-    canvas.height = Math.round(H * dpr)
+    for (const c of [canvas, nearCanvas]) { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr) }
+    tooth ??= paperTooth()
+    toothMain = main.createPattern(tooth, 'repeat')
+    toothNear = near.createPattern(tooth, 'repeat')
     scene = build(W, H, G)
-    fly.cx = null
+    fly.cx = null; fly.mode = 'cruise'; fly.w = 0; fly.flower = null; fly.next = T + 2
     draw()
   }
 
   const wind = (x) => G.sway * 0.09 * (Math.sin(T * 0.9 * G.wind + x * 0.0045) * 0.65 + Math.sin(T * 1.9 * G.wind + x * 0.013 + 1.3) * 0.35)
 
-  // a blade: a tapered, bending leaf from its base to a rounded tip
-  function blade(b, push) {
+  // a blade: a tapered, bending leaf from its base to its tip
+  function blade(b) {
     const sway = wind(b.x) * (0.4 + b.flex) + Math.sin(T * 2.2 * G.wind + b.phase) * 0.015 * G.sway
-    const a0 = b.lean * 0.45 + sway + push * 0.5
-    const a1 = b.lean + b.curve + sway * 1.7 + push
+    const a0 = b.lean * 0.45 + sway
+    const a1 = b.lean + b.curve + sway * 1.7
     const half = b.h * 0.5
     const cx = b.x + Math.sin(a0) * half, cy = b.y - Math.cos(a0) * half
     const tx = cx + Math.sin(a1) * half, ty = cy - Math.cos(a1) * half
     const px = Math.cos(a0) * b.w * 0.42, py = Math.sin(a0) * b.w * 0.42
-    const tw = b.w * 0.5 * G.round                         // half the tip's width
-    const qx = Math.cos(a1) * tw, qy = Math.sin(a1) * tw   // across the tip
-    const ux = Math.sin(a1) * tw * 1.5, uy = -Math.cos(a1) * tw * 1.5   // past the tip, for the cap
+    const tw = b.w * 0.5 * G.round
+    const qx = Math.cos(a1) * tw, qy = Math.sin(a1) * tw
+    const ux = Math.sin(a1) * tw * 1.5, uy = -Math.cos(a1) * tw * 1.5
     ctx.moveTo(b.x - b.w / 2, b.y)
     ctx.quadraticCurveTo(cx - px, cy - py, tx - qx, ty - qy)
     ctx.quadraticCurveTo(tx + ux, ty + uy, tx + qx, ty + qy)
     ctx.quadraticCurveTo(cx + px, cy + py, b.x + b.w / 2, b.y)
   }
 
-  // grass near the butterfly leans away from it
-  function brushAt(b) {
-    if (!G.brush || reduce.matches || !shown) return 0
-    const R = 70 * scene.s
-    const dx = b.x - fly.x
-    if (Math.abs(dx) > R) return 0
-    if (fly.y < b.y - b.h - R * 0.6) return 0
-    return Math.sign(dx || 1) * G.brush * (1 - Math.abs(dx) / R)
-  }
-
   function grass(layer) {
-    const { H } = scene
+    const { H, s } = scene
     for (const g of layer) {
       if (!g.grad) {
         g.grad = ctx.createLinearGradient(0, H, 0, H * 0.1)
@@ -312,9 +306,26 @@ export function mountGarden(canvas, { onTouch } = {}) {
       }
       ctx.fillStyle = g.grad
       ctx.beginPath()
-      for (const b of g.blades) blade(b, brushAt(b))
+      for (const b of g.blades) blade(b)
       ctx.fill()
+      if (G.edge > 0) {
+        ctx.strokeStyle = css(g.edge, G.edge)
+        ctx.lineWidth = 0.9 * s
+        ctx.stroke()
+      }
     }
+  }
+
+  // rub the paper's tooth out of everything drawn so far on this layer
+  function pencil(c, pattern) {
+    if (G.grain <= 0) return
+    c.save()
+    c.setTransform(1, 0, 0, 1, 0, 0)
+    c.globalCompositeOperation = 'destination-out'
+    c.globalAlpha = G.grain
+    c.fillStyle = pattern
+    c.fillRect(0, 0, c.canvas.width, c.canvas.height)
+    c.restore()
   }
 
   function haze(amount) {
@@ -341,33 +352,25 @@ export function mountGarden(canvas, { onTouch } = {}) {
     ctx.fillRect(0, H * 0.55, W, H * 0.45)
   }
 
-  function spikes() {
-    for (const k of scene.spikes) {
-      const a = k.lean + wind(k.x) * 0.9
-      const tx = k.x + Math.sin(a) * k.h, ty = k.y - Math.cos(a) * k.h
-      ctx.strokeStyle = k.stalk
-      ctx.lineWidth = 1.4 * scene.s
-      ctx.beginPath(); ctx.moveTo(k.x, k.y); ctx.lineTo(tx, ty); ctx.stroke()
-      for (const d of k.dots) {
-        const x = k.x + (tx - k.x) * d.at + d.side * d.size * 0.8, y = k.y + (ty - k.y) * d.at
-        ctx.fillStyle = d.color
-        ctx.beginPath(); ctx.ellipse(x, y, d.size, d.size * 0.75, a, 0, TAU); ctx.fill()
-      }
-    }
-  }
-
   function flowerHead(f) {
     const a = f.lean + wind(f.x) * 0.7 + Math.sin(T * 1.6 * G.wind + f.phase) * 0.02 * G.sway
-    return { a, hx: f.x + Math.sin(a) * f.h, hy: f.y - Math.cos(a) * f.h }
+    return { a, hx: f.x + Math.sin(a) * f.h, hy: f.y - Math.cos(a) * f.h + f.dip }
   }
 
-  function flowers() {
+  function petal(len, wid) {
+    ctx.beginPath()
+    ctx.moveTo(0, 0)
+    ctx.quadraticCurveTo(len * 0.45, -wid, len, 0)
+    ctx.quadraticCurveTo(len * 0.45, wid, 0, 0)
+  }
+
+  function sunflowers() {
     const { s } = scene
     for (const f of scene.flowers) {
       const { a, hx, hy } = flowerHead(f)
       const mx = f.x + Math.sin(a * 0.5) * f.h * 0.5, my = f.y - Math.cos(a * 0.5) * f.h * 0.5
       ctx.strokeStyle = f.stem
-      ctx.lineWidth = 2.2 * s
+      ctx.lineWidth = 2.4 * s
       ctx.beginPath(); ctx.moveTo(f.x, f.y); ctx.quadraticCurveTo(mx, my, hx, hy); ctx.stroke()
       for (const l of f.leaves) {
         const lx = f.x + (hx - f.x) * l.at, ly = f.y + (hy - f.y) * l.at
@@ -382,21 +385,33 @@ export function mountGarden(canvas, { onTouch } = {}) {
         ctx.fill()
         ctx.restore()
       }
-      // head: petals in a ring, seen a little from the side, then the heart
+      // the head, seen a little from the side: back petals, front petals, then the heart
       ctx.save()
       ctx.translate(hx, hy)
       ctx.rotate(a * 0.6 + f.tilt)
       ctx.scale(1, 0.82)
-      for (const p of f.petals) {
-        ctx.fillStyle = p.color
-        ctx.beginPath()
-        ctx.ellipse(Math.cos(p.a) * f.rad * 0.6 * p.len, Math.sin(p.a) * f.rad * 0.6 * p.len, f.rad * 0.52 * p.len, f.rad * 0.25, p.a, 0, TAU)
-        ctx.fill()
+      ctx.lineWidth = 0.7 * s
+      ctx.strokeStyle = ROSE.edge
+      for (const ring of [f.back, f.front]) {
+        for (const p of ring) {
+          ctx.save()
+          ctx.rotate(p.a)
+          ctx.translate(f.rad * 0.3, 0)
+          petal(f.rad * p.len * 0.95, f.rad * p.wid)
+          ctx.fillStyle = p.color
+          ctx.fill()
+          ctx.stroke()
+          ctx.restore()
+        }
       }
-      ctx.fillStyle = f.disc
-      ctx.beginPath(); ctx.arc(0, 0, f.rad * 0.38, 0, TAU); ctx.fill()
-      ctx.fillStyle = 'rgba(255,255,255,.22)'
-      ctx.beginPath(); ctx.arc(-f.rad * 0.1, -f.rad * 0.1, f.rad * 0.16, 0, TAU); ctx.fill()
+      ctx.fillStyle = ROSE.heart
+      ctx.beginPath(); ctx.arc(0, 0, f.rad * 0.42, 0, TAU); ctx.fill()
+      ctx.fillStyle = ROSE.heartDeep
+      ctx.beginPath(); ctx.arc(0, 0, f.rad * 0.26, 0, TAU); ctx.fill()
+      ctx.fillStyle = ROSE.seed
+      for (const d of f.seeds) {
+        ctx.beginPath(); ctx.arc(Math.cos(d.a) * d.d * f.rad, Math.sin(d.a) * d.d * f.rad, f.rad * 0.035, 0, TAU); ctx.fill()
+      }
       ctx.restore()
     }
   }
@@ -418,88 +433,148 @@ export function mountGarden(canvas, { onTouch } = {}) {
     ctx.globalAlpha = 1
   }
 
+  // where the butterfly sits on a sunflower: on its heart
+  const perchOn = (f) => { const { a, hx, hy } = flowerHead(f); return { x: hx, y: hy - f.rad * 0.3, tilt: a * 0.6 + f.tilt } }
+
   function butterfly() {
-    shown = null
     if (!bfly || !scene) return
     const { s } = scene
     const bw = G.bSize * s, bh = bw * (bfly.height / bfly.width)
     let x, y, rot, k
     if (reduce.matches) {
-      // resting on the tallest flower, wings half open
       const f = scene.flowers.reduce((m, f) => (f.h > m.h ? f : m), scene.flowers[0])
-      const { hx, hy } = flowerHead(f)
-      x = hx; y = hy - f.rad * 0.9; rot = 0.25; k = 0.8
+      const p = perchOn(f)
+      x = p.x; y = p.y; rot = p.tilt * 0.5; k = 0.85
     } else {
       if (fly.cx === null) return
       x = fly.x; y = fly.y; rot = fly.rot
-      k = 0.16 + 0.84 * (0.5 + 0.5 * Math.cos(fly.flap))
+      k = fly.mode === 'perch'
+        ? 0.62 + 0.38 * (0.5 + 0.5 * Math.cos(T * TAU * 0.45))    // resting: wings slowly open and close
+        : 0.16 + 0.84 * (0.5 + 0.5 * Math.cos(fly.flap))
     }
-    // touchable a little beyond its wings, so a finger can catch it
-    shown = { x, y, r: Math.max(bw * 0.75, 22) }
-    const half = bfly.width / 2
+    const split = bfly.width * BODY
     ctx.save()
     ctx.translate(x, y)
     ctx.rotate(rot)
-    // each wing narrows towards the body as it beats, the way wings fold up when seen from above
-    ctx.drawImage(bfly, 0, 0, half + 1, bfly.height, (-bw / 2) * k, -bh / 2, (bw / 2) * k + 0.5, bh)
-    ctx.drawImage(bfly, half - 1, 0, half + 1, bfly.height, -0.5, -bh / 2, (bw / 2) * k + 0.5, bh)
+    // each wing narrows towards the body as it beats, the way the window's butterfly folds
+    ctx.drawImage(bfly, 0, 0, split + 1, bfly.height, -bw * BODY * k, -bh / 2, bw * BODY * k + 0.5, bh)
+    ctx.drawImage(bfly, split - 1, 0, bfly.width - split + 1, bfly.height, -0.5, -bh / 2, bw * (1 - BODY) * k + 0.5, bh)
     ctx.restore()
   }
 
   function draw() {
     if (!scene) return
     const { W, H } = scene
+    // far and middle: grass, haze, undergrowth, sunflowers, then pencilled
+    ctx = main
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     ctx.clearRect(0, 0, W, H)
     grass(scene.layers[0])
     haze(G.haze)
     underlay()
-    spikes()
     grass(scene.layers[1])
     haze(G.haze * 0.35)
-    flowers()
+    sunflowers()
+    pencil(main, toothMain)
+    // the butterfly, crisp
     butterfly()
+    // near: ground and the closest grass, pencilled on their own, then laid over the butterfly
+    ctx = near
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+    ctx.clearRect(0, 0, W, H)
     groundAndBushes()
     grass(scene.layers[2])
+    pencil(near, toothNear)
+    ctx = main
+    main.save()
+    main.setTransform(1, 0, 0, 1, 0, 0)
+    main.drawImage(nearCanvas, 0, 0)
+    main.restore()
   }
 
-  /* loops: the butterfly circles around a centre that drifts across the band and turns back at
-     each side. On top, little hops: a burst of wing beats kicks it up, then it glides with wings
-     open and settles, so the loops are jittery and alive rather than a perfect circle */
+  // the next sunflower: the nearest one ahead in the direction it's drifting, else the nearest other
+  function chooseFlower() {
+    const fs = scene.flowers.filter((f) => f !== fly.last)
+    const ahead = fs.filter((f) => (f.x - fly.x) * fly.dir > scene.W * 0.05)
+    const pool = ahead.length ? ahead : fs
+    return pool.reduce((m, f) => (Math.abs(f.x - fly.x) < Math.abs(m.x - fly.x) ? f : m), pool[0])
+  }
+
   function update(dt) {
     const { W, H, s } = scene
     const R = G.loop * s
     const lo = W * 0.06 + R + G.bSize * s * 0.5, hi = W - lo
-    if (fly.cx === null) fly.cx = hi
-    fly.cx += fly.dir * G.bSpeed * s * dt
+
+    // sunflowers spring back after being landed on
+    for (const f of scene.flowers) { f.dipV += (-f.dip * 70 - f.dipV * 9) * dt; f.dip += f.dipV * dt }
+
+    // the loops; they pause while it's on (or headed for) a flower
+    if (fly.cx === null) { fly.cx = hi; fly.x = hi; fly.y = H * 0.4 }
+    const free = 1 - fly.w
+    fly.cx += fly.dir * G.bSpeed * s * dt * free
     if (fly.cx < lo) { fly.cx = lo; fly.dir = 1 }
     if (fly.cx > hi) { fly.cx = hi; fly.dir = -1 }
-    // loop the way it's drifting, so each circle rolls forward
-    fly.theta += -fly.dir * TAU * G.loopRate * dt
+    fly.theta += -fly.dir * TAU * G.loopRate * dt * free
     const cy = H * 0.4 + Math.sin(T * 0.37) * 0.06 * H
 
-    // springy offset: hops and darts push it, the spring brings it back into the loop
-    if (T >= fly.hopAt) {
+    // chirpy hops while it's flying free
+    if (fly.mode === 'cruise' && T >= fly.hopAt) {
       fly.vy -= H * (0.5 + Math.random() * 0.5) * G.hop
       fly.flapping = true
       fly.until = T + 0.22 + Math.random() * 0.22
       fly.hopAt = T + 0.4 + Math.random() * 0.5
     }
-    fly.vx += (-fly.ox * 26 - fly.vx * 6.5) * dt
     fly.vy += (-fly.oy * 26 - fly.vy * 6.5 + (fly.flapping ? 0 : H * 0.6)) * dt
-    fly.ox += fly.vx * dt
     fly.oy += fly.vy * dt
-    if (fly.flapping && T >= fly.until) fly.flapping = false
+    if (fly.flapping && T >= fly.until && fly.mode === 'cruise') fly.flapping = false
+    const loopX = fly.cx + Math.cos(fly.theta) * R
+    const loopY = cy + Math.sin(fly.theta) * R * 0.8 + fly.oy * free
+
+    // visiting a sunflower: glide down to it, touch down softly, rest, lift off back into the loops
+    const u = T - fly.since
+    let arc = 0
+    if (fly.mode === 'cruise' && T >= fly.next && scene.flowers.length) {
+      fly.flower = chooseFlower(); fly.mode = 'approach'; fly.since = T
+    } else if (fly.mode === 'approach') {
+      const p = u / 2
+      fly.w = smooth(p)
+      arc = -Math.sin(Math.PI * Math.min(1, p)) * H * 0.12
+      fly.flapping = p < 0.7                             // beats, then glides in with wings open
+      if (p >= 1) { fly.mode = 'perch'; fly.since = T; fly.flower.dipV += 55 * s }
+    } else if (fly.mode === 'perch') {
+      fly.w = 1
+      fly.flapping = false
+      if (u >= G.stay) { fly.mode = 'takeoff'; fly.since = T; fly.flower.dipV += 30 * s; fly.flapping = true }
+    } else if (fly.mode === 'takeoff') {
+      const p = u / 1.4
+      fly.w = 1 - smooth(p)
+      arc = -Math.sin(Math.PI * Math.min(1, p)) * H * 0.1
+      fly.flapping = true
+      if (p >= 1) {
+        fly.mode = 'cruise'; fly.w = 0; fly.last = fly.flower; fly.flower = null
+        fly.next = T + G.visit * (0.7 + Math.random() * 0.6)
+        fly.until = T + 0.3
+      }
+    }
 
     const px = fly.x, py = fly.y
-    fly.x = Math.min(W - 8 * s, Math.max(8 * s, fly.cx + Math.cos(fly.theta) * R + fly.ox))
-    fly.y = Math.min(H * 0.75, Math.max(H * 0.15, cy + Math.sin(fly.theta) * R * 0.8 + fly.oy))
-
-    // face where it's going (the image's head points up, so +90deg), turning smoothly
-    if (dt > 0) {
-      const heading = Math.atan2(fly.y - py, fly.x - px) + Math.PI / 2
-      fly.rot += wrap(heading - fly.rot) * Math.min(1, dt * 9)
+    if (fly.flower) {
+      const p = perchOn(fly.flower)
+      fly.x = loopX + (p.x - loopX) * fly.w
+      fly.y = loopY + (p.y - loopY) * fly.w + arc
+    } else {
+      fly.x = loopX
+      fly.y = loopY
     }
+    fly.x = Math.min(W - 8 * s, Math.max(8 * s, fly.x))
+    fly.y = Math.min(H * 0.8, Math.max(H * 0.12, fly.y))
+
+    // face where it's going (the image's head points up, so +90deg); on a flower, settle upright
+    const target = fly.mode === 'perch' || fly.w > 0.9
+      ? perchOn(fly.flower).tilt * 0.5
+      : (dt > 0 && Math.hypot(fly.x - px, fly.y - py) > 0.05 ? Math.atan2(fly.y - py, fly.x - px) + Math.PI / 2 : fly.rot)
+    fly.rot += wrap(target - fly.rot) * Math.min(1, dt * (fly.mode === 'perch' ? 4 : 9))
+
     if (fly.flapping) fly.flap += TAU * G.flap * dt
     else fly.flap += (Math.round(fly.flap / TAU) * TAU - fly.flap) * Math.min(1, dt * 18)   // settle open
   }
@@ -532,13 +607,13 @@ export function mountGarden(canvas, { onTouch } = {}) {
   const onMotion = () => { stop(); draw(); start() }
   reduce.addEventListener('change', onMotion)
 
-  const panel = new URLSearchParams(location.search).has('garden') ? mountPanel({ rebuild: resize, cost: () => cost }) : null
+  const panel = new URLSearchParams(location.search).has('garden')
+    ? mountPanel({ rebuild: resize, redraw: () => { if (!raf) draw() }, cost: () => cost })
+    : null
 
   return {
     destroy() {
       stop(); ro.disconnect(); io.disconnect()
-      canvas.removeEventListener('pointermove', onPointer)
-      canvas.removeEventListener('pointerdown', onPointer)
       reduce.removeEventListener('change', onMotion)
       panel?.remove()
     },
@@ -546,7 +621,7 @@ export function mountGarden(canvas, { onTouch } = {}) {
 }
 
 /* ?garden: sliders in plain words; "copy values" gives the GARDEN numbers */
-function mountPanel({ rebuild, cost }) {
+function mountPanel({ rebuild, redraw, cost }) {
   const G = GARDEN
   const el = document.createElement('div')
   el.className = 'tune-panel'
@@ -554,9 +629,11 @@ function mountPanel({ rebuild, cost }) {
   const rows = [
     ['seed', 'which garden', 1, 60, 1, true],
     ['light', 'lighter', 0, 0.6, 0.01, true],
+    ['grain', 'pencil grain', 0, 1, 0.01],
+    ['edge', 'pencil edge', 0, 1, 0.01],
     ['round', 'round tips', 0, 1, 0.05],
     ['density', 'grass', 0.3, 2, 0.05, true],
-    ['flowers', 'flowers', 0, 2.5, 0.05, true],
+    ['flowers', 'sunflowers', 0, 2.5, 0.05, true],
     ['haze', 'far fade', 0, 0.8, 0.01],
     ['sway', 'sway', 0, 3, 0.05],
     ['wind', 'wind speed', 0, 3, 0.05],
@@ -566,7 +643,8 @@ function mountPanel({ rebuild, cost }) {
     ['loopRate', 'loops/s', 0, 2, 0.05],
     ['flap', 'wing beats/s', 3, 20, 0.5],
     ['hop', 'chirpiness', 0, 2.5, 0.05],
-    ['brush', 'grass brush', 0, 0.8, 0.01],
+    ['visit', 'flying between flowers (s)', 1, 15, 0.5],
+    ['stay', 'rest on a flower (s)', 0.5, 8, 0.1],
   ]
   el.innerHTML = `<b>garden</b>${rows.map(([k, label, min, max, step]) =>
     `<label><span>${label}</span><input type="range" data-k="${k}" min="${min}" max="${max}" step="${step}" value="${G[k]}"><output>${G[k]}</output></label>`).join('')}<button type="button" class="copy">copy values</button>`
@@ -576,12 +654,12 @@ function mountPanel({ rebuild, cost }) {
     G[k] = +e.target.value
     e.target.nextElementSibling.textContent = e.target.value
     if (rebuilds.has(k)) rebuild()
+    else redraw()
   })
   el.addEventListener('click', (e) => {
     const t = e.target.closest('button'); if (!t) return
     navigator.clipboard?.writeText(JSON.stringify(G, null, 2)); t.textContent = 'copied'
   })
-  // what one frame of the garden costs to draw; under ~4ms leaves plenty of room at 60fps
   const meter = document.createElement('output')
   el.append(meter)
   const tick = setInterval(() => { if (!el.isConnected) clearInterval(tick); else meter.textContent = `draw time ${cost().toFixed(1)} ms a frame` }, 500)

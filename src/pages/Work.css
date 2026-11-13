@@ -1,7 +1,7 @@
 /* ---------- Work page: Figma "Work" (290:12780), drawn at 1512 wide ----------
    content column 1252 with 130 at each side (shrinking with the window), title 131 from the top,
-   title to tiles 30, two columns 40 apart, rows 50 apart, 120 down to the footer
-   (Lavanya's changes to the Figma spacing, 2026-11-13/14: 50 / 100 / 240 became 30 / 50 / 120).
+   title to tiles 30, two columns 40 apart, rows 70 apart, 120 down to the footer
+   (Lavanya's changes to the Figma spacing, 2026-11-13/14: 50 / 100 / 240 became 30 / 70 / 120).
    No motif here (Lavanya, 2026-11-13): flat color/white/default. */
 html:has(.work-page),html:has(.work-page) body{background:var(--color-white-default)}
 
@@ -25,7 +25,7 @@ html:has(.work-page),html:has(.work-page) body{background:var(--color-white-defa
   color:var(--color-purple-default);
 }
 
-.cases{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:50px 40px;align-items:start}
+.cases{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:70px 40px;align-items:start}
 
 /* a case: tile, 24, then title and tags 16 apart */
 .case{display:flex;flex-direction:column;gap:24px;min-width:0}

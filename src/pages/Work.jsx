@@ -8,9 +8,12 @@ import { TILES, LOOK, DEFAULT_BG, TILE_W } from '../components/work/tiles'
 import './Work.css'
 
 /**
- * Phones (Figma note beside "Work - full scroll"): the bottom nav bar hides once the page has
- * scrolled 50px into the gap between the last case study and the footer, so it never sits over
- * the footer, and comes back when you scroll up past that line again.
+ * When the nav bar steps aside for the footer.
+ * Phones (Figma note beside "Work - full scroll"): the bottom bar hides once the page has scrolled
+ * 50px into the gap between the last case study and the footer, so it never sits over the footer,
+ * and comes back when you scroll up past that line again.
+ * Desktop (Lavanya, 2026-11-14): the top bar hides when the footer comes into view, and comes back
+ * as soon as you scroll up.
  */
 const NAV_HIDE_AFTER = 50   // px into that gap
 const PHONE = '(max-width: 600px)'
@@ -19,14 +22,21 @@ function useNavHidden(lineRef) {
   const [hidden, setHidden] = useState(false)
   useEffect(() => {
     const phone = matchMedia(PHONE)
-    let raf = 0
+    let raf = 0, lastY = scrollY, hid = false
     const check = () => {
       raf = 0
       const line = lineRef.current
       const dock = document.querySelector('.nav-dock')
-      if (!phone.matches || !line || !dock) return setHidden(false)
-      // the line has risen above the band the bar sits on
-      setHidden(line.getBoundingClientRect().top <= innerHeight - dock.offsetHeight)
+      const foot = document.querySelector('.page-foot')
+      const y = scrollY, up = y < lastY - 1, down = y > lastY + 1
+      if (up || down) lastY = y
+      if (!line || !dock || !foot) hid = false
+      // phones: the line has risen above the band the bar sits on
+      else if (phone.matches) hid = line.getBoundingClientRect().top <= innerHeight - dock.offsetHeight
+      // desktop: footer in view and scrolling down hides it; scrolling up, or the footer gone, shows it
+      else if (foot.getBoundingClientRect().top >= innerHeight || up) hid = false
+      else if (down) hid = true
+      setHidden(hid)
     }
     const queue = () => { if (!raf) raf = requestAnimationFrame(check) }
     addEventListener('scroll', queue, { passive: true })

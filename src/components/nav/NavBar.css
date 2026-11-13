@@ -11,6 +11,9 @@
   pointer-events:none;
   transition:transform .4s var(--ease-out), opacity .4s var(--ease-out);
 }
+/* stepping aside for the footer (Work.jsx): desktop lifts and fades, phones slide down */
+.nav-dock.hidden{transform:translateY(-16px);opacity:0}
+.nav-dock.hidden .navbar{pointer-events:none}
 
 /* padding 4 / 8, gap 20, radius 8, highlight outline, shadow/nav bar. Figma's stroke sits inside
    the padding, so the padding here is 1px less to keep the bar 331 x 51 */
