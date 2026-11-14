@@ -18,16 +18,17 @@
 /* padding 4 / 8, gap 20, radius 8. Figma's stroke sits inside the padding, so the padding here
    loses the stroke's width to keep the bar 331 x 51.
    Outline and float (navLook.js, ?nav): mixed from the page's section colours, --tint (highlight)
-   and --deep (full colour), so about and play get theirs. Defaults are Figma's: 1px highlight
-   outline and shadow/nav bar (black 10%, 0 2 4) */
+   and --deep (full colour), so about and play get theirs, with their own extra colour (--depth,
+   --glowa). Fallbacks are Figma's: 1px highlight outline and shadow/nav bar (black 10%, 0 2 4) */
 .navbar{
   --tint:var(--color-purple-highlight);--deep:var(--color-purple-default);
+  --depth:var(--nav-stroke-depth, 0%);--glowa:var(--nav-glow-a, 0%);
   --sw:var(--nav-stroke, 1px);
   --line:color-mix(in oklab,
-    color-mix(in oklab, var(--tint), var(--deep) var(--nav-stroke-depth, 0%)),
+    color-mix(in oklab, var(--tint), var(--deep) var(--depth)),
     var(--nav-stroke-to, #fff) var(--nav-stroke-bright, 0%));
   --drop:color-mix(in srgb, color-mix(in oklab, #000, var(--deep) var(--nav-shadow-tint, 0%)) var(--nav-shadow-a, 10%), transparent);
-  --glow:color-mix(in srgb, var(--deep) var(--nav-glow-a, 0%), transparent);
+  --glow:color-mix(in srgb, var(--deep) var(--glowa), transparent);
   pointer-events:auto;
   display:flex;align-items:center;gap:20px;padding:calc(4px - var(--sw)) calc(8px - var(--sw));
   background:var(--color-white-default);border:var(--sw) solid var(--line);border-radius:8px;
@@ -36,11 +37,11 @@
 }
 .navbar a{text-decoration:none}
 /* each page's own colours; data-preview is the ?nav panel trying another page's */
-.navbar[data-section=about]{--tint:var(--color-teal-highlight);--deep:var(--color-teal-default)}
-.navbar[data-section=play]{--tint:var(--color-pink-highlight);--deep:var(--color-pink-default)}
-.navbar[data-preview=work]{--tint:var(--color-purple-highlight);--deep:var(--color-purple-default)}
-.navbar[data-preview=about]{--tint:var(--color-teal-highlight);--deep:var(--color-teal-default)}
-.navbar[data-preview=play]{--tint:var(--color-pink-highlight);--deep:var(--color-pink-default)}
+.navbar[data-section=about]{--tint:var(--color-teal-highlight);--deep:var(--color-teal-default);--depth:var(--nav-stroke-depth-about, 0%);--glowa:var(--nav-glow-a-about, 0%)}
+.navbar[data-section=play]{--tint:var(--color-pink-highlight);--deep:var(--color-pink-default);--depth:var(--nav-stroke-depth-play, 0%);--glowa:var(--nav-glow-a-play, 0%)}
+.navbar[data-preview=work]{--tint:var(--color-purple-highlight);--deep:var(--color-purple-default);--depth:var(--nav-stroke-depth, 0%);--glowa:var(--nav-glow-a, 0%)}
+.navbar[data-preview=about]{--tint:var(--color-teal-highlight);--deep:var(--color-teal-default);--depth:var(--nav-stroke-depth-about, 0%);--glowa:var(--nav-glow-a-about, 0%)}
+.navbar[data-preview=play]{--tint:var(--color-pink-highlight);--deep:var(--color-pink-default);--depth:var(--nav-stroke-depth-play, 0%);--glowa:var(--nav-glow-a-play, 0%)}
 
 /* the logo: a 54 x 43 slot holding the 47.3 x 36 butterfly turned 14deg, centred where Figma's
    rotated bounds (54.6 x 46.4, from the slot's top) are centred */
