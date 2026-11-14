@@ -38,6 +38,9 @@
 .nav-logo .bfly{
   position:absolute;inset:0;cursor:pointer;--u:calc(47.304px / 112);
   --crop-l:-36.88%;--crop-t:-13.65%;--crop-w:173.77%;--crop-h:127.3%;
+  /* a touch brighter, part way to the garden's butterfly (saturate 1.3, brightness 1.06) so the two
+     don't clash (Lavanya, 2026-11-14). On the box, so the hover glow on the image adds on top */
+  filter:saturate(1.18) brightness(1.04);
 }
 .nav-logo:focus-visible{outline:1px solid var(--color-purple-default);outline-offset:2px;border-radius:4px}
 
