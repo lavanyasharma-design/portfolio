@@ -9,11 +9,11 @@ import './Work.css'
 
 /**
  * When the nav bar steps aside for the footer.
- * Phones (Figma note beside "Work - full scroll"): the bottom bar hides once the page has scrolled
- * 50px into the gap between the last case study and the footer, so it never sits over the footer,
- * and comes back when you scroll up past that line again.
- * Desktop (Lavanya, 2026-11-14): the top bar hides when the footer comes into view, and comes back
- * as soon as you scroll up.
+ * Both hide while scrolling down near the footer and come back, in place, the moment you scroll up
+ * (Lavanya, 2026-11-14). Where "near" starts:
+ * - phones (Figma note beside "Work - full scroll"): once the page has scrolled 50px into the gap
+ *   between the last case study and the footer, so the bottom bar never sits over the footer;
+ * - desktop: once the footer comes into view.
  */
 const NAV_HIDE_AFTER = 50   // px into that gap
 const PHONE = '(max-width: 600px)'
@@ -28,13 +28,16 @@ function useNavHidden(lineRef) {
       const line = lineRef.current
       const dock = document.querySelector('.nav-dock')
       const foot = document.querySelector('.page-foot')
-      const y = scrollY, up = y < lastY - 1, down = y > lastY + 1
+      // clamped, so iOS's bounce past the bottom doesn't read as scrolling up
+      const y = Math.min(scrollY, document.documentElement.scrollHeight - innerHeight)
+      const up = y < lastY - 1, down = y > lastY + 1
       if (up || down) lastY = y
-      if (!line || !dock || !foot) hid = false
-      // phones: the line has risen above the band the bar sits on
-      else if (phone.matches) hid = line.getBoundingClientRect().top <= innerHeight - dock.offsetHeight
-      // desktop: footer in view and scrolling down hides it; scrolling up, or the footer gone, shows it
-      else if (foot.getBoundingClientRect().top >= innerHeight || up) hid = false
+      const near = !line || !dock || !foot ? false
+        // phones: the line has risen above the band the bar sits on
+        : phone.matches ? line.getBoundingClientRect().top <= innerHeight - dock.offsetHeight
+        // desktop: the footer is in view
+        : foot.getBoundingClientRect().top < innerHeight
+      if (!near || up) hid = false
       else if (down) hid = true
       setHidden(hid)
     }

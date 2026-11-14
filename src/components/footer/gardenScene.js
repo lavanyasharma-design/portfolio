@@ -37,6 +37,7 @@ export const GARDEN = {
   hop: 1,          // how much it bobs up and down as it flies (the chirpiness)
   visit: 5,        // seconds of flying between visits to a sunflower
   stay: 2.4,       // seconds it rests on a sunflower
+  phoneTall: 1.3,  // grass height on phones (600px and narrower): the tallest blades reach the band's top
 }
 /* Lavanya's values, 2026-11-14 (seed to haze, bSize to hop). grain, edge, visit and stay are new */
 
@@ -123,13 +124,18 @@ function build(W, H, G) {
   const P = palette(G.light)
   const between = (a, b) => a + r() * (b - a)
   const pick = (arr) => arr[(r() * arr.length) | 0]
+  // phones: the grass looked unfinished in the short band (Lavanya, 2026-11-14), so the far and
+  // middle grass grow by phoneTall, and the near grass and sunflowers by half as much, so the
+  // flowers still stand above the near blades
+  const k = W <= 600 ? G.phoneTall : 1, kNear = 1 + (k - 1) / 2
 
   const LAYERS = [
     { colors: P.back, every: 52, blades: [8, 14], h: [0.34, 0.74], w: [8, 13], base: 0.9, lean: 0.42 },
     { colors: P.mid, every: 62, blades: [7, 13], h: [0.26, 0.8], w: [9, 15], base: 0.96, lean: 0.48 },
     { colors: P.front, every: 46, blades: [5, 10], h: [0.12, 0.46], w: [10, 16], base: 1.03, lean: 0.55 },
   ]
-  const layers = LAYERS.map((L) => {
+  const layers = LAYERS.map((L, li) => {
+    const grow = li < 2 ? k : kNear
     const blades = []
     const n = Math.max(3, Math.round((W / (L.every * s)) * G.density))
     for (let i = 0; i < n; i++) {
@@ -139,7 +145,7 @@ function build(W, H, G) {
       for (let j = 0; j < m; j++) {
         const spread = m > 1 ? (j / (m - 1)) * 2 - 1 : 0
         const lean = spread * L.lean + (r() - 0.5) * 0.25
-        const h = Math.min(0.95, between(...L.h) * tall) * H * (1 - Math.abs(spread) * 0.3)
+        const h = Math.min(0.95, between(...L.h) * tall * grow) * H * (1 - Math.abs(spread) * 0.3)
         blades.push({
           x: cx + (r() - 0.5) * 16 * s,
           y: H * L.base + r() * 4 * s,
@@ -180,7 +186,7 @@ function build(W, H, G) {
     flowers.push({
       x: ((i + 0.2 + r() * 0.6) / nFlowers) * W,
       y: H,
-      h: between(0.36, 0.6) * H,
+      h: between(0.36, 0.6) * kNear * H,
       lean: (r() - 0.5) * 0.35,
       phase: r() * TAU,
       rad,
@@ -645,6 +651,7 @@ function mountPanel({ rebuild, redraw, cost }) {
     ['hop', 'chirpiness', 0, 2.5, 0.05],
     ['visit', 'flying between flowers (s)', 1, 15, 0.5],
     ['stay', 'rest on a flower (s)', 0.5, 8, 0.1],
+    ['phoneTall', 'grass height on phones', 1, 1.6, 0.05, true],
   ]
   el.innerHTML = `<b>garden</b>${rows.map(([k, label, min, max, step]) =>
     `<label><span>${label}</span><input type="range" data-k="${k}" min="${min}" max="${max}" step="${step}" value="${G[k]}"><output>${G[k]}</output></label>`).join('')}<button type="button" class="copy">copy values</button>`

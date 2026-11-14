@@ -55,11 +55,12 @@ html:has(.work-page),html:has(.work-page) body{background:var(--color-white-defa
    8 to the tags; 120 down to the footer (Figma 100, plus her extra 20). The tiles keep the tuned 606 x 396 compositions
    (Figma's grey 362 x 240 tiles are placeholders) */
 @media (max-width:600px){
-  .work-page{--side:20px;padding-top:70px}
+  /* top 56 and tiles 32 apart: Lavanya's phone review, 2026-11-14 (Figma 70 / 24) */
+  .work-page{--side:20px;padding-top:56px}
   .work-section{margin-bottom:120px}
   /* Mobile/h2 is set in Cormorant Garamond in Figma; Cormorant Infant Medium here, see notes */
   .work-section h1{margin:0 0 16px;max-width:none;font-size:40px;font-weight:500}
-  .cases{grid-template-columns:minmax(0, 1fr);row-gap:24px}
+  .cases{grid-template-columns:minmax(0, 1fr);row-gap:32px}
   .case{gap:12px}
   .case-copy{gap:8px}
   .case-copy h2{font-size:20px;letter-spacing:0}   /* Mobile/h5 */
