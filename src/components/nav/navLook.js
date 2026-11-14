@@ -19,11 +19,11 @@ export const NAV_LOOK = {
   glowA: 0.06,         // a second, wide soft shadow in the section's colour, for the float (0 off)
   glowY: 1,            // px down
   glowBlur: 17,        // px
-  // extra on top, for the about and play pages only. Starting at 0 (same as work) for her to set
-  aboutColour: 0,      // more outline colour on about
-  aboutGlow: 0,        // more glow on about
-  playColour: 0,       // more outline colour on play
-  playGlow: 0,         // more glow on play
+  // extra on top, for the about and play pages only (her values, 2026-11-15)
+  aboutColour: 0.31,   // more outline colour on about
+  aboutGlow: 0.08,     // more glow on about
+  playColour: 0.05,    // more outline colour on play
+  playGlow: 0.02,      // more glow on play
 }
 
 /** writes NAV_LOOK as CSS variables on :root (NavBar.css mixes them with the section colours) */
