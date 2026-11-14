@@ -2,21 +2,21 @@
  * The nav bar's outline and float (Lavanya, 2026-11-15): a lilac stroke with depth, so the bar
  * floats rather than sitting on a grey line. Every colour is mixed from the page's own section
  * colours (NavBar.css: work purple, about teal, play pink), so one set of values serves all pages.
- * The defaults are Figma's (1px color/<section>/highlight, shadow/nav bar black 10% 0 2 4) until she
- * sets her own in ?nav; "copy values" gives the numbers to paste here.
+ * Her values from ?nav, 2026-11-15 (Figma's 1px color/<section>/highlight and shadow/nav bar, black
+ * 10% 0 2 4, read as a grey line). "copy values" gives the numbers to paste here.
  */
 export const NAV_LOOK = {
-  stroke: 1,         // px, the outline's width
-  strokeDepth: 0,    // outline colour: 0 the section's highlight (Figma), 1 its full colour
-  strokeBright: 0,   // outline brightness: below 0 darker, above 0 lighter
-  shadowTint: 0,     // drop shadow colour: 0 grey (Figma), 1 the section's colour
-  shadowA: 0.1,      // drop shadow strength
+  stroke: 1.75,         // px, the outline's width
+  strokeDepth: 0.08,    // outline colour: 0 the section's highlight (Figma), 1 its full colour
+  strokeBright: 0.42,   // outline brightness: below 0 darker, above 0 lighter
+  shadowTint: 0.34,     // drop shadow colour: 0 grey (Figma), 1 the section's colour
+  shadowA: 0.05,      // drop shadow strength
   shadowY: 2,        // px down
-  shadowBlur: 4,     // px
-  shadowSpread: 0,   // px
-  glowA: 0,          // a second, wide soft shadow in the section's colour, for the float (0 off)
-  glowY: 8,          // px down
-  glowBlur: 24,      // px
+  shadowBlur: 8,     // px
+  shadowSpread: 2,   // px
+  glowA: 0.08,          // a second, wide soft shadow in the section's colour, for the float (0 off)
+  glowY: 1,          // px down
+  glowBlur: 9,      // px
 }
 
 /** writes NAV_LOOK as CSS variables on :root (NavBar.css mixes them with the section colours) */
