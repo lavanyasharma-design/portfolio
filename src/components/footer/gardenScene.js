@@ -49,27 +49,27 @@ export const GARDEN = {
   stay: 2.4,       // seconds it rests on a sunflower
   phoneTall: 1.3,  // grass height on phones (600px and narrower): the tallest blades reach the band's top
 
-  // grass and cursor (desktop only): Lavanya's values from ?garden, 2026-11-14
+  // grass and cursor (desktop only): Lavanya's values from ?garden, 2026-11-14/15
   reach: 117,      // px around the cursor the grass feels, on the desktop band
   brush: 1.05,     // how much moving through the grass sweeps blades along with the cursor
   part: 0.3,       // how far blades lean away from a cursor resting among them
   spring: 6,       // how stiff a blade is: higher springs back quicker and flutters faster
-  settle: 4.9,     // how quickly the flutter calms: lower flutters longer
+  settle: 1,     // how quickly the flutter calms: lower flutters longer
   tipBend: 1.2,    // how much more the tip bends than the base
-  depth: 0.45,     // how much the far grass feels it: 0 only the near grass, 1 all alike
+  depth: 0.6,     // how much the far grass feels it: 0 only the near grass, 1 all alike
   flowerTouch: 0.65, // how much the sunflowers move with it
-  softness: 0.4,   // s: the cursor's push eases in and out over this long (new; a starting point for her)
+  softness: 0.4,   // s: the cursor's push eases in and out over this long (graceful, not springy)
 
   // the butterfly and the cursor (desktop): with the cursor right over it, it darts away
-  // (Lavanya, 2026-11-14). Starting points for her to set
-  dart: 90,        // px it darts, on the desktop band
-  dartTime: 1.1,   // s the dart takes to play out
-  dartFlap: 2.5,   // its wing beats speed up this many times while it darts
+  // (Lavanya, 2026-11-14; her values 2026-11-15)
+  dart: 135,        // px it darts, on the desktop band
+  dartTime: 1.35,   // s the dart takes to play out
+  dartFlap: 1.6,   // its wing beats speed up this many times while it darts
 
-  // the sunflowers (2026-11-14). Starting points for her to set
-  petalBreeze: 0.6, // petals stirring in the breeze, desktop and phones (0 still)
-  petalSpeed: 0.5, // breezes a second through the petals
-  flowerTwitch: 1, // desktop: the little twitch when the cursor passes over a flower head
+  // the sunflowers (2026-11-14; her values 2026-11-15)
+  petalBreeze: 0.4, // petals stirring in the breeze, desktop and phones (0 still)
+  petalSpeed: 0.35, // breezes a second through the petals
+  flowerTwitch: 0.85, // desktop: the little twitch when the cursor passes over a flower head
 }
 /* Lavanya's values from her phone, 2026-11-14, second round (calm on the phone); the bigger
    butterfly is phones only, desktop keeps 52. Third round (desktop): no wind sway on desktop, and
