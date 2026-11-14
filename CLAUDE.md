@@ -107,6 +107,7 @@ public/motif.svg                   tiled page background
 - Every design decision should be deliberate and distinctive, no generic templates
 - British English throughout
 - No em dashes
+- **Top padding on every page after work** (case studies, about, play; Lavanya, 2026-11-15): use the work page's, not Figma's: **131** from the top of the page on desktop (clears the nav bar, which ends at 111), **56** on phones (Figma: 70). Where her Figma frame for a page shows a different top padding, build with 131 / 56 and flag the difference to her, in case she wants the Figma one.
 
 ## Credit / licence
 
