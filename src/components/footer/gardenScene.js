@@ -24,25 +24,27 @@ export const GARDEN = {
   seed: 32,        // which garden: another number lays it out differently
   density: 1.05,   // how much grass
   flowers: 1.4,    // how many sunflowers
-  light: 0.25,     // washes every purple lighter (0 to 0.6)
+  light: 0.21,     // washes every purple lighter (0 to 0.6)
   round: 0.1,      // grass tips: 0 pointed, 1 blunt as the blade is wide
-  grain: 0.59,     // pencil grain: how much paper shows through the colour
+  grain: 0.47,     // pencil grain: how much paper shows through the colour
   edge: 0.4,       // pencil edge along each blade
   sway: 0.65,      // how far the grass moves in the wind
   wind: 0.75,      // how fast the wind moves
   haze: 0.51,      // how much the far grass fades into the page
-  bSize: 69,       // butterfly width, px on the desktop band (324 tall); scales with the band
+  bSize: 52,       // butterfly width on desktop, px on the 324-tall band; scales with the band
+  bSizePhone: 69,  // the same on phones (600px and narrower), where the band is 150 tall
+  bVivid: 1,       // butterfly colour: 1 the window flyer's boost (saturate 1.3, brightness 1.06), 0 the plain image, as in the nav bar
   bSpeed: 125,     // how fast it drifts from side to side, px a second on the desktop band
-  loop: 68,        // how high it swings up and down, px on the desktop band
-  loopRate: 0.3,   // swings a second
-  flap: 6,         // wing beats a second (was 12: calmer, Lavanya 2026-11-14)
+  loop: 52,        // how high it swings up and down, px on the desktop band
+  loopRate: 0.26,  // swings a second
+  flap: 4,         // wing beats a second (was 12: calmer, Lavanya 2026-11-14)
   hop: 0.8,        // how much each wing beat lifts it
-  visit: 5,        // seconds of flying between visits to a sunflower
+  visit: 9,        // seconds of flying between visits to a sunflower
   stay: 2.4,       // seconds it rests on a sunflower
   phoneTall: 1.3,  // grass height on phones (600px and narrower): the tallest blades reach the band's top
 }
-/* Lavanya's values from her phone, 2026-11-14 (seed, flowers, light, grain, wind, bSize, loop,
-   loopRate, hop), with flap slowed */
+/* Lavanya's values from her phone, 2026-11-14, second round (calm on the phone); the bigger
+   butterfly is phones only, desktop keeps 52 */
 
 const PAL = {
   back: ['#e6dafb', '#ddcef8', '#d3c1f4', '#e0d2f9'],      // far grass, palest
@@ -230,8 +232,9 @@ function build(W, H, G) {
 /* ---------- the butterfly, as it flies out of the window ---------- */
 
 // the logo image with the window flyer's crop (Design System logo 330:3) and its colour lift
-// (saturate 1.3, brightness 1.06, as in WindowIntro.css), baked once
-function prepare(img) {
+// (saturate 1.3, brightness 1.06, as in WindowIntro.css) scaled by v (0: the plain image), baked
+// once per value
+function prepare(img, v = 1) {
   const sx = 139, sy = 32, sw = 391, sh = 307
   const c = document.createElement('canvas')
   c.width = sw; c.height = sh
@@ -240,7 +243,7 @@ function prepare(img) {
   const d = x.getImageData(0, 0, sw, sh), px = d.data
   for (let i = 0; i < px.length; i += 4) {
     const L = 0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2]
-    for (let k = 0; k < 3; k++) px[i + k] = Math.min(255, (L + (px[i + k] - L) * 1.3) * 1.06)
+    for (let k = 0; k < 3; k++) px[i + k] = Math.min(255, (L + (px[i + k] - L) * (1 + 0.3 * v)) * (1 + 0.06 * v))
   }
   x.putImageData(d, 0, 0)
   return c
@@ -257,7 +260,9 @@ export function mountGarden(canvas) {
   let ctx = main
   const reduce = matchMedia('(prefers-reduced-motion: reduce)')
   let scene = null, bfly = null, dpr = 1, tooth = null, toothMain = null, toothNear = null
-  let raf = 0, visible = false, last = 0, T = 0, cost = 0
+  let raf = 0, visible = false, last = 0, T = 0, cost = 0, vividFor = null
+  // the butterfly's width here: bigger on phones, where the band is short (Lavanya, 2026-11-14)
+  const bSize = () => (scene.W <= 600 ? G.bSizePhone : G.bSize) * scene.s
 
   /* the flight. cruise: a centre (cx) drifts between the sides, easing into each turn, while the
      butterfly swings up and down along it in a smooth wave. approach / perch / takeoff: `w` blends
@@ -271,7 +276,7 @@ export function mountGarden(canvas) {
 
   const img = new Image()
   img.src = '/assets/butterfly.png'
-  img.decode().then(() => { bfly = prepare(img); draw() }).catch(() => {})
+  img.decode().then(() => { bfly = prepare(img, G.bVivid); vividFor = G.bVivid; draw() }).catch(() => {})
 
   function resize() {
     const W = canvas.clientWidth, H = canvas.clientHeight
@@ -449,8 +454,8 @@ export function mountGarden(canvas) {
 
   function butterfly() {
     if (!bfly || !scene) return
-    const { s } = scene
-    const bw = G.bSize * s, bh = bw * (bfly.height / bfly.width)
+    if (G.bVivid !== vividFor) { bfly = prepare(img, G.bVivid); vividFor = G.bVivid }
+    const bw = bSize(), bh = bw * (bfly.height / bfly.width)
     let x, y, rot, k
     if (reduce.matches) {
       const f = scene.flowers.reduce((m, f) => (f.h > m.h ? f : m), scene.flowers[0])
@@ -516,7 +521,7 @@ export function mountGarden(canvas) {
   function update(dt) {
     const { W, H, s } = scene
     const R = G.loop * s
-    const lo = W * 0.06 + R + G.bSize * s * 0.5, hi = W - lo
+    const lo = W * 0.06 + R + bSize() * 0.5, hi = W - lo
 
     // sunflowers spring back after being landed on
     for (const f of scene.flowers) { f.dipV += (-f.dip * 70 - f.dipV * 9) * dt; f.dip += f.dipV * dt }
@@ -673,7 +678,9 @@ function mountPanel({ rebuild, redraw, cost }) {
     ['haze', 'far fade', 0, 0.8, 0.01],
     ['sway', 'sway', 0, 3, 0.05],
     ['wind', 'wind speed', 0, 3, 0.05],
-    ['bSize', 'butterfly size', 20, 90, 1],
+    ['bSize', 'butterfly size, desktop', 20, 90, 1],
+    ['bSizePhone', 'butterfly size, phones', 20, 90, 1],
+    ['bVivid', 'butterfly colour (0 as in the nav)', 0, 1, 0.05],
     ['bSpeed', 'side to side', 10, 300, 5],
     ['loop', 'swing height', 0, 90, 1],
     ['loopRate', 'swings/s', 0, 1, 0.02],
