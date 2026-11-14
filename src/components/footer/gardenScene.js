@@ -8,7 +8,7 @@
  * slowly with a glide every few seconds (Lavanya, 2026-11-14: the old loops and hops read as
  * glitchy), easing round at each side, and now and then
  * glides down to a sunflower, touches down softly (the flower dips under it), rests with its wings
- * slowly opening and closing, and lifts off again. It has no sound and doesn't react to the pointer.
+ * slowly opening and closing, and lifts off again. It has no sound. With the cursor right over it (desktop) it darts away.
  *
  * The grass does, on desktop (Lavanya, 2026-11-14): every blade (and sunflower) is a small spring.
  * The cursor brushes blades along as it moves through them and parts them where it rests; let go,
@@ -33,7 +33,8 @@ export const GARDEN = {
   round: 0.1,      // grass tips: 0 pointed, 1 blunt as the blade is wide
   grain: 0.47,     // pencil grain: how much paper shows through the colour
   edge: 0.4,       // pencil edge along each blade
-  sway: 0.65,      // how far the grass moves in the wind
+  sway: 0,         // how far the grass moves in the wind, desktop (Lavanya 2026-11-14: still)
+  swayPhone: 0.65, // the same on phones (600px and narrower), as before
   wind: 0.75,      // how fast the wind moves
   haze: 0.51,      // how much the far grass fades into the page
   bSize: 52,       // butterfly width on desktop, px on the 324-tall band; scales with the band
@@ -48,18 +49,31 @@ export const GARDEN = {
   stay: 2.4,       // seconds it rests on a sunflower
   phoneTall: 1.3,  // grass height on phones (600px and narrower): the tallest blades reach the band's top
 
-  // grass and cursor (desktop only). Starting points for her to set in ?garden, not chosen values
-  reach: 70,       // px around the cursor the grass feels, on the desktop band
-  brush: 1,        // how much moving through the grass sweeps blades along with the cursor
+  // grass and cursor (desktop only): Lavanya's values from ?garden, 2026-11-14
+  reach: 117,      // px around the cursor the grass feels, on the desktop band
+  brush: 1.05,     // how much moving through the grass sweeps blades along with the cursor
   part: 0.3,       // how far blades lean away from a cursor resting among them
-  spring: 9,       // how stiff a blade is: higher springs back quicker and flutters faster
-  settle: 2.2,     // how quickly the flutter calms: lower flutters longer
-  tipBend: 1.6,    // how much more the tip bends than the base
-  depth: 0.5,      // how much the far grass feels it: 0 only the near grass, 1 all alike
-  flowerTouch: 0.5, // how much the sunflowers move with it
+  spring: 6,       // how stiff a blade is: higher springs back quicker and flutters faster
+  settle: 4.9,     // how quickly the flutter calms: lower flutters longer
+  tipBend: 1.2,    // how much more the tip bends than the base
+  depth: 0.45,     // how much the far grass feels it: 0 only the near grass, 1 all alike
+  flowerTouch: 0.65, // how much the sunflowers move with it
+  softness: 0.4,   // s: the cursor's push eases in and out over this long (new; a starting point for her)
+
+  // the butterfly and the cursor (desktop): with the cursor right over it, it darts away
+  // (Lavanya, 2026-11-14). Starting points for her to set
+  dart: 90,        // px it darts, on the desktop band
+  dartTime: 1.1,   // s the dart takes to play out
+  dartFlap: 2.5,   // its wing beats speed up this many times while it darts
+
+  // the sunflowers (2026-11-14). Starting points for her to set
+  petalBreeze: 0.6, // petals stirring in the breeze, desktop and phones (0 still)
+  petalSpeed: 0.5, // breezes a second through the petals
+  flowerTwitch: 1, // desktop: the little twitch when the cursor passes over a flower head
 }
 /* Lavanya's values from her phone, 2026-11-14, second round (calm on the phone); the bigger
-   butterfly is phones only, desktop keeps 52 */
+   butterfly is phones only, desktop keeps 52. Third round (desktop): no wind sway on desktop, and
+   her grass and cursor values */
 
 const PAL = {
   back: ['#e6dafb', '#ddcef8', '#d3c1f4', '#e0d2f9'],      // far grass, palest
@@ -285,6 +299,7 @@ export function mountGarden(canvas) {
      Wings: `rate` beats a second, eased; every few seconds it glides, its wings settling open */
   const fly = {
     cx: null, vx: 0, dir: -1, theta: 0, x: 0, y: 0, rot: 0, svx: 0, svy: 0, perchT: 0,
+    dx: 0, dy: 0, dvx: 0, dvy: 0, dartReady: 0, burstUntil: 0, wFrom: 1,
     flap: 0, rate: 0, flapping: true, stopped: false, glideAt: 2.5, glideUntil: 0, rest: 0,
     mode: 'cruise', since: 0, next: 3, flower: null, last: null, w: 0,
   }
@@ -306,11 +321,12 @@ export function mountGarden(canvas) {
     draw()
   }
 
-  const wind = (x) => G.sway * 0.09 * (Math.sin(T * 0.9 * G.wind + x * 0.0045) * 0.65 + Math.sin(T * 1.9 * G.wind + x * 0.013 + 1.3) * 0.35)
+  const swayNow = () => (scene.W <= 600 ? G.swayPhone : G.sway)
+  const wind = (x) => swayNow() * 0.09 * (Math.sin(T * 0.9 * G.wind + x * 0.0045) * 0.65 + Math.sin(T * 1.9 * G.wind + x * 0.013 + 1.3) * 0.35)
 
   // a blade: a tapered, bending leaf from its base to its tip
   function blade(b) {
-    const sway = wind(b.x) * (0.4 + b.flex) + Math.sin(T * 2.2 * G.wind + b.phase) * 0.015 * G.sway
+    const sway = wind(b.x) * (0.4 + b.flex) + Math.sin(T * 2.2 * G.wind + b.phase) * 0.015 * swayNow()
     const push = b.pa || 0   // the cursor's bend (desktop)
     const a0 = b.lean * 0.45 + sway + push
     const a1 = b.lean + b.curve + sway * 1.7 + push * G.tipBend
@@ -385,7 +401,7 @@ export function mountGarden(canvas) {
   }
 
   function flowerHead(f) {
-    const a = f.lean + wind(f.x) * 0.7 + Math.sin(T * 1.6 * G.wind + f.phase) * 0.02 * G.sway + (f.pa || 0) * G.flowerTouch
+    const a = f.lean + wind(f.x) * 0.7 + Math.sin(T * 1.6 * G.wind + f.phase) * 0.02 * swayNow() + (f.pa || 0) * G.flowerTouch + (f.tw || 0)
     return { a, hx: f.x + Math.sin(a) * f.h, hy: f.y - Math.cos(a) * f.h + f.dip }
   }
 
@@ -424,12 +440,17 @@ export function mountGarden(canvas) {
       ctx.scale(1, 0.82)
       ctx.lineWidth = 0.7 * s
       ctx.strokeStyle = ROSE.edge
+      // each petal stirs on its own beat, the stir running round the ring like a breeze; a twitch
+      // ruffles them harder for a moment
+      const stir = G.petalBreeze + (f.ruffle || 0) * 2.5
+      const tb = T * G.petalSpeed * TAU
       for (const ring of [f.back, f.front]) {
         for (const p of ring) {
+          const w1 = Math.sin(tb + p.a * 2 + f.phase), w2 = Math.sin(tb * 1.7 + p.a * 3.1 + f.phase * 2)
           ctx.save()
-          ctx.rotate(p.a)
+          ctx.rotate(p.a + (w1 * 0.05 + w2 * 0.025) * stir)
           ctx.translate(f.rad * 0.3, 0)
-          petal(f.rad * p.len * 0.95, f.rad * p.wid)
+          petal(f.rad * p.len * 0.95 * (1 + w2 * 0.035 * stir), f.rad * p.wid * (1 + w1 * 0.08 * stir))
           ctx.fillStyle = p.color
           ctx.fill()
           ctx.stroke()
@@ -559,16 +580,22 @@ export function mountGarden(canvas) {
   function touchGrass(dt) {
     if (dt <= 0) return
     const { s } = scene
-    // the cursor's sideways speed, smoothed, in desktop-band px a second
-    if (ptr.in && ptr.lx !== null) ptr.vx += ((ptr.x - ptr.lx) / dt / s - ptr.vx) * Math.min(1, dt * 12)
-    else ptr.vx *= Math.max(0, 1 - dt * 8)
+    // graceful, not springy: the cursor's sideways speed is smoothed over `softness` (mouse events
+    // arrive in uneven steps), and each blade's push eases in and out over it too (below), so the
+    // spring follows a gliding target instead of being kicked
+    const ease = Math.min(1, dt / Math.max(0.02, G.softness))
+    const raw = ptr.in && ptr.lx !== null ? (ptr.x - ptr.lx) / dt / s : 0
+    ptr.vx += (raw - ptr.vx) * Math.min(1, dt / Math.max(0.02, G.softness * 0.5))
     ptr.lx = ptr.in ? ptr.x : null
     const R = G.reach * s, k = G.spring * G.spring, c = G.settle
     const swept = Math.max(-1.5, Math.min(1.5, ptr.vx / 300))   // a brisk sweep is about 300px/s
+    // o.pt: the bend the cursor is asking for, eased; the blade springs towards it
     const spring = (o, near, away, weight) => {
-      const F = ptr.in && near > 0 ? near * weight * k * (G.brush * swept * 0.35 + G.part * away) : 0
+      const want = ptr.in && near > 0 ? near * weight * (G.brush * swept * 0.35 + G.part * away) : 0
+      const pt = (o.pt || 0) + (want - (o.pt || 0)) * ease
       const pa = o.pa || 0, pv = o.pv || 0
-      o.pv = pv + (F - k * pa - c * pv) * dt
+      o.pt = pt
+      o.pv = pv + (k * (pt - pa) - c * pv) * dt
       o.pa = pa + o.pv * dt
     }
     const weights = [G.depth, (1 + G.depth) / 2, 1]
@@ -578,15 +605,68 @@ export function mountGarden(canvas) {
     scene.layers.forEach((layer, li) => {
       for (const g of layer) for (const b of g.blades) {
         const near = ptr.in ? nearness(b.x, b.y, b.h, b.lean, R) : 0
-        if (!near && !b.pa && !b.pv) continue
+        if (!near && !b.pa && !b.pv && !b.pt) continue
         spring(b, near, away(b.x), weights[li])
-        if (Math.abs(b.pa) < 1e-4 && Math.abs(b.pv) < 1e-3 && !near) { b.pa = 0; b.pv = 0 }
+        if (!near && Math.abs(b.pa) < 1e-4 && Math.abs(b.pv) < 1e-3 && Math.abs(b.pt) < 1e-4) { b.pa = 0; b.pv = 0; b.pt = 0 }
       }
     })
     for (const f of scene.flowers) {
       const near = ptr.in ? nearness(f.x, f.y, f.h, f.lean, R) : 0
       spring(f, near, away(f.x), 1)
+      // a twitch when the cursor passes over the head: a quick, small jolt away from it on a stiff
+      // spring of its own, and the petals ruffle
+      if (ptr.in && G.flowerTwitch > 0 && T >= (f.twitchReady || 0)) {
+        const { hx, hy } = flowerHead(f)
+        if (Math.hypot(ptr.x - hx, ptr.y - hy) < f.rad * 1.3) {
+          f.tv = (f.tv || 0) + (ptr.x < hx ? 1 : -1) * 1.6 * G.flowerTwitch
+          f.dipV += 12 * s * G.flowerTwitch
+          f.ruffle = Math.min(1, G.flowerTwitch)
+          f.twitchReady = T + 0.9
+        }
+      }
     }
+  }
+
+  // the twitch spring and the petals' ruffle settle on every frame, wherever the cursor is
+  function settleFlowers(dt) {
+    for (const f of scene.flowers) {
+      const tw = f.tw || 0, tv = f.tv || 0
+      f.tv = tv + (-196 * tw - 9 * tv) * dt
+      f.tw = tw + f.tv * dt
+      if (f.ruffle) f.ruffle = f.ruffle < 0.01 ? 0 : f.ruffle * Math.exp(-dt * 2.5)
+    }
+  }
+
+  /* the dart (desktop): with the cursor right over it, it darts off away from it, wings racing,
+     up and out; then it carries on calmly from where it got to. On a flower, or landing on one,
+     it lifts off at once. dx / dy: the dart's offset from its usual path */
+  function dartAway(dt) {
+    const { s } = scene, bw = bSize()
+    const om = 4.5 / Math.max(0.2, G.dartTime)
+    if (ptr.in && T >= fly.dartReady && Math.hypot(ptr.x - fly.x, ptr.y - fly.y) < bw * 0.55) {
+      let ax = fly.x - ptr.x, ay = fly.y - ptr.y - bw * 0.35   // away, and a little up
+      const n = Math.hypot(ax, ay) || 1
+      ax /= n; ay /= n
+      fly.dvx += ax * G.dart * s * 2 * om
+      fly.dvy += ay * G.dart * s * om * Math.E
+      if (Math.abs(ax) > 0.2) fly.dir = Math.sign(ax)
+      fly.burstUntil = T + G.dartTime * 0.7
+      fly.dartReady = T + 0.6
+      if (fly.mode === 'perch' || fly.mode === 'approach') {
+        if (fly.mode === 'perch') fly.flower.dipV += 30 * s
+        fly.wFrom = fly.w; fly.mode = 'takeoff'; fly.since = T; fly.flapping = true
+      }
+    }
+    if (!fly.dvx && !fly.dvy && !fly.dx && !fly.dy) return
+    // sideways: it coasts to a stop, and the distance passes into its path so it carries on from there
+    fly.dvx -= fly.dvx * Math.min(1, 2 * om * dt)
+    fly.dx += fly.dvx * dt
+    const bleed = fly.dx * Math.min(1, dt * om * 0.5)
+    fly.cx += bleed; fly.dx -= bleed
+    // up and down: it springs back to its height
+    fly.dvy += (-om * om * fly.dy - 2 * om * fly.dvy) * dt
+    fly.dy += fly.dvy * dt
+    if (Math.abs(fly.dx) + Math.abs(fly.dy) < 0.05 && Math.abs(fly.dvx) + Math.abs(fly.dvy) < 0.5) { fly.dx = fly.dy = fly.dvx = fly.dvy = 0 }
   }
 
   function update(dt) {
@@ -597,6 +677,7 @@ export function mountGarden(canvas) {
     // sunflowers spring back after being landed on
     for (const f of scene.flowers) { f.dipV += (-f.dip * 70 - f.dipV * 9) * dt; f.dip += f.dipV * dt }
     touchGrass(dt)
+    settleFlowers(dt)
 
     // the drift; it pauses while it's on (or headed for) a flower. The speed eases, and it starts
     // turning early enough to come about right at the edge, so it never reverses with a jolt
@@ -617,10 +698,10 @@ export function mountGarden(canvas) {
     const loopY = cy + Math.sin(fly.theta) * R * 0.8
       + Math.sin(fly.flap) * H * 0.012 * G.hop * Math.min(1, fly.rate / Math.max(1, G.flap))   // a lift with each wing beat
 
-    // glides: every few seconds the wings settle open for a moment
+    // glides: every few seconds the wings settle open for a moment (never mid-dart)
     if (fly.mode === 'cruise') {
       if (T >= fly.glideAt) { fly.glideUntil = T + 0.7 + Math.random() * 0.6; fly.glideAt = fly.glideUntil + 2.5 + Math.random() * 3 }
-      fly.flapping = T >= fly.glideUntil
+      fly.flapping = T >= fly.glideUntil || T < fly.burstUntil
     }
 
     // visiting a sunflower: glide down to it, touch down softly, rest, lift off back into the loops
@@ -637,10 +718,10 @@ export function mountGarden(canvas) {
     } else if (fly.mode === 'perch') {
       fly.w = 1
       fly.flapping = false
-      if (u >= G.stay) { fly.mode = 'takeoff'; fly.since = T; fly.flower.dipV += 30 * s; fly.flapping = true }
+      if (u >= G.stay) { fly.mode = 'takeoff'; fly.since = T; fly.wFrom = 1; fly.flower.dipV += 30 * s; fly.flapping = true }
     } else if (fly.mode === 'takeoff') {
       const p = u / 1.4
-      fly.w = 1 - smooth(p)
+      fly.w = fly.wFrom * (1 - smooth(p))   // from wherever it was, if a dart cut a landing short
       arc = -Math.sin(Math.PI * Math.min(1, p)) * H * 0.1
       fly.flapping = true
       if (p >= 1) {
@@ -659,6 +740,9 @@ export function mountGarden(canvas) {
       fly.x = loopX
       fly.y = loopY
     }
+    dartAway(dt)
+    fly.x += fly.dx
+    fly.y += fly.dy
     fly.x = Math.min(W - 8 * s, Math.max(8 * s, fly.x))
     fly.y = Math.min(H * 0.8, Math.max(H * 0.12, fly.y))
 
@@ -679,7 +763,8 @@ export function mountGarden(canvas) {
 
     // the wings: the beat eases up and down; when it stops beating, the wings finish their stroke
     // and settle open instead of snapping there
-    fly.rate += ((fly.flapping ? G.flap : 0) - fly.rate) * Math.min(1, dt * 3)
+    const darting = T < fly.burstUntil
+    fly.rate += ((fly.flapping ? G.flap * (darting ? G.dartFlap : 1) : 0) - fly.rate) * Math.min(1, dt * (darting ? 10 : 3))
     if (fly.flapping) fly.stopped = false
     if (!fly.stopped) {
       const before = fly.flap
@@ -750,7 +835,8 @@ function mountPanel({ rebuild, redraw, cost }) {
     ['density', 'grass', 0.3, 2, 0.05, true],
     ['flowers', 'sunflowers', 0, 2.5, 0.05, true],
     ['haze', 'far fade', 0, 0.8, 0.01],
-    ['sway', 'sway', 0, 3, 0.05],
+    ['sway', 'sway, desktop', 0, 3, 0.05],
+    ['swayPhone', 'sway, phones', 0, 3, 0.05],
     ['wind', 'wind speed', 0, 3, 0.05],
     ['bSize', 'butterfly size, desktop', 20, 90, 1],
     ['bSizePhone', 'butterfly size, phones', 20, 90, 1],
@@ -764,6 +850,7 @@ function mountPanel({ rebuild, redraw, cost }) {
     ['stay', 'rest on a flower (s)', 0.5, 8, 0.1],
     ['phoneTall', 'grass height on phones', 1, 1.6, 0.05, true],
     'grass and cursor (desktop)',
+    ['softness', 'softness (s)', 0.05, 1.5, 0.05],
     ['reach', 'cursor reach (px)', 10, 200, 1],
     ['brush', 'sweep along', 0, 3, 0.05],
     ['part', 'lean away', 0, 1, 0.01],
@@ -772,6 +859,14 @@ function mountPanel({ rebuild, redraw, cost }) {
     ['tipBend', 'tip bend', 0.5, 3, 0.05],
     ['depth', 'far grass feels it', 0, 1, 0.05],
     ['flowerTouch', 'sunflowers move', 0, 1.5, 0.05],
+    ['flowerTwitch', 'flower twitch', 0, 3, 0.05],
+    'butterfly and cursor (desktop)',
+    ['dart', 'dart distance (px)', 0, 250, 5],
+    ['dartTime', 'dart time (s)', 0.3, 3, 0.05],
+    ['dartFlap', 'wing race', 1, 5, 0.1],
+    'petals (desktop and phones)',
+    ['petalBreeze', 'petal breeze', 0, 2, 0.05],
+    ['petalSpeed', 'breezes/s', 0.05, 2, 0.05],
   ]
   // a string is a section heading
   el.innerHTML = `<b>garden</b>${rows.map((row) => {
