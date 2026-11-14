@@ -24,7 +24,7 @@ function NavBar({ active, hidden = false }) {
   }
   return (
     <div className={`nav-dock${hidden ? ' hidden' : ''}`}>
-      <nav className="navbar" aria-label="Sections">
+      <nav className="navbar" aria-label="Sections" data-no-motif>
         <a className="nav-logo" href="/" onClick={home} aria-label="Home">
           <span className="nav-logo-turn">
             <Butterfly bflyRef={bflyRef} onTwitch={playButterflySound} />

@@ -4,7 +4,7 @@
   position: relative;
   display: block;
   aspect-ratio: 606 / 396;
-  transition: box-shadow .3s var(--ease-out);
+  transition: box-shadow var(--fx-zoom-time, .3s) var(--ease-out), transform var(--fx-zoom-time, .3s) var(--ease-out);
   /* the ratio is for the inside, so the 1px border doesn't squash the 606x396 design */
   box-sizing: content-box;
   /* background, border and shadow come from LOOK in tiles.js, set as variables by Work.jsx */
@@ -52,15 +52,28 @@
     drop-shadow(calc(var(--sh-x) * var(--u)) calc(var(--sh-y) * var(--u)) calc(var(--sh-blur) * var(--u)) rgb(var(--sh-rgb) / var(--sh-a)));
 }
 
+/* hover (desktop) or a tap (phones, .tapped from Work.jsx): the tile zooms in a little and the purple
+   shadow glows brighter and richer (tileFx.js, Lavanya 2026-11-14; shadow/card was the hover before) */
 @media (hover: hover) {
-  .case-tile:not(.tuning):hover { box-shadow: var(--shadow-card); }
+  .case-tile:not(.tuning):hover { box-shadow: var(--fx-shadow, var(--shadow-card)); }
 }
+.tile-fx.tapped .case-tile { box-shadow: var(--fx-shadow, var(--shadow-card)); }
 
+@media (prefers-reduced-motion: no-preference) {
+  .tile-fx.tapped .case-tile { transform: scale(var(--fx-zoom, 1)); }
+}
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .case-tile:not(.tuning):hover { transform: scale(var(--fx-zoom, 1)); }
   .case-tile:not(.tuning):hover .layer {
     transform: translate(calc(var(--lx) * var(--u)), calc(var(--ly) * var(--u))) rotate(calc(var(--rot) * 1deg));
   }
 }
+
+/* the ripple sits behind the tile and the text (z-index -1 inside .cases' own stacking context), so
+   its colour only shows around the tile's edges */
+.tile-fx { position: relative; }
+.tile-fx .case-tile { z-index: 1; }
+.tile-ripple { position: absolute; z-index: -1; border-radius: 50%; pointer-events: none; will-change: transform, opacity; }
 
 .case-tile:focus-visible {
   outline: 2px solid #6729ae;

@@ -4,6 +4,8 @@ import Tuner from '../components/work/Tuner'
 import LookTuner from '../components/work/LookTuner'
 import NavBar from '../components/nav/NavBar'
 import PageFooter from '../components/footer/PageFooter'
+import MotifField from '../components/motif/MotifField'
+import { FX, applyFx, ripple, mountFxPanel } from '../components/work/tileFx'
 import { TILES, LOOK, DEFAULT_BG, TILE_W } from '../components/work/tiles'
 import './Work.css'
 
@@ -15,6 +17,15 @@ import './Work.css'
  *   between the last case study and the footer, so the bottom bar never sits over the footer;
  * - desktop: once the footer comes into view.
  */
+/**
+ * The motif reveal, on test (Lavanya, 2026-11-14): the page stays plain, and only under a mouse
+ * pointer in the empty space does the home page motif show, in its hover purple (MotifField draws
+ * just that part). Desktop only; tiles, text, the garden and the nav switch it off (data-no-motif).
+ * Set to false to drop it.
+ */
+const MOTIF_REVEAL = true
+const FINE_POINTER = '(hover: hover) and (pointer: fine)'
+
 const NAV_HIDE_AFTER = 50   // px into that gap
 const PHONE = '(max-width: 600px)'
 
@@ -88,6 +99,23 @@ function Work() {
   const [tiles, setTiles] = useState(TUNE ? () => load(KEY, TILES) : TILES)
   const [bgs, setBgs] = useState(BG_TUNE ? () => ({ ...BGS, ...load(BG_KEY, {}) }) : BGS)
   const [active, setActive] = useState({ tile: 'bolt', layer: 'bolt-1' })
+  const [motif] = useState(() => MOTIF_REVEAL && matchMedia(FINE_POINTER).matches)
+
+  // the tiles' hover look and ripple (tileFx.js); ?hover opens its panel
+  useEffect(() => {
+    applyFx()
+    const panel = new URLSearchParams(location.search).has('hover') ? mountFxPanel() : null
+    return () => panel?.remove()
+  }, [])
+  const press = (e) => {
+    if (TUNE) return
+    const wrap = e.currentTarget, r = wrap.getBoundingClientRect()
+    ripple(wrap, e.clientX - r.left, e.clientY - r.top)
+    // phones have no hover: a tap gives the zoom and glow for a moment
+    wrap.classList.add('tapped')
+    clearTimeout(wrap._tap)
+    wrap._tap = setTimeout(() => wrap.classList.remove('tapped'), matchMedia('(hover: hover)').matches ? 0 : FX.tapHold)
+  }
 
   useEffect(() => {
     try {
@@ -121,11 +149,13 @@ function Work() {
     <>
     <NavBar active="work" hidden={navHidden} />
     <main className="work-page">
+      {motif && <MotifField />}
       <section className="work-section" aria-labelledby="work-title">
-        <h1 id="work-title">Work</h1>
+        <h1 id="work-title"><span data-no-motif>Work</span></h1>
         <div className="cases" style={lookVars(LOOK)} onClickCapture={TUNE ? e => e.preventDefault() : undefined}>
           {tiles.map(t => (
-            <article className="case" key={t.id}>
+            <article className="case" key={t.id} data-no-motif>
+              <div className="tile-fx" onClick={press}>
               <CaseTile
                 tile={t}
                 look={LOOK}
@@ -134,6 +164,7 @@ function Work() {
                 selected={TUNE && active.tile === t.id ? active.layer : null}
                 onLayerPointerDown={TUNE ? drag(t.id) : undefined}
               />
+              </div>
               <div className="case-copy">
                 <h2>{t.title}</h2>
                 <ul className="case-tags">

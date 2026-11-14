@@ -10,8 +10,8 @@ function PageFooter() {
   return (
     <footer className="page-foot">
       <div className="pf-note">
-        <h2 className="pf-why">Good products start with a good why.</h2>
-        <p className="pf-hi">
+        <h2 className="pf-why" data-no-motif>Good products start with a good why.</h2>
+        <p className="pf-hi" data-no-motif>
           For me, context comes before canvas. I think through how every decision lands, build in systems,
           borrow ideas from anywhere, and make sure every detail earns its place. If that sounds like your kind
           of team, say hi on{' '}
@@ -22,7 +22,7 @@ function PageFooter() {
           <a href="mailto:hi@lavanyaaa.com">hi@lavanyaaa.com</a>
         </p>
       </div>
-      <div className="pf-visual" aria-hidden="true"><Garden /></div>
+      <div className="pf-visual" aria-hidden="true" data-no-motif><Garden /></div>
     </footer>
   )
 }
