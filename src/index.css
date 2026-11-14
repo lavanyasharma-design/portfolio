@@ -1,10 +1,28 @@
 @import "tailwindcss";
 
 @import "@fontsource/cormorant-infant/400.css";
+@import "@fontsource/cormorant-infant/500.css";
 @import "@fontsource/cormorant-infant/600.css";
 @import "@fontsource-variable/dm-sans/opsz.css";
 
 :root {
+  /* Figma "Color" variables (Portfolio-Design), named as in Figma */
+  --color-black-default: #1a1a1a;
+  --color-black-highlight: #616161;
+  --color-white-default: #fcfaff;
+  --color-purple-default: #6729ae;
+  --color-purple-pressed: #551999;
+  --color-purple-highlight: #e8dbff;
+  --color-teal-default: #46b2d7;
+  --color-teal-highlight: #d7f5ff;
+  --color-pink-default: #ff33d0;
+  --color-pink-highlight: #ffd3f5;
+  --color-tile-background: #f6f0ff;
+  --color-tile-border: #dddddd;
+  /* Figma effect styles */
+  --shadow-card: 0 2px 4px #ddc9ff;
+  --shadow-nav-bar: 0 2px 4px #0000001a;
+
   --paper: #fafbf9;
   --ink: #181c1a;
   --ink-2: #66716b;

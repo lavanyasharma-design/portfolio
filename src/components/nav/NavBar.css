@@ -1,0 +1,81 @@
+/* ---------- navigation bar: Figma 298:12907 (desktop), 346:9412 (phone) ---------- */
+
+/* a full-width fixed strip that lines the bar up with the page's content column (same max width and
+   side padding as the page), so the bar's right edge sits on the content's right edge as in Figma.
+   left/right 0 rather than 100vw, so the scrollbar is never counted */
+.nav-dock{
+  --side:clamp(20px, 8.6vw, 130px);
+  position:fixed;z-index:20;top:60px;left:0;right:0;
+  max-width:calc(1252px + 2 * var(--side));margin-inline:auto;padding-inline:var(--side);
+  display:flex;justify-content:flex-end;
+  pointer-events:none;
+  transition:transform .4s var(--ease-out), opacity .4s var(--ease-out);
+}
+/* stepping aside for the footer (Work.jsx): desktop lifts and fades, phones slide down */
+.nav-dock.hidden{transform:translateY(-16px);opacity:0}
+.nav-dock.hidden .navbar{pointer-events:none}
+
+/* padding 4 / 8, gap 20, radius 8, highlight outline, shadow/nav bar. Figma's stroke sits inside
+   the padding, so the padding here is 1px less to keep the bar 331 x 51 */
+.navbar{
+  pointer-events:auto;
+  display:flex;align-items:center;gap:20px;padding:3px 7px;
+  background:var(--color-white-default);border:1px solid var(--color-purple-highlight);border-radius:8px;
+  box-shadow:var(--shadow-nav-bar);
+  font-family:var(--font-sans);font-weight:400;font-variation-settings:"opsz" 14;font-size:20px;line-height:normal; /* Desktop/Button 3 */
+}
+.navbar a{text-decoration:none}
+
+/* the logo: a 54 x 43 slot holding the 47.3 x 36 butterfly turned 14deg, centred where Figma's
+   rotated bounds (54.6 x 46.4, from the slot's top) are centred */
+.nav-logo{position:relative;flex:none;display:block;width:54px;height:43px;-webkit-tap-highlight-color:transparent}
+.nav-logo-turn{
+  position:absolute;left:calc(50% - .41px);top:23.19px;width:47.304px;height:36px;
+  translate:-50% -50%;rotate:14deg;
+}
+/* the home page's Butterfly (twitch, glow, sound), filling the slot with Figma's crop of the image
+   (the wings clip themselves to it, so nothing is cut off mid-twitch). --u sizes its 3D perspective */
+.nav-logo .bfly{
+  position:absolute;inset:0;cursor:pointer;--u:calc(47.304px / 112);
+  --crop-l:-36.88%;--crop-t:-13.65%;--crop-w:173.77%;--crop-h:127.3%;
+  /* a touch brighter, part way to the garden's butterfly (saturate 1.3, brightness 1.06) so the two
+     don't clash (Lavanya, 2026-11-14). On the box, so the hover glow on the image adds on top */
+  filter:saturate(1.18) brightness(1.04);
+}
+.nav-logo:focus-visible{outline:1px solid var(--color-purple-default);outline-offset:2px;border-radius:4px}
+
+/* nav items: padding 4; the current page gets its section's highlight fill, radius 4 */
+.navbar .sec{
+  display:flex;padding:4px;margin:0;border:0;border-radius:4px;background:none;
+  font:inherit;font-variation-settings:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;
+}
+.navbar .br{display:inline-block}
+.navbar .work{color:var(--color-purple-default)}
+.navbar .about{color:var(--color-teal-default)}
+.navbar .play{color:var(--color-pink-default)}
+.navbar .work.current{background:var(--color-purple-highlight)}
+.navbar .about.current{background:var(--color-teal-highlight)}
+.navbar .play.current{background:var(--color-pink-highlight)}
+.navbar .sec:focus-visible{outline:1px solid currentColor;outline-offset:2px}
+
+/* ---------- phones: "Work - port view" (346:8986). The bar sits at the bottom, centred on a
+   72px band of page colour (10 above the bar, 11 below) that keeps scrolled content from showing
+   around it. Padding 8, gap 16, Mobile/Button (DM Sans Medium 18), logo slot 45 x 35 ---------- */
+@media (max-width:600px){
+  .nav-dock{
+    top:auto;bottom:0;max-width:none;margin:0;
+    justify-content:center;
+    padding:10px 20px calc(11px + env(safe-area-inset-bottom));
+    background:var(--color-white-default);pointer-events:auto;
+  }
+  .nav-dock.hidden{transform:translateY(100%);opacity:0;pointer-events:none}
+  .navbar{gap:16px;padding:7px;font-size:18px;font-weight:500}
+  .nav-logo{width:45px;height:35px}
+  .nav-logo-turn{left:calc(50% + .53px);top:18.26px;width:43.362px;height:33px}
+  .nav-logo .bfly{--u:calc(43.362px / 112)}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .nav-dock{transition:opacity .2s linear}
+  .nav-dock.hidden{transform:none}
+}
