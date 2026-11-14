@@ -1,4 +1,5 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
+import { applyNavLook, mountNavPanel } from './navLook'
 import SectionLink from '../home/SectionLink'
 import Butterfly from '../home/Butterfly'
 import { navigate } from '../../router'
@@ -17,6 +18,12 @@ import './NavBar.css'
  */
 function NavBar({ active, hidden = false }) {
   const bflyRef = useRef(null)
+  // the outline and float (navLook.js); ?nav opens its panel
+  useEffect(() => {
+    applyNavLook()
+    const panel = new URLSearchParams(location.search).has('nav') ? mountNavPanel() : null
+    return () => panel?.remove()
+  }, [])
   const home = (e) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.button > 0) return
     e.preventDefault()
@@ -24,7 +31,7 @@ function NavBar({ active, hidden = false }) {
   }
   return (
     <div className={`nav-dock${hidden ? ' hidden' : ''}`}>
-      <nav className="navbar" aria-label="Sections" data-no-motif>
+      <nav className="navbar" aria-label="Sections" data-section={active} data-no-motif>
         <a className="nav-logo" href="/" onClick={home} aria-label="Home">
           <span className="nav-logo-turn">
             <Butterfly bflyRef={bflyRef} onTwitch={playButterflySound} />

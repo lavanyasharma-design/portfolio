@@ -15,16 +15,32 @@
 .nav-dock.hidden{transform:translateY(-16px);opacity:0}
 .nav-dock.hidden .navbar{pointer-events:none}
 
-/* padding 4 / 8, gap 20, radius 8, highlight outline, shadow/nav bar. Figma's stroke sits inside
-   the padding, so the padding here is 1px less to keep the bar 331 x 51 */
+/* padding 4 / 8, gap 20, radius 8. Figma's stroke sits inside the padding, so the padding here
+   loses the stroke's width to keep the bar 331 x 51.
+   Outline and float (navLook.js, ?nav): mixed from the page's section colours, --tint (highlight)
+   and --deep (full colour), so about and play get theirs. Defaults are Figma's: 1px highlight
+   outline and shadow/nav bar (black 10%, 0 2 4) */
 .navbar{
+  --tint:var(--color-purple-highlight);--deep:var(--color-purple-default);
+  --sw:var(--nav-stroke, 1px);
+  --line:color-mix(in oklab,
+    color-mix(in oklab, var(--tint), var(--deep) var(--nav-stroke-depth, 0%)),
+    var(--nav-stroke-to, #fff) var(--nav-stroke-bright, 0%));
+  --drop:color-mix(in srgb, color-mix(in oklab, #000, var(--deep) var(--nav-shadow-tint, 0%)) var(--nav-shadow-a, 10%), transparent);
+  --glow:color-mix(in srgb, var(--deep) var(--nav-glow-a, 0%), transparent);
   pointer-events:auto;
-  display:flex;align-items:center;gap:20px;padding:3px 7px;
-  background:var(--color-white-default);border:1px solid var(--color-purple-highlight);border-radius:8px;
-  box-shadow:var(--shadow-nav-bar);
+  display:flex;align-items:center;gap:20px;padding:calc(4px - var(--sw)) calc(8px - var(--sw));
+  background:var(--color-white-default);border:var(--sw) solid var(--line);border-radius:8px;
+  box-shadow:var(--nav-shadow, 0 2px 4px 0) var(--drop), var(--nav-glow, 0 8px 24px 0) var(--glow);
   font-family:var(--font-sans);font-weight:400;font-variation-settings:"opsz" 14;font-size:20px;line-height:normal; /* Desktop/Button 3 */
 }
 .navbar a{text-decoration:none}
+/* each page's own colours; data-preview is the ?nav panel trying another page's */
+.navbar[data-section=about]{--tint:var(--color-teal-highlight);--deep:var(--color-teal-default)}
+.navbar[data-section=play]{--tint:var(--color-pink-highlight);--deep:var(--color-pink-default)}
+.navbar[data-preview=work]{--tint:var(--color-purple-highlight);--deep:var(--color-purple-default)}
+.navbar[data-preview=about]{--tint:var(--color-teal-highlight);--deep:var(--color-teal-default)}
+.navbar[data-preview=play]{--tint:var(--color-pink-highlight);--deep:var(--color-pink-default)}
 
 /* the logo: a 54 x 43 slot holding the 47.3 x 36 butterfly turned 14deg, centred where Figma's
    rotated bounds (54.6 x 46.4, from the slot's top) are centred */
@@ -69,7 +85,7 @@
     background:var(--color-white-default);pointer-events:auto;
   }
   .nav-dock.hidden{transform:translateY(100%);opacity:0;pointer-events:none}
-  .navbar{gap:16px;padding:7px;font-size:18px;font-weight:500}
+  .navbar{gap:16px;padding:calc(8px - var(--sw));font-size:18px;font-weight:500}
   .nav-logo{width:45px;height:35px}
   .nav-logo-turn{left:calc(50% + .53px);top:18.26px;width:43.362px;height:33px}
   .nav-logo .bfly{--u:calc(43.362px / 112)}
