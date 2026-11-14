@@ -10,6 +10,11 @@
  * glides down to a sunflower, touches down softly (the flower dips under it), rests with its wings
  * slowly opening and closing, and lifts off again. It has no sound and doesn't react to the pointer.
  *
+ * The grass does, on desktop (Lavanya, 2026-11-14): every blade (and sunflower) is a small spring.
+ * The cursor brushes blades along as it moves through them and parts them where it rests; let go,
+ * they spring back past upright and flutter out. Her values come from the panel's 'grass and
+ * cursor' section.
+ *
  * Pencil: every layer is painted, then a paper-tooth grain (fine specks with streaks running up the
  * strokes) is rubbed out of it, and each blade gets a soft pencil edge. The grain is fixed to the
  * "paper", so the grass sways over it like a drawing. The butterfly stays crisp, as over the window.
@@ -42,6 +47,16 @@ export const GARDEN = {
   visit: 9,        // seconds of flying between visits to a sunflower
   stay: 2.4,       // seconds it rests on a sunflower
   phoneTall: 1.3,  // grass height on phones (600px and narrower): the tallest blades reach the band's top
+
+  // grass and cursor (desktop only). Starting points for her to set in ?garden, not chosen values
+  reach: 70,       // px around the cursor the grass feels, on the desktop band
+  brush: 1,        // how much moving through the grass sweeps blades along with the cursor
+  part: 0.3,       // how far blades lean away from a cursor resting among them
+  spring: 9,       // how stiff a blade is: higher springs back quicker and flutters faster
+  settle: 2.2,     // how quickly the flutter calms: lower flutters longer
+  tipBend: 1.6,    // how much more the tip bends than the base
+  depth: 0.5,      // how much the far grass feels it: 0 only the near grass, 1 all alike
+  flowerTouch: 0.5, // how much the sunflowers move with it
 }
 /* Lavanya's values from her phone, 2026-11-14, second round (calm on the phone); the bigger
    butterfly is phones only, desktop keeps 52 */
@@ -296,8 +311,9 @@ export function mountGarden(canvas) {
   // a blade: a tapered, bending leaf from its base to its tip
   function blade(b) {
     const sway = wind(b.x) * (0.4 + b.flex) + Math.sin(T * 2.2 * G.wind + b.phase) * 0.015 * G.sway
-    const a0 = b.lean * 0.45 + sway
-    const a1 = b.lean + b.curve + sway * 1.7
+    const push = b.pa || 0   // the cursor's bend (desktop)
+    const a0 = b.lean * 0.45 + sway + push
+    const a1 = b.lean + b.curve + sway * 1.7 + push * G.tipBend
     const half = b.h * 0.5
     const cx = b.x + Math.sin(a0) * half, cy = b.y - Math.cos(a0) * half
     const tx = cx + Math.sin(a1) * half, ty = cy - Math.cos(a1) * half
@@ -369,7 +385,7 @@ export function mountGarden(canvas) {
   }
 
   function flowerHead(f) {
-    const a = f.lean + wind(f.x) * 0.7 + Math.sin(T * 1.6 * G.wind + f.phase) * 0.02 * G.sway
+    const a = f.lean + wind(f.x) * 0.7 + Math.sin(T * 1.6 * G.wind + f.phase) * 0.02 * G.sway + (f.pa || 0) * G.flowerTouch
     return { a, hx: f.x + Math.sin(a) * f.h, hy: f.y - Math.cos(a) * f.h + f.dip }
   }
 
@@ -518,6 +534,61 @@ export function mountGarden(canvas) {
     return pool.reduce((m, f) => (Math.abs(f.x - fly.x) < Math.abs(m.x - fly.x) ? f : m), pool[0])
   }
 
+  /* ---------- grass and cursor (desktop) ---------- */
+  const fine = matchMedia('(hover: hover) and (pointer: fine)')
+  const ptr = { x: 0, y: 0, in: false, vx: 0, lx: null }
+  const onMove = (e) => {
+    if (!fine.matches) return
+    const r = canvas.getBoundingClientRect()
+    ptr.x = e.clientX - r.left; ptr.y = e.clientY - r.top; ptr.in = true
+  }
+  const onLeave = () => { ptr.in = false; ptr.lx = null }
+  canvas.addEventListener('pointermove', onMove)
+  canvas.addEventListener('pointerleave', onLeave)
+
+  // a springy thing (blade or stem) of height h leaning by `lean` from its base (x, y): how close the
+  // cursor is to it, 0 out of reach to 1 touching
+  const nearness = (x, y, h, lean, R) => {
+    const top = y - h
+    const dx = ptr.x - (x + Math.sin(lean) * h * 0.4)
+    const dy = ptr.y < top ? top - ptr.y : ptr.y > y ? ptr.y - y : 0
+    const d = Math.hypot(dx, dy)
+    return d >= R ? 0 : (1 - d / R) ** 2
+  }
+
+  function touchGrass(dt) {
+    if (dt <= 0) return
+    const { s } = scene
+    // the cursor's sideways speed, smoothed, in desktop-band px a second
+    if (ptr.in && ptr.lx !== null) ptr.vx += ((ptr.x - ptr.lx) / dt / s - ptr.vx) * Math.min(1, dt * 12)
+    else ptr.vx *= Math.max(0, 1 - dt * 8)
+    ptr.lx = ptr.in ? ptr.x : null
+    const R = G.reach * s, k = G.spring * G.spring, c = G.settle
+    const swept = Math.max(-1.5, Math.min(1.5, ptr.vx / 300))   // a brisk sweep is about 300px/s
+    const spring = (o, near, away, weight) => {
+      const F = ptr.in && near > 0 ? near * weight * k * (G.brush * swept * 0.35 + G.part * away) : 0
+      const pa = o.pa || 0, pv = o.pv || 0
+      o.pv = pv + (F - k * pa - c * pv) * dt
+      o.pa = pa + o.pv * dt
+    }
+    const weights = [G.depth, (1 + G.depth) / 2, 1]
+    // lean away: none right under the cursor, growing to full half a reach to either side, so a
+    // blade the cursor rests on doesn't flick from side to side
+    const away = (x) => Math.max(-1, Math.min(1, (x - ptr.x) / (R * 0.5)))
+    scene.layers.forEach((layer, li) => {
+      for (const g of layer) for (const b of g.blades) {
+        const near = ptr.in ? nearness(b.x, b.y, b.h, b.lean, R) : 0
+        if (!near && !b.pa && !b.pv) continue
+        spring(b, near, away(b.x), weights[li])
+        if (Math.abs(b.pa) < 1e-4 && Math.abs(b.pv) < 1e-3 && !near) { b.pa = 0; b.pv = 0 }
+      }
+    })
+    for (const f of scene.flowers) {
+      const near = ptr.in ? nearness(f.x, f.y, f.h, f.lean, R) : 0
+      spring(f, near, away(f.x), 1)
+    }
+  }
+
   function update(dt) {
     const { W, H, s } = scene
     const R = G.loop * s
@@ -525,6 +596,7 @@ export function mountGarden(canvas) {
 
     // sunflowers spring back after being landed on
     for (const f of scene.flowers) { f.dipV += (-f.dip * 70 - f.dipV * 9) * dt; f.dip += f.dipV * dt }
+    touchGrass(dt)
 
     // the drift; it pauses while it's on (or headed for) a flower. The speed eases, and it starts
     // turning early enough to come about right at the edge, so it never reverses with a jolt
@@ -655,6 +727,8 @@ export function mountGarden(canvas) {
   return {
     destroy() {
       stop(); ro.disconnect(); io.disconnect()
+      canvas.removeEventListener('pointermove', onMove)
+      canvas.removeEventListener('pointerleave', onLeave)
       reduce.removeEventListener('change', onMotion)
       panel?.remove()
     },
@@ -689,10 +763,23 @@ function mountPanel({ rebuild, redraw, cost }) {
     ['visit', 'flying between flowers (s)', 1, 15, 0.5],
     ['stay', 'rest on a flower (s)', 0.5, 8, 0.1],
     ['phoneTall', 'grass height on phones', 1, 1.6, 0.05, true],
+    'grass and cursor (desktop)',
+    ['reach', 'cursor reach (px)', 10, 200, 1],
+    ['brush', 'sweep along', 0, 3, 0.05],
+    ['part', 'lean away', 0, 1, 0.01],
+    ['spring', 'springiness', 2, 25, 0.5],
+    ['settle', 'calm down', 0.3, 10, 0.1],
+    ['tipBend', 'tip bend', 0.5, 3, 0.05],
+    ['depth', 'far grass feels it', 0, 1, 0.05],
+    ['flowerTouch', 'sunflowers move', 0, 1.5, 0.05],
   ]
-  el.innerHTML = `<b>garden</b>${rows.map(([k, label, min, max, step]) =>
-    `<label><span>${label}</span><input type="range" data-k="${k}" min="${min}" max="${max}" step="${step}" value="${G[k]}"><output>${G[k]}</output></label>`).join('')}<button type="button" class="copy">copy values</button>`
-  const rebuilds = new Set(rows.filter((r) => r[5]).map((r) => r[0]))
+  // a string is a section heading
+  el.innerHTML = `<b>garden</b>${rows.map((row) => {
+    if (typeof row === 'string') return `<b style="margin-top:8px">${row}</b>`
+    const [k, label, min, max, step] = row
+    return `<label><span>${label}</span><input type="range" data-k="${k}" min="${min}" max="${max}" step="${step}" value="${G[k]}"><output>${G[k]}</output></label>`
+  }).join('')}<button type="button" class="copy">copy values</button>`
+  const rebuilds = new Set(rows.filter((r) => Array.isArray(r) && r[5]).map((r) => r[0]))
   el.addEventListener('input', (e) => {
     const k = e.target.dataset.k
     G[k] = +e.target.value
