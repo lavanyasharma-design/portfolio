@@ -5,7 +5,7 @@ import LookTuner from '../components/work/LookTuner'
 import NavBar from '../components/nav/NavBar'
 import PageFooter from '../components/footer/PageFooter'
 import MotifField from '../components/motif/MotifField'
-import { FX, applyFx, ripple, mountFxPanel } from '../components/work/tileFx'
+import { FX, applyFx, mountFxPanel } from '../components/work/tileFx'
 import { TILES, LOOK, DEFAULT_BG, TILE_W } from '../components/work/tiles'
 import './Work.css'
 
@@ -101,20 +101,19 @@ function Work() {
   const [active, setActive] = useState({ tile: 'bolt', layer: 'bolt-1' })
   const [motif] = useState(() => MOTIF_REVEAL && matchMedia(FINE_POINTER).matches)
 
-  // the tiles' hover look and ripple (tileFx.js); ?hover opens its panel
+  // the tiles' hover look (tileFx.js); ?hover opens its panel
   useEffect(() => {
     applyFx()
     const panel = new URLSearchParams(location.search).has('hover') ? mountFxPanel() : null
     return () => panel?.remove()
   }, [])
+  // hover on desktop; phones have no hover, so a tap gives the zoom and glow for a moment
   const press = (e) => {
-    if (TUNE) return
-    const wrap = e.currentTarget, r = wrap.getBoundingClientRect()
-    ripple(wrap, e.clientX - r.left, e.clientY - r.top)
-    // phones have no hover: a tap gives the zoom and glow for a moment
+    if (TUNE || matchMedia('(hover: hover)').matches) return
+    const wrap = e.currentTarget
     wrap.classList.add('tapped')
     clearTimeout(wrap._tap)
-    wrap._tap = setTimeout(() => wrap.classList.remove('tapped'), matchMedia('(hover: hover)').matches ? 0 : FX.tapHold)
+    wrap._tap = setTimeout(() => wrap.classList.remove('tapped'), FX.tapHold)
   }
 
   useEffect(() => {

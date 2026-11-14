@@ -69,11 +69,9 @@
   }
 }
 
-/* the ripple sits behind the tile and the text (z-index -1 inside .cases' own stacking context), so
-   its colour only shows around the tile's edges */
+/* above the next row's tile while zoomed */
 .tile-fx { position: relative; }
 .tile-fx .case-tile { z-index: 1; }
-.tile-ripple { position: absolute; z-index: -1; border-radius: 50%; pointer-events: none; will-change: transform, opacity; }
 
 .case-tile:focus-visible {
   outline: 2px solid #6729ae;

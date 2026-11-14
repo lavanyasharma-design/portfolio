@@ -17,7 +17,6 @@ html:has(.work-page),html:has(.work-page) body{background:var(--color-white-defa
 .work-section{
   max-width:calc(1252px + 2 * var(--side));margin:0 auto 120px;padding-inline:var(--side);
   box-sizing:border-box;position:relative;
-  overflow-x:clip;   /* a tile's ripple bleeds past it, never past the screen edge */
 }
 
 /* Desktop/H3 in purple/default */
@@ -27,7 +26,7 @@ html:has(.work-page),html:has(.work-page) body{background:var(--color-white-defa
   color:var(--color-purple-default);
 }
 
-.cases{isolation:isolate;display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:70px 40px;align-items:start}
+.cases{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:70px 40px;align-items:start}
 
 /* a case: tile, 24, then title and tags 16 apart */
 .case{display:flex;flex-direction:column;gap:24px;min-width:0}
