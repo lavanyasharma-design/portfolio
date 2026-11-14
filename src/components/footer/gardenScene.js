@@ -4,7 +4,9 @@
  * is, enjoying the garden. Light purple grass, pale rose-pink sunflowers with dark brown hearts, and
  * the logo butterfly in its own colours, exactly as it flies out of the window.
  *
- * The butterfly never leaves: it loops in slow circles drifting from side to side, and now and then
+ * The butterfly never leaves: it drifts from side to side in a calm, swinging wave, wings beating
+ * slowly with a glide every few seconds (Lavanya, 2026-11-14: the old loops and hops read as
+ * glitchy), easing round at each side, and now and then
  * glides down to a sunflower, touches down softly (the flower dips under it), rests with its wings
  * slowly opening and closing, and lifts off again. It has no sound and doesn't react to the pointer.
  *
@@ -19,27 +21,28 @@
  * a sunflower. ?garden opens a live panel; "copy values" gives the numbers to paste into GARDEN.
  */
 export const GARDEN = {
-  seed: 12,        // which garden: another number lays it out differently
+  seed: 32,        // which garden: another number lays it out differently
   density: 1.05,   // how much grass
-  flowers: 1,      // how many sunflowers
-  light: 0.22,     // washes every purple lighter (0 to 0.6)
+  flowers: 1.4,    // how many sunflowers
+  light: 0.25,     // washes every purple lighter (0 to 0.6)
   round: 0.1,      // grass tips: 0 pointed, 1 blunt as the blade is wide
-  grain: 0.55,     // pencil grain: how much paper shows through the colour
+  grain: 0.59,     // pencil grain: how much paper shows through the colour
   edge: 0.4,       // pencil edge along each blade
   sway: 0.65,      // how far the grass moves in the wind
-  wind: 1,         // how fast the wind moves
+  wind: 0.75,      // how fast the wind moves
   haze: 0.51,      // how much the far grass fades into the page
-  bSize: 52,       // butterfly width, px on the desktop band (324 tall); scales with the band
+  bSize: 69,       // butterfly width, px on the desktop band (324 tall); scales with the band
   bSpeed: 125,     // how fast it drifts from side to side, px a second on the desktop band
-  loop: 36,        // size of its loops, px on the desktop band
-  loopRate: 0.15,  // loops a second
-  flap: 11,        // wing beats a second
-  hop: 1,          // how much it bobs up and down as it flies (the chirpiness)
+  loop: 68,        // how high it swings up and down, px on the desktop band
+  loopRate: 0.3,   // swings a second
+  flap: 6,         // wing beats a second (was 12: calmer, Lavanya 2026-11-14)
+  hop: 0.8,        // how much each wing beat lifts it
   visit: 5,        // seconds of flying between visits to a sunflower
   stay: 2.4,       // seconds it rests on a sunflower
   phoneTall: 1.3,  // grass height on phones (600px and narrower): the tallest blades reach the band's top
 }
-/* Lavanya's values, 2026-11-14 (seed to haze, bSize to hop). grain, edge, visit and stay are new */
+/* Lavanya's values from her phone, 2026-11-14 (seed, flowers, light, grain, wind, bSize, loop,
+   loopRate, hop), with flap slowed */
 
 const PAL = {
   back: ['#e6dafb', '#ddcef8', '#d3c1f4', '#e0d2f9'],      // far grass, palest
@@ -256,11 +259,13 @@ export function mountGarden(canvas) {
   let scene = null, bfly = null, dpr = 1, tooth = null, toothMain = null, toothNear = null
   let raf = 0, visible = false, last = 0, T = 0, cost = 0
 
-  /* the flight. cruise: loops round a centre (cx) that drifts between the sides. approach / perch /
-     takeoff: `w` blends it from the loops onto a sunflower and back */
+  /* the flight. cruise: a centre (cx) drifts between the sides, easing into each turn, while the
+     butterfly swings up and down along it in a smooth wave. approach / perch / takeoff: `w` blends
+     it from that path onto a sunflower and back.
+     Wings: `rate` beats a second, eased; every few seconds it glides, its wings settling open */
   const fly = {
-    cx: null, dir: -1, theta: 0, ox: 0, oy: 0, vy: 0, x: 0, y: 0, rot: 0,
-    flap: 0, flapping: true, until: 0, hopAt: 0.4,
+    cx: null, vx: 0, dir: -1, theta: 0, x: 0, y: 0, rot: 0, svx: 0, svy: 0, perchT: 0,
+    flap: 0, rate: 0, flapping: true, stopped: false, glideAt: 2.5, glideUntil: 0, rest: 0,
     mode: 'cruise', since: 0, next: 3, flower: null, last: null, w: 0,
   }
 
@@ -454,9 +459,11 @@ export function mountGarden(canvas) {
     } else {
       if (fly.cx === null) return
       x = fly.x; y = fly.y; rot = fly.rot
-      k = fly.mode === 'perch'
-        ? 0.62 + 0.38 * (0.5 + 0.5 * Math.cos(T * TAU * 0.45))    // resting: wings slowly open and close
-        : 0.16 + 0.84 * (0.5 + 0.5 * Math.cos(fly.flap))
+      // in flight the wings beat from open (1) to nearly closed; resting, they slowly open and close,
+      // starting open, and `rest` blends between the two so neither change jumps
+      const flight = 0.22 + 0.78 * (0.5 + 0.5 * Math.cos(fly.flap))
+      const resting = 0.62 + 0.38 * (0.5 + 0.5 * Math.cos((T - fly.perchT) * TAU * 0.4))
+      k = flight + (resting - flight) * fly.rest
     }
     const split = bfly.width * BODY
     ctx.save()
@@ -514,27 +521,30 @@ export function mountGarden(canvas) {
     // sunflowers spring back after being landed on
     for (const f of scene.flowers) { f.dipV += (-f.dip * 70 - f.dipV * 9) * dt; f.dip += f.dipV * dt }
 
-    // the loops; they pause while it's on (or headed for) a flower
+    // the drift; it pauses while it's on (or headed for) a flower. The speed eases, and it starts
+    // turning early enough to come about right at the edge, so it never reverses with a jolt
     if (fly.cx === null) { fly.cx = hi; fly.x = hi; fly.y = H * 0.4 }
     const free = 1 - fly.w
-    fly.cx += fly.dir * G.bSpeed * s * dt * free
-    if (fly.cx < lo) { fly.cx = lo; fly.dir = 1 }
-    if (fly.cx > hi) { fly.cx = hi; fly.dir = -1 }
-    fly.theta += -fly.dir * TAU * G.loopRate * dt * free
-    const cy = H * 0.4 + Math.sin(T * 0.37) * 0.06 * H
+    const speed = G.bSpeed * s, ease = 0.8
+    if (fly.dir < 0 && fly.cx - lo < -fly.vx / ease) fly.dir = 1
+    if (fly.dir > 0 && hi - fly.cx < fly.vx / ease) fly.dir = -1
+    fly.vx += (fly.dir * speed - fly.vx) * Math.min(1, dt * ease)
+    fly.cx += fly.vx * dt * free
+    const going = Math.min(1, Math.abs(fly.vx) / speed)   // 0 mid-turn, 1 at full speed
 
-    // chirpy hops while it's flying free
-    if (fly.mode === 'cruise' && T >= fly.hopAt) {
-      fly.vy -= H * (0.5 + Math.random() * 0.5) * G.hop
-      fly.flapping = true
-      fly.until = T + 0.22 + Math.random() * 0.22
-      fly.hopAt = T + 0.4 + Math.random() * 0.5
+    // the swing: up and down in a smooth wave, swooping forward a little on the way down, like a
+    // pendulum. The swoop fades during a turn so it never flies backwards
+    fly.theta += TAU * G.loopRate * dt * free
+    const cy = H * 0.4 + Math.sin(T * 0.37) * 0.06 * H
+    const loopX = fly.cx + Math.sin(fly.theta * 2) * R * 0.2 * going * Math.sign(fly.vx)
+    const loopY = cy + Math.sin(fly.theta) * R * 0.8
+      + Math.sin(fly.flap) * H * 0.012 * G.hop * Math.min(1, fly.rate / Math.max(1, G.flap))   // a lift with each wing beat
+
+    // glides: every few seconds the wings settle open for a moment
+    if (fly.mode === 'cruise') {
+      if (T >= fly.glideAt) { fly.glideUntil = T + 0.7 + Math.random() * 0.6; fly.glideAt = fly.glideUntil + 2.5 + Math.random() * 3 }
+      fly.flapping = T >= fly.glideUntil
     }
-    fly.vy += (-fly.oy * 26 - fly.vy * 6.5 + (fly.flapping ? 0 : H * 0.6)) * dt
-    fly.oy += fly.vy * dt
-    if (fly.flapping && T >= fly.until && fly.mode === 'cruise') fly.flapping = false
-    const loopX = fly.cx + Math.cos(fly.theta) * R
-    const loopY = cy + Math.sin(fly.theta) * R * 0.8 + fly.oy * free
 
     // visiting a sunflower: glide down to it, touch down softly, rest, lift off back into the loops
     const u = T - fly.since
@@ -546,7 +556,7 @@ export function mountGarden(canvas) {
       fly.w = smooth(p)
       arc = -Math.sin(Math.PI * Math.min(1, p)) * H * 0.12
       fly.flapping = p < 0.7                             // beats, then glides in with wings open
-      if (p >= 1) { fly.mode = 'perch'; fly.since = T; fly.flower.dipV += 55 * s }
+      if (p >= 1) { fly.mode = 'perch'; fly.since = T; fly.perchT = T; fly.flower.dipV += 55 * s }
     } else if (fly.mode === 'perch') {
       fly.w = 1
       fly.flapping = false
@@ -559,7 +569,7 @@ export function mountGarden(canvas) {
       if (p >= 1) {
         fly.mode = 'cruise'; fly.w = 0; fly.last = fly.flower; fly.flower = null
         fly.next = T + G.visit * (0.7 + Math.random() * 0.6)
-        fly.until = T + 0.3
+        fly.glideAt = T + 2 + Math.random() * 2
       }
     }
 
@@ -575,14 +585,34 @@ export function mountGarden(canvas) {
     fly.x = Math.min(W - 8 * s, Math.max(8 * s, fly.x))
     fly.y = Math.min(H * 0.8, Math.max(H * 0.12, fly.y))
 
-    // face where it's going (the image's head points up, so +90deg); on a flower, settle upright
-    const target = fly.mode === 'perch' || fly.w > 0.9
-      ? perchOn(fly.flower).tilt * 0.5
-      : (dt > 0 && Math.hypot(fly.x - px, fly.y - py) > 0.05 ? Math.atan2(fly.y - py, fly.x - px) + Math.PI / 2 : fly.rot)
-    fly.rot += wrap(target - fly.rot) * Math.min(1, dt * (fly.mode === 'perch' ? 4 : 9))
+    // face the way it's flying (the image's head points up: +90deg faces right, -90deg left), nose
+    // up a little as it climbs and down as it dips. Turning round, it comes about through upright,
+    // never upside down. On a flower, settle upright
+    if (dt > 0) {
+      const a = Math.min(1, dt * 4)
+      fly.svx += ((fly.x - px) / dt - fly.svx) * a
+      fly.svy += ((fly.y - py) / dt - fly.svy) * a
+    }
+    const side = Math.max(-1, Math.min(1, fly.svx / (speed * 0.7)))
+    const pitch = Math.max(-0.5, Math.min(0.5, Math.atan(fly.svy / Math.max(Math.abs(fly.svx), speed * 0.5))))
+    let target = side * (Math.PI / 2 + pitch)
+    // settling upright onto a flower and leaning back out happen across the glide, not at once
+    if (fly.flower) target += wrap(perchOn(fly.flower).tilt * 0.5 - target) * smooth((fly.w - 0.4) / 0.6)
+    fly.rot += wrap(target - fly.rot) * Math.min(1, dt * 3)
 
-    if (fly.flapping) fly.flap += TAU * G.flap * dt
-    else fly.flap += (Math.round(fly.flap / TAU) * TAU - fly.flap) * Math.min(1, dt * 18)   // settle open
+    // the wings: the beat eases up and down; when it stops beating, the wings finish their stroke
+    // and settle open instead of snapping there
+    fly.rate += ((fly.flapping ? G.flap : 0) - fly.rate) * Math.min(1, dt * 3)
+    if (fly.flapping) fly.stopped = false
+    if (!fly.stopped) {
+      const before = fly.flap
+      fly.flap += TAU * Math.max(fly.rate, fly.flapping ? 0 : 1.5) * dt
+      if (!fly.flapping && Math.floor(fly.flap / TAU) > Math.floor(before / TAU)) {
+        fly.flap = Math.ceil(before / TAU) * TAU; fly.rate = 0; fly.stopped = true
+      }
+    }
+    // resting on a flower blends in and out over about half a second
+    fly.rest += ((fly.mode === 'perch' ? 1 : 0) - fly.rest) * Math.min(1, dt * 5)
   }
 
   function frame(now) {
@@ -645,10 +675,10 @@ function mountPanel({ rebuild, redraw, cost }) {
     ['wind', 'wind speed', 0, 3, 0.05],
     ['bSize', 'butterfly size', 20, 90, 1],
     ['bSpeed', 'side to side', 10, 300, 5],
-    ['loop', 'loop size', 0, 90, 1],
-    ['loopRate', 'loops/s', 0, 2, 0.05],
-    ['flap', 'wing beats/s', 3, 20, 0.5],
-    ['hop', 'chirpiness', 0, 2.5, 0.05],
+    ['loop', 'swing height', 0, 90, 1],
+    ['loopRate', 'swings/s', 0, 1, 0.02],
+    ['flap', 'wing beats/s', 1, 14, 0.5],
+    ['hop', 'lift per wing beat', 0, 2.5, 0.05],
     ['visit', 'flying between flowers (s)', 1, 15, 0.5],
     ['stay', 'rest on a flower (s)', 0.5, 8, 0.1],
     ['phoneTall', 'grass height on phones', 1, 1.6, 0.05, true],
