@@ -20,6 +20,17 @@ export const LOOK = {
   border: { on: true, color: '#dddddd' },
 }
 
+const rgb = hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)).join(' ')
+
+/** LOOK as CSS variables for a tile's container; CaseTile.css composes them per tile */
+export function lookVars({ shadow: s, border } = LOOK) {
+  return {
+    '--tile-border': border.on ? border.color : 'transparent',
+    '--sh-x': s.x, '--sh-y': s.y, '--sh-blur': s.blur, '--sh-rgb': rgb(s.color),
+    '--sh-a': s.opacity, '--sh-ca': Math.min(1, s.opacity * s.contact * 2),
+  }
+}
+
 /**
  * Each tile's own background. mode: solid (c1), linear (c1 to c2 at angle), radial (c1 at
  * the top fading to c2), motif (the home page motif over c1). Tune with ?tune.
@@ -48,6 +59,7 @@ export const TILES = [
   {
     id: 'bolt',
     label: 'Bolt, fleet management',
+    page: '/work/bolt',   // the case study (first draft, 2026-11-15); tiles without one stay pictures
     title: 'Mobile friendly fleet management SaaS that gives users flexibility',
     tags: ['cross platform', 'prioritisation'],
     // one phone rising from the bottom, one hanging from the top: PAD on all four sides,

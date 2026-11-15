@@ -6,17 +6,11 @@ import NavBar from '../components/nav/NavBar'
 import PageFooter from '../components/footer/PageFooter'
 import MotifField from '../components/motif/MotifField'
 import { FX, applyFx, mountFxPanel } from '../components/work/tileFx'
-import { TILES, LOOK, DEFAULT_BG, TILE_W } from '../components/work/tiles'
+import { TILES, LOOK, DEFAULT_BG, TILE_W, lookVars } from '../components/work/tiles'
+import { useNavHidden } from '../lib/useNavHidden'
+import { navigate } from '../router'
 import './Work.css'
 
-/**
- * When the nav bar steps aside for the footer.
- * Both hide while scrolling down near the footer and come back, in place, the moment you scroll up
- * (Lavanya, 2026-11-14). Where "near" starts:
- * - phones (Figma note beside "Work - full scroll"): once the page has scrolled 50px into the gap
- *   between the last case study and the footer, so the bottom bar never sits over the footer;
- * - desktop: once the footer comes into view.
- */
 /**
  * The motif reveal, on test (Lavanya, 2026-11-14): the page stays plain, and only under a mouse
  * pointer in the empty space does the home page motif show, in its hover purple (MotifField draws
@@ -26,46 +20,7 @@ import './Work.css'
 const MOTIF_REVEAL = true
 const FINE_POINTER = '(hover: hover) and (pointer: fine)'
 
-const NAV_HIDE_AFTER = 50   // px into that gap
-const PHONE = '(max-width: 600px)'
-
-function useNavHidden(lineRef) {
-  const [hidden, setHidden] = useState(false)
-  useEffect(() => {
-    const phone = matchMedia(PHONE)
-    let raf = 0, lastY = scrollY, hid = false
-    const check = () => {
-      raf = 0
-      const line = lineRef.current
-      const dock = document.querySelector('.nav-dock')
-      const foot = document.querySelector('.page-foot')
-      // clamped, so iOS's bounce past the bottom doesn't read as scrolling up
-      const y = Math.min(scrollY, document.documentElement.scrollHeight - innerHeight)
-      const up = y < lastY - 1, down = y > lastY + 1
-      if (up || down) lastY = y
-      const near = !line || !dock || !foot ? false
-        // phones: the line has risen above the band the bar sits on
-        : phone.matches ? line.getBoundingClientRect().top <= innerHeight - dock.offsetHeight
-        // desktop: the footer is in view
-        : foot.getBoundingClientRect().top < innerHeight
-      if (!near || up) hid = false
-      else if (down) hid = true
-      setHidden(hid)
-    }
-    const queue = () => { if (!raf) raf = requestAnimationFrame(check) }
-    addEventListener('scroll', queue, { passive: true })
-    addEventListener('resize', queue)
-    phone.addEventListener('change', queue)
-    check()
-    return () => {
-      cancelAnimationFrame(raf)
-      removeEventListener('scroll', queue)
-      removeEventListener('resize', queue)
-      phone.removeEventListener('change', queue)
-    }
-  }, [lineRef])
-  return hidden
-}
+const NAV_HIDE_AFTER = 50   // px below the last case study, where the phone nav bar steps aside
 
 // In dev, ?tune opens the tile background panel; ?tune=layout also makes the mockups
 // draggable and opens the position panel. Tuned values survive reloads in localStorage.
@@ -79,17 +34,6 @@ const BGS = Object.fromEntries(TILES.map(t => [t.id, t.bg ?? DEFAULT_BG]))
 
 function load(key, fallback) {
   try { return JSON.parse(localStorage.getItem(key)) || fallback } catch { return fallback }
-}
-
-const rgb = hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)).join(' ')
-
-// LOOK as CSS variables on the grid; CaseTile.css composes them per tile
-function lookVars({ shadow: s, border }) {
-  return {
-    '--tile-border': border.on ? border.color : 'transparent',
-    '--sh-x': s.x, '--sh-y': s.y, '--sh-blur': s.blur, '--sh-rgb': rgb(s.color),
-    '--sh-a': s.opacity, '--sh-ca': Math.min(1, s.opacity * s.contact * 2),
-  }
 }
 
 /** The Work page: Figma "Work" (290:12780, desktop 1512) and "Work - full scroll" (346:9449, phone 402) */
@@ -114,6 +58,14 @@ function Work() {
     wrap.classList.add('tapped')
     clearTimeout(wrap._tap)
     wrap._tap = setTimeout(() => wrap.classList.remove('tapped'), FX.tapHold)
+  }
+
+  // a tile with a case study opens it in-site (pushState), so the nav and sound carry over
+  const open = (e) => {
+    const a = e.target.closest('a[href]')
+    if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.button > 0) return
+    e.preventDefault()
+    navigate(a.getAttribute('href'))
   }
 
   useEffect(() => {
@@ -154,10 +106,11 @@ function Work() {
         <div className="cases" style={lookVars(LOOK)} onClickCapture={TUNE ? e => e.preventDefault() : undefined}>
           {tiles.map(t => (
             <article className="case" key={t.id} data-no-motif>
-              <div className="tile-fx" onClick={press}>
+              <div className="tile-fx" onClick={press} onClickCapture={open}>
               <CaseTile
                 tile={t}
                 look={LOOK}
+                href={TUNE ? undefined : t.page}
                 bg={bgs[t.id] ?? DEFAULT_BG}
                 tuning={TUNE}
                 selected={TUNE && active.tile === t.id ? active.layer : null}

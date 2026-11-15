@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import Home from './pages/Home'
 import Work from './pages/Work'
+import Bolt from './pages/cases/Bolt'
 import { SOON } from './site'
 import { usePath } from './router'
 import { armUnlockOnFirstGesture } from './lib/sound/engine'
@@ -11,7 +12,10 @@ function App() {
   // sound wakes on the first click, tap or key (dragging the window open counts) and loads then.
   // The Coming Soon face has nothing to play, so it never downloads the samples.
   useEffect(() => { if (!SOON) armUnlockOnFirstGesture() }, [])
-  return !SOON && path === '/work' ? <Work /> : <Home />
+  if (SOON) return <Home />
+  if (path === '/work') return <Work />
+  if (path === '/work/bolt') return <Bolt />
+  return <Home />
 }
 
 export default App
