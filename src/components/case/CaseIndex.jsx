@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react'
-import { ArrowLeft } from 'lucide-react'
-import { navigate } from '../../router'
 
 /**
- * The case study's side index (desktop, wide windows): a way back to all work, then the sections,
- * the one you're reading in brackets. It stays put while the story scrolls past (Mavis Lo's
+ * The case study's side index (desktop, wide windows): the sections, the one you're reading in
+ * brackets. No "all work" link: the nav bar already leads to work (Lavanya, 2026-11-15). It stays put while the story scrolls past (Mavis Lo's
  * pattern: most of what makes her page easy to skim). Click a section to glide to it.
  * Hidden below 1100px, where there's no room beside the column; phones have the bottom nav.
  */
 function CaseIndex({ sections }) {
   const [current, setCurrent] = useState(sections[0]?.id)
+  // past the last section (the outcome) the index fades away, before the story's end line (hers, 2026-11-16)
+  const [gone, setGone] = useState(false)
 
   // the current section is the last one whose top has passed 40% of the way down the screen
   useEffect(() => {
@@ -23,6 +23,8 @@ function CaseIndex({ sections }) {
         if (el && el.getBoundingClientRect().top <= line) id = s.id
       }
       setCurrent(id)
+      const last = document.getElementById(sections[sections.length - 1]?.id)
+      setGone(!!last && last.getBoundingClientRect().bottom <= line)
     }
     const queue = () => { if (!raf) raf = requestAnimationFrame(check) }
     addEventListener('scroll', queue, { passive: true })
@@ -37,17 +39,8 @@ function CaseIndex({ sections }) {
     document.getElementById(id)?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
     history.replaceState(null, '', `#${id}`)
   }
-  const back = (e) => {
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button > 0) return
-    e.preventDefault()
-    navigate('/work')
-  }
-
   return (
-    <nav className="cs-index" aria-label="Case study sections">
-      <a className="cs-back" href="/work" onClick={back}>
-        <ArrowLeft aria-hidden="true" size={16} strokeWidth={1.5} />all work
-      </a>
+    <nav className={gone ? 'cs-index gone' : 'cs-index'} aria-label="Case study sections">
       <ol>
         {sections.map(s => (
           <li key={s.id}>

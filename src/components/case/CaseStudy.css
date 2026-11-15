@@ -28,7 +28,7 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
   max-width:calc(1252px + 2 * var(--side));margin:0 auto 120px;padding-inline:var(--side);box-sizing:border-box;
   display:grid;grid-template-columns:minmax(150px, 1fr) minmax(0, var(--col)) minmax(0, 1fr);column-gap:24px;
 }
-.cs-main{grid-column:2;display:flex;flex-direction:column;gap:120px;min-width:0}
+.cs-main{grid-column:2;display:flex;flex-direction:column;gap:70px;min-width:0}
 .cs-section{display:flex;flex-direction:column;gap:var(--gap);scroll-margin-top:131px}
 
 /* rise-in (caseMotion.js) starts hidden only once the motion script has taken over */
@@ -36,15 +36,19 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
 
 /* ---------- side index ---------- */
 .cs-index{
-  grid-column:1;grid-row:1;align-self:start;position:sticky;top:131px;
+  /* 10 lower than the column, so its first line's capitals top-align with the title's (measured 2026-11-16:
+     Cormorant 48 has 14 above its caps, DM Sans 14 has 4); re-measure if either size changes */
+  grid-column:1;grid-row:1;align-self:start;position:sticky;top:141px;margin-top:10px;
   display:flex;flex-direction:column;gap:32px;
-  font-size:16px;color:var(--color-black-highlight);  /* Desktop/Caption */
+  font-size:14px;color:var(--color-black-highlight);  /* 14, items 8 apart (hers, 2026-11-16; was Desktop/Caption 16, 12 apart) */
+  transition:opacity .4s var(--ease-out),visibility 0s;
 }
+/* past the outcome it fades away (CaseIndex.jsx) */
+.cs-index.gone{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .4s var(--ease-out),visibility 0s .4s}
 .cs-index a{color:inherit;text-decoration:none;-webkit-tap-highlight-color:transparent;transition:color .2s var(--ease-out)}
 .cs-index a:hover{color:var(--color-black-default)}
 .cs-index a:focus-visible{outline:1px solid currentColor;outline-offset:2px;border-radius:2px}
-.cs-back{display:inline-flex;align-items:center;gap:8px}
-.cs-index ol{display:flex;flex-direction:column;gap:12px}
+.cs-index ol{display:flex;flex-direction:column;gap:8px}
 /* the section you're reading sits in brackets, in purple, like the nav bar's current page */
 .cs-index li a{margin-left:-.35em}
 .cs-index .br{visibility:hidden}
@@ -52,17 +56,21 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
 .cs-index a[aria-current] .br{visibility:visible}
 
 /* ---------- type ---------- */
-/* Desktop/Caption, black/highlight: the small {labels} */
-.cs-label{font-size:16px;color:var(--color-black-highlight)}
-/* Desktop/H3 */
-.cs-head{display:flex;flex-direction:column;gap:16px}
-.cs-head h2{font-family:var(--font-serif);font-weight:600;font-size:56px}
-/* heading to its first block: 32, closer than the gap between blocks */
+/* Desktop/H6, black/highlight: the {labels}. H6 is 18 on case studies (Lavanya, 2026-11-15; Figma's is 20) */
+.cs-label{font-size:18px;color:var(--color-black-highlight)}
+/* section headings: Desktop/H7 (Lavanya, 2026-11-15; was H3), the problem line too, in purple (.cs-statement).
+   Label to heading 12, heading to body 16, body paragraphs 12 apart (hers, 2026-11-15) */
+.cs-head{display:flex;flex-direction:column;gap:12px}
+.cs-head h2{font-family:var(--font-serif);font-weight:600;font-size:24px;letter-spacing:.02em}
+/* heading to its first block: 16 to body, 32 to anything else (cards, callouts, stats) */
 .cs-head + *{margin-top:calc(32px - var(--gap))}
+.cs-head + .cs-copy{margin-top:calc(16px - var(--gap))}
 /* Desktop/Body */
-.cs-copy{display:flex;flex-direction:column;gap:16px;font-size:18px}
-/* Desktop/H3 in purple/default: a line that carries the story on its own */
-.cs-statement{font-family:var(--font-serif);font-weight:600;font-size:56px;color:var(--color-purple-default)}
+.cs-copy{display:flex;flex-direction:column;gap:12px;font-size:18px}
+/* Desktop/H7 in purple/default: a line that carries the story on its own, the problem line and the
+   design brief (Lavanya, 2026-11-15; was H3). The brief and the paragraph under it sit 12 apart */
+.cs-statement{font-family:var(--font-serif);font-weight:600;font-size:24px;letter-spacing:.02em;color:var(--color-purple-default)}
+.cs-brief{display:flex;flex-direction:column;gap:12px}
 /* Desktop/H7 */
 .cs-sub{font-family:var(--font-serif);font-weight:600;font-size:24px;letter-spacing:.02em;margin-top:24px}
 
@@ -75,8 +83,8 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
 
 /* ---------- hero ---------- */
 .cs-hero{display:flex;flex-direction:column;gap:24px}
-/* Desktop/H2 */
-.cs-hero h1{font-family:var(--font-serif);font-weight:500;font-size:72px}
+/* Desktop/H2, brought down from Figma's 72 to 48 (Lavanya, 2026-11-15) */
+.cs-hero h1{font-family:var(--font-serif);font-weight:500;font-size:48px}
 .case-page .nowrap{white-space:nowrap}
 /* Desktop/Caption, as the Work page's tags */
 .cs-tags{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:16px;color:var(--color-black-highlight)}
@@ -147,12 +155,14 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
   display:flex;flex-direction:column;gap:12px;padding:32px;border:1px solid var(--color-tile-border);border-radius:8px;
   background:var(--color-tile-background);
 }
-/* mobile, the context the work was for, gets the site's faded glow inside it */
+/* mobile, the context the work was for, gets the faded glow inside it. Purple family only: a page
+   keeps to its section's colour (work), teal and pink belong to about and play (Lavanya, 2026-11-15).
+   Lilac top left, a warmer mauve (purple/default faded into white) bottom right. */
 .cs-side.right,.cs-callout{
   background:
-    radial-gradient(90% 120% at 0% 0%, color-mix(in srgb, var(--color-purple-highlight) 85%, transparent), transparent 70%),
-    radial-gradient(70% 90% at 100% 100%, color-mix(in srgb, var(--color-teal-highlight) 70%, transparent), transparent 70%),
-    radial-gradient(60% 80% at 90% 0%, color-mix(in srgb, var(--color-pink-highlight) 55%, transparent), transparent 70%),
+    radial-gradient(90% 120% at 0% 0%, color-mix(in srgb, var(--color-purple-highlight) 90%, transparent), transparent 70%),
+    radial-gradient(70% 90% at 100% 100%, color-mix(in srgb, var(--color-purple-default) 12%, transparent), transparent 70%),
+    radial-gradient(60% 80% at 90% 0%, color-mix(in srgb, var(--color-tile-background) 90%, transparent), transparent 70%),
     var(--color-white-default);
 }
 .cs-side h3{font-family:var(--font-serif);font-weight:600;font-size:24px;letter-spacing:.02em;margin-bottom:4px}
@@ -171,16 +181,16 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
 
 /* ---------- decisions: set apart, numbered ---------- */
 .cs-callout{display:flex;flex-direction:column;gap:16px;padding:56px;border:1px solid var(--color-tile-border);border-radius:8px}
-.cs-callout-title{font-family:var(--font-serif);font-weight:600;font-size:56px}  /* Desktop/H3 */
-.cs-callout > p:last-child{font-size:18px;max-width:640px}
+.cs-callout-title{font-family:var(--font-serif);font-weight:500;font-size:48px}  /* Desktop/H2 (48 on case studies), the callout's only line (hers, 2026-11-15) */
+.cs-callout > p:not(.cs-callout-title){font-size:18px;max-width:640px}
 
 .cs-decision{display:flex;flex-direction:column;gap:32px;padding-top:56px;border-top:1px solid var(--color-tile-border)}
-.cs-decision-head{display:grid;grid-template-columns:auto minmax(0, 1fr);gap:32px;align-items:start}
-/* Desktop/H4 in purple: the number leads */
-.cs-decision-n{font-family:var(--font-serif);font-weight:500;font-size:80px;line-height:.8;color:var(--color-purple-default)}
-.cs-decision-head > div{display:flex;flex-direction:column;gap:16px}
-.cs-decision-head h3{font-family:var(--font-serif);font-weight:600;font-size:56px}  /* Desktop/H3 */
-.cs-decision-answer{font-size:20px}  /* Desktop/H6 */
+/* the number and the question on one line, Desktop/H7 in purple (Lavanya, 2026-11-15; was an H4 number
+   beside an H3 question). Heading to body 16, body to body 12 */
+.cs-decision-head{display:flex;flex-direction:column;gap:12px}
+.cs-decision-head h3{font-family:var(--font-serif);font-weight:600;font-size:24px;letter-spacing:.02em;color:var(--color-purple-default);margin-bottom:4px}
+.cs-decision-n{margin-right:.15em}
+.cs-decision-answer{font-size:18px}  /* Desktop/H6 (18 on case studies) */
 .cs-edges{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:24px}
 .cs-edge{display:flex;flex-direction:column;gap:16px}
 .cs-edge > div{display:flex;flex-direction:column;gap:8px}
@@ -197,35 +207,49 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
 .cs-stat h3{font-family:var(--font-serif);font-weight:600;font-size:24px;letter-spacing:.02em}
 .cs-stat p{font-size:16px}
 
-/* ---------- next case study: the Work page's tile, title and tags ---------- */
-.cs-next{position:relative;display:flex;flex-direction:column;gap:24px}
-.cs-next-card{display:flex;flex-direction:column;gap:24px;max-width:606px}
-.cs-next-card h2{font-family:var(--font-serif);font-weight:600;font-size:24px;letter-spacing:.02em;margin-bottom:-8px} /* Desktop/H7, 16 to the tags */
+/* ---------- next case studies: the Work page's tiles, titles and tags, two side by side, 40 apart as on Work ---------- */
+/* the story ends on a line, 70 under the outcome and 120 above "More work"; the side index fades before it.
+   More work is its own block across the whole container, 200 clear of the footer so the two read apart (2026-11-16) */
+.cs-end{margin:0;border:0;border-top:1px solid var(--color-tile-border)}
+.cs-wrap:has(+ .cs-after){margin-bottom:120px}
+.cs-after{margin-bottom:200px}
+.cs-after > *{grid-column:1 / -1;min-width:0}  /* the full container, 130 at the sides: tiles as big as on Work (hers, 2026-11-16) */
+.cs-next{position:relative;display:flex;flex-direction:column;gap:32px}
+/* "More work": Figma's Desktop/H3 at its full 56 (hers, 2026-11-16), purple */
+.cs-more{font-family:var(--font-serif);font-weight:600;font-size:56px;line-height:normal;color:var(--color-purple-default)}
+.cs-next-cards{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:40px}
+.cs-next-card{display:flex;flex-direction:column;gap:24px}
+.cs-next-card h2{font-family:var(--font-serif);font-weight:600;font-size:24px;letter-spacing:.02em} /* Desktop/H7. No {tags}: those live on the Work page only (hers, 2026-11-16) */
 
 /* ---------- narrower windows: no room for the index beside the column ---------- */
 @media (max-width:1023px){
   .cs-wrap{grid-template-columns:minmax(0, var(--col));justify-content:center}
   .cs-index{display:none}
   .cs-main{grid-column:1}
+  .cs-wrap.cs-after{grid-template-columns:minmax(0, 1fr)}
 }
 @media (max-width:840px){
-  .cs-cards{grid-template-columns:minmax(0, 1fr)}
+  .cs-cards,.cs-next-cards{grid-template-columns:minmax(0, 1fr)}  /* one column here, as the Work page */
   .cs-feature{gap:24px}
 }
 
 /* ---------- phones: the mobile text styles, 20 at the sides, top 56 ---------- */
 @media (max-width:600px){
   .case-page{--side:20px;--gap:40px;padding-top:56px}
-  .cs-wrap{margin-bottom:120px}
-  .cs-main{gap:80px}
+  .cs-wrap:has(+ .cs-after){margin-bottom:56px}
+  .cs-after{margin-bottom:160px}
+  .cs-more{font-size:28px;font-weight:500}                               /* Mobile/h3 */
+  .cs-next{gap:24px}
+  .cs-main{gap:56px}  /* desktop 70 is hers (2026-11-16, was 120); 56 on phones is mine, scaled down from 80 to match */
   .cs-section{scroll-margin-top:56px}
   .cs-head + *{margin-top:calc(24px - var(--gap))}
-  .cs-label,.cs-tags,.cs-media figcaption,.cs-details dt,.cs-insight figcaption{font-size:14px} /* Mobile/Caption */
+  .cs-head + .cs-copy{margin-top:calc(16px - var(--gap))}
+  .cs-tags,.cs-media figcaption,.cs-details dt,.cs-insight figcaption{font-size:14px} /* Mobile/Caption */
   .cs-hero h1{font-size:36px}                                            /* Mobile/h4: the long title at Mobile/h2 (40) ran to six lines */
-  .cs-head h2,.cs-statement,.cs-head h2.cs-statement,.cs-callout-title,.cs-decision-head h3{font-size:28px;font-weight:500} /* Mobile/h3 */
-  .cs-copy,.cs-details dd,.cs-side ul,.cs-feature-copy p,.cs-callout > p:last-child,.cs-decision-answer{font-size:16px} /* Mobile/Body */
+  .cs-callout-title{font-size:36px}                                      /* Mobile/h4, as the title (H2 on desktop) */
+  .cs-label,.cs-copy,.cs-details dd,.cs-side ul,.cs-feature-copy p,.cs-callout > p:not(.cs-callout-title),.cs-decision-answer{font-size:16px} /* Mobile/Body (labels: H6 on desktop) */
   .cs-cards p,.cs-edge p:not(.cs-label),.cs-stat p{font-size:14px}
-  .cs-sub,.cs-cards h3,.cs-insight blockquote,.cs-side h3,.cs-feature-copy h3,.cs-edge h4,.cs-stat h3,.cs-next-card h2{font-size:20px;letter-spacing:0} /* Mobile/h5 */
+  .cs-head h2,.cs-statement,.cs-decision-head h3,.cs-sub,.cs-cards h3,.cs-insight blockquote,.cs-side h3,.cs-feature-copy h3,.cs-edge h4,.cs-stat h3,.cs-next-card h2{font-size:20px;letter-spacing:0} /* Mobile/h5 */
   .cs-details{grid-template-columns:repeat(2, minmax(0, 1fr));gap:16px}
   .cs-insights,.cs-compare,.cs-stats{grid-template-columns:minmax(0, 1fr)}
   .cs-insights{gap:24px}
@@ -233,13 +257,21 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
   .cs-feature{grid-template-columns:minmax(0, 1fr);gap:16px}
   .cs-callout{padding:24px}
   .cs-decision{gap:24px;padding-top:40px}
-  .cs-decision-head{grid-template-columns:minmax(0, 1fr);gap:12px}
-  .cs-decision-n{font-size:36px;line-height:1}                          /* Mobile/h4 */
   .cs-edges{gap:16px}
   .cs-stat-value{font-size:60px;font-weight:600}                         /* Mobile/h1 */
+  .cs-next-cards{grid-template-columns:minmax(0, 1fr);gap:32px}         /* 32 apart, as the Work page's tiles on phones */
   .cs-next-card{gap:12px}
-  .cs-next-card h2{margin-bottom:-4px}
   .cs-ph.phone,.cs-ph.square{border-radius:14px}
   /* a phone clip in a 2:1 panel is tiny at 362 wide: taller panels on phones */
   .cs-media.phone .cs-panel{aspect-ratio:4 / 3}
+}
+
+/* ---------- ?type: each text's style name and size (typeLabels.js), for review only ----------
+   The tag sits in the flow above its text so none overlap; spacing grows a little while it's on. */
+.cs-types [data-ts]{outline:1px dashed #ff33d080;outline-offset:2px}
+.cs-types [data-ts]::before{
+  content:attr(data-ts);display:block;width:max-content;margin-bottom:4px;
+  padding:1px 6px;border-radius:3px;background:#ff33d0;color:#fff;
+  font:600 11px/1.5 var(--font-sans);font-variation-settings:normal;letter-spacing:0;text-transform:none;
+  white-space:nowrap;pointer-events:none;
 }

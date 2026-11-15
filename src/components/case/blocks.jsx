@@ -149,24 +149,24 @@ export function Decision({ n, question, answer, children, media, edges }) {
   return (
     <article className="cs-decision">
       <header className="cs-decision-head" data-rise>
-        <span className="cs-decision-n" aria-hidden="true">{String(n).padStart(2, '0')}</span>
-        <div>
-          <h3>{question}</h3>
-          {answer && <p className="cs-decision-answer">{answer}</p>}
-          {children}
-        </div>
+        <h3><span className="cs-decision-n">{String(n).padStart(2, '0')}</span> {question}</h3>
+        {answer && <p className="cs-decision-answer">{answer}</p>}
+        {children}
       </header>
       {media && <Media {...media} />}
       {edges && (
         <div className="cs-edges">
           {edges.map(e => (
-            <div key={e.title} className="cs-edge">
+            <div key={e.media} className="cs-edge">
               <Media kind="square" label={e.media} src={e.src} parallax={false} />
-              <div data-rise>
-                <p className="cs-label">{'{edge case}'}</p>
-                <h4>{e.title}</h4>
-                {e.text && <p>{e.text}</p>}
-              </div>
+              {/* an edge with no title is a second screen only (the terrain map view) */}
+              {e.title && (
+                <div data-rise>
+                  <p className="cs-label">{'{edge case}'}</p>
+                  <h4>{e.title}</h4>
+                  {e.text && <p>{e.text}</p>}
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -175,13 +175,12 @@ export function Decision({ n, question, answer, children, media, edges }) {
   )
 }
 
-/** The decision a page stands behind: a callout with the faded glow inside it. */
-export function Callout({ label, title, children }) {
+/** The decision a page stands behind: a callout with the faded glow inside it. No label: the box says it (hers, 2026-11-15). */
+export function Callout({ title, children }) {
   return (
     <aside className="cs-callout" data-rise>
-      {label && <p className="cs-label">{label}</p>}
       <p className="cs-callout-title">{title}</p>
-      <p>{children}</p>
+      {children && <p>{children}</p>}
     </aside>
   )
 }
