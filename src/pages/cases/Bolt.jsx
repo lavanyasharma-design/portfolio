@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react'
-import { MapPinned, Fence, Cpu } from 'lucide-react'
 import NavBar from '../../components/nav/NavBar'
 import PageFooter from '../../components/footer/PageFooter'
 import { Link } from '../../components/footer/sayHi'
@@ -7,6 +6,7 @@ import CaseTile from '../../components/work/CaseTile'
 import CaseIndex from '../../components/case/CaseIndex'
 import { mountCaseMotion, mountCaseMotionPanel } from '../../components/case/caseMotion'
 import { mountTypeLabels } from '../../components/case/typeLabels'
+import { mountInfographicPanel } from '../../components/case/infographic'
 import {
   Section, Copy, Statement, Media, Details, Cards, Insights, Compare, Feature, Decision, Callout, Stats,
 } from '../../components/case/blocks'
@@ -31,7 +31,7 @@ const SECTIONS = [
   { id: 'problem', label: 'problem' },
   { id: 'solution', label: 'solution' },
   { id: 'research', label: 'research conclusions' },
-  { id: 'approach', label: 'approach' },
+  { id: 'approach', label: 'my approach' },  // as its {label} (hers, 2026-11-16)
   { id: 'design', label: 'design' },
   { id: 'decisions', label: 'decisions' },
   { id: 'outcome', label: 'outcome' },
@@ -53,7 +53,8 @@ function Bolt() {
     const q = new URLSearchParams(location.search)
     const panel = q.has('parallax') ? mountCaseMotionPanel() : null
     const unlabel = q.has('type') ? mountTypeLabels(page.current) : null
-    return () => { stop(); panel?.remove(); unlabel?.() }
+    const igPanel = q.has('infographic') ? mountInfographicPanel() : null
+    return () => { stop(); panel?.remove(); unlabel?.(); igPanel?.remove() }
   }, [])
 
   return (
@@ -107,24 +108,27 @@ function Bolt() {
           </Section>
 
           {/* ---------- 5. why it mattered (no label, so no index entry: it reads as part of the solution) ---------- */}
-          {/* INFOGRAPHIC (hers, 2026-11-15): these cards become an infographic once she picks the style */}
+          {/* INFOGRAPHIC: her palettes (2026-11-16), colours per slot in infographic.js, ?infographic to tune */}
           <Section id="why" title="Why bringing SaaS to mobile mattered">
-            <Cards items={[
-              { icon: MapPinned, title: 'Track vehicles live', text: 'No mobile map meant no real-time view and any negligence reported could only be accessed on a big screen. No quick reparatory actions.' },
-              { icon: Fence, title: 'Manage geofences', text: 'Creating delivery boundaries, or responding to a breach, needed a desktop session.' },
-              { icon: Cpu, title: 'Handle subscriptions and devices', text: 'Adding a new GPS device or managing feature licences, responding promptly to device faults was a task.' },
+            {/* no numbers or icons, "subscriptions" out of the third title (hers, 2026-11-16) */}
+            <Cards numbered={false} items={[
+              { ig: 'why1', title: 'Track vehicles live', text: 'No mobile map meant no real-time view and any negligence reported could only be accessed on a big screen. No quick reparatory actions.' },
+              { ig: 'why2', title: 'Manage geofences', text: 'Creating delivery boundaries, or responding to a breach, needed a desktop session.' },
+              { ig: 'why3', title: 'Handle devices', text: 'Adding a new GPS device or managing feature licences, responding promptly to device faults was a task.' },
             ]} />
           </Section>
 
           {/* ---------- 6. research conclusions ---------- */}
-          {/* INFOGRAPHIC (hers, 2026-11-15): the insights become an infographic once she picks the style */}
+          {/* INFOGRAPHIC: her palettes (2026-11-16) */}
           <Section id="research" label="research conclusions">
             <Insights items={[
               {
+                ig: 'insight1',
                 text: 'Users called in for help because they couldn’t complete actions without switching back to their laptop, frustration was recorded.',
                 source: 'Synthesised from customer support feedback',
               },
               {
+                ig: 'insight2',
                 text: 'The most common complaint wasn’t about missing features. It was about not being able to reach the features they already had.',
                 source: 'Synthesised from usability sessions',
               },
@@ -139,10 +143,10 @@ function Bolt() {
                 out the users, and hence, separating use cases was the first step.
               </p>
             </Copy>
-            {/* INFOGRAPHIC (hers, 2026-11-15): desktop against mobile becomes an infographic */}
+            {/* INFOGRAPHIC: her palettes (2026-11-16) */}
             <Compare
-              left={{ label: 'on desktop', title: 'Time to configure', points: ['Time on their hands', 'Room on the screen', 'The headspace to set things up'] }}
-              right={{ label: 'on mobile', title: 'Moments to act', points: ['Check a status', 'Send a vehicle', 'See if a geofence was breached'] }}
+              left={{ ig: 'desktop', label: 'on desktop', title: 'Time to configure', points: ['Time on their hands', 'Room on the screen', 'The headspace to set things up'] }}
+              right={{ ig: 'mobile', label: 'on mobile', title: 'Moments to act', points: ['Check a status', 'Send a vehicle', 'See if a geofence was breached'] }}
             />
             <Copy><p>Giving them everything at once would have made both experiences worse.</p></Copy>
             {/* the design brief and how it was answered, 12 apart */}
@@ -180,8 +184,8 @@ function Bolt() {
 
           {/* ---------- 9. decisions ---------- */}
           <Section id="decisions" label="decisions" title="The call that shaped it">
-            {/* INFOGRAPHIC (hers, 2026-11-15): the callout gets the infographic style */}
-            <Callout title="We kept deep configuration flows on desktop, on purpose." />
+            {/* INFOGRAPHIC: the lilac gradient from her reference (2026-11-16) */}
+            <Callout ig="callout" title="We kept deep configuration flows on desktop, on purpose." />
 
             <Decision
               n={1}
@@ -220,12 +224,14 @@ function Bolt() {
           <Section id="outcome" label="outcome" title="What landed">
             <Stats items={[
               {
+                ig: 'stats',  // a purple gradient, so they stop reading like the clip panels (hers, 2026-11-16)
                 value: '12%',
                 title: 'higher task completion',
                 text: <>Tracked through Google Analytics after launch and validated in usability sessions with the
                   customer support team.</>,
               },
               {
+                ig: 'stats',
                 value: '25%',
                 title: 'fewer operational calls',
                 text: 'The support team noticed it too. Users were completing actions on their own, on their phones, without needing any help.',

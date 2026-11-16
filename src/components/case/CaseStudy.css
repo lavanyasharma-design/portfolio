@@ -62,9 +62,11 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
    Label to heading 12, heading to body 16, body paragraphs 12 apart (hers, 2026-11-15) */
 .cs-head{display:flex;flex-direction:column;gap:12px}
 .cs-head h2{font-family:var(--font-serif);font-weight:600;font-size:24px;letter-spacing:.02em}
-/* heading to its first block: 16 to body, 32 to anything else (cards, callouts, stats) */
-.cs-head + *{margin-top:calc(32px - var(--gap))}
-.cs-head + .cs-copy{margin-top:calc(16px - var(--gap))}
+/* heading to its first block: 16 to body, 32 to anything else (cards, callouts, stats).
+   .case-page in front so it outranks the margin reset on lists (.case-page ol), which had left the
+   why cards a full 56 under their heading (her catch, 2026-11-16) */
+.case-page .cs-head + *{margin-top:calc(32px - var(--gap))}
+.case-page .cs-head + .cs-copy{margin-top:calc(16px - var(--gap))}
 /* Desktop/Body */
 .cs-copy{display:flex;flex-direction:column;gap:12px;font-size:18px}
 /* Desktop/H7 in purple/default: a line that carries the story on its own, the problem line and the
@@ -221,6 +223,72 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
 .cs-next-card{display:flex;flex-direction:column;gap:24px}
 .cs-next-card h2{font-family:var(--font-serif);font-weight:600;font-size:24px;letter-spacing:.02em} /* Desktop/H7. No {tags}: those live on the Work page only (hers, 2026-11-16) */
 
+/* ---------- infographics: her pastel palettes (infographic.js, ?infographic), 2026-11-16 ----------
+   Each element tagged data-ig gets --ig, its colour (and --ig-to, a second one for gradients). The
+   colour washes in from one corner and fades to white (--ig-wash at its strongest), and the marks
+   inside (bullets, sources) take a deep ink of the same colour. Each group's decoration (data-deco):
+   a soft organic blob (her lilac reference), contour lines (her "lines in the background", a try-out,
+   /assets/contours.svg as a mask so they take the panel's ink), or none. No pinks: they belong to [play]. */
+.case-page [data-ig]{
+  --ig-ink:color-mix(in oklab, var(--ig) 38%, #1a1a1a);
+  --ig-edge:color-mix(in srgb, var(--ig) 55%, var(--color-tile-border));
+  position:relative;isolation:isolate;overflow:hidden;
+  border:1px solid var(--ig-edge);border-radius:8px;
+  background:
+    radial-gradient(130% 110% at 100% 0%, color-mix(in srgb, var(--ig) var(--ig-wash), transparent), transparent 75%),
+    var(--color-white-default);
+}
+.case-page [data-ig]:not([data-deco=none])::before{
+  content:"";position:absolute;z-index:-1;pointer-events:none;
+}
+.case-page [data-deco=blob]::before{
+  width:var(--ig-deco-size);aspect-ratio:1.15;right:-8%;bottom:-18%;
+  border-radius:63% 37% 54% 46% / 55% 48% 52% 45%;
+  background:var(--ig);opacity:.55;
+}
+.case-page [data-deco=lines]::before{
+  width:calc(var(--ig-deco-size) * 1.3);aspect-ratio:1;right:-22%;bottom:-58%;
+  background:color-mix(in srgb, var(--ig-ink) var(--ig-lines), transparent);
+  -webkit-mask:url(/assets/contours.svg) center / contain no-repeat;mask:url(/assets/contours.svg) center / contain no-repeat;
+}
+
+/* why it mattered: the lines sit higher, where the blobs were (hers, 2026-11-16) */
+.case-page .cs-cards [data-deco=lines]::before{right:-14%;bottom:-24%}
+/* an icon, if a page gives one, sits in a round badge of the card's colour */
+.cs-icon-badge{display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:var(--ig, var(--color-purple-highlight))}
+.cs-cards li[data-ig] .cs-icon,.cs-cards li[data-ig] .cs-num{color:var(--ig-ink)}
+
+/* research conclusions: panels instead of the purple rule */
+.cs-insight[data-ig]{padding:32px;border-left:1px solid var(--ig-edge);justify-content:space-between}
+.cs-insight[data-ig] figcaption{color:var(--ig-ink)}
+
+/* desktop against mobile: each side its colour, bullets in its ink */
+.cs-side[data-ig] li::before{background:var(--ig-ink)}
+.cs-side[data-ig] .cs-label{color:var(--ig-ink)}
+
+/* the decisions callout: a bright jasper gradient, peach light from the top left (hers, 2026-11-16),
+   the lines in white at the right, away from the words */
+.case-page .cs-callout[data-ig]{
+  background:
+    radial-gradient(90% 150% at 0% 0%, color-mix(in srgb, var(--ig-to) var(--ig-wash), transparent), transparent 70%),
+    linear-gradient(120deg, color-mix(in oklab, var(--ig) 82%, #fff), var(--ig));
+  border-color:color-mix(in oklab, var(--ig) 85%, #1a1a1a);
+}
+.case-page .cs-callout[data-deco=lines]::before{
+  background:color-mix(in srgb, #fff var(--ig-lines), transparent);
+  width:calc(var(--ig-deco-size) * 1.1);right:-12%;top:-35%;bottom:auto;
+}
+.case-page .cs-callout[data-deco=blob]::before{background:var(--ig-to)}
+
+/* outcome: a purple-only gradient (hers, 2026-11-16), so the numbers stop reading like the clip panels:
+   mauve washing in from the top right, the site's purple highlight from the bottom left */
+.case-page .cs-stat[data-ig]{
+  background:
+    radial-gradient(120% 110% at 100% 0%, color-mix(in srgb, var(--ig) var(--ig-wash), transparent), transparent 70%),
+    radial-gradient(110% 110% at 0% 100%, color-mix(in srgb, var(--ig-to) var(--ig-wash), transparent), transparent 70%),
+    var(--color-white-default);
+}
+
 /* ---------- narrower windows: no room for the index beside the column ---------- */
 @media (max-width:1023px){
   .cs-wrap{grid-template-columns:minmax(0, var(--col));justify-content:center}
@@ -242,8 +310,8 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
   .cs-next{gap:24px}
   .cs-main{gap:56px}  /* desktop 70 is hers (2026-11-16, was 120); 56 on phones is mine, scaled down from 80 to match */
   .cs-section{scroll-margin-top:56px}
-  .cs-head + *{margin-top:calc(24px - var(--gap))}
-  .cs-head + .cs-copy{margin-top:calc(16px - var(--gap))}
+  .case-page .cs-head + *{margin-top:calc(24px - var(--gap))}
+  .case-page .cs-head + .cs-copy{margin-top:calc(16px - var(--gap))}
   .cs-tags,.cs-media figcaption,.cs-details dt,.cs-insight figcaption{font-size:14px} /* Mobile/Caption */
   .cs-hero h1{font-size:36px}                                            /* Mobile/h4: the long title at Mobile/h2 (40) ran to six lines */
   .cs-callout-title{font-size:36px}                                      /* Mobile/h4, as the title (H2 on desktop) */

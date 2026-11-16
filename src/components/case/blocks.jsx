@@ -7,6 +7,11 @@
  * data-parallax: the block drifts against the scroll inside its panel (caseMotion.js, ?parallax).
  */
 
+import { igProps } from './infographic'
+
+// an infographic element: tagged with its colour slot (infographic.js) so ?infographic can recolour it
+const ig = slot => (slot ? igProps(slot) : {})
+
 /**
  * Words still to be written or checked by Lavanya: highlighted while DRAFT is on, with the note
  * shown on hover. Turn DRAFT off (CaseStudy.css: .cs-draft) once the copy is final.
@@ -83,16 +88,21 @@ export function Details({ items }) {
   )
 }
 
-/** Numbered cards, side by side: { title, text, icon } */
-export function Cards({ items }) {
+/**
+ * Cards side by side: { title, text, icon, ig } (ig: a colour slot, see infographic.js).
+ * `numbered` puts 01, 02... at the top; with no icon and no number the card starts at its title.
+ */
+export function Cards({ items, numbered = true }) {
   return (
     <ol className="cs-cards" data-rise>
-      {items.map(({ title, text, icon: Icon }, i) => (
-        <li key={title}>
-          <span className="cs-card-top">
-            <span className="cs-num">{String(i + 1).padStart(2, '0')}</span>
-            {Icon && <Icon className="cs-icon" aria-hidden="true" strokeWidth={1.5} />}
-          </span>
+      {items.map(({ title, text, icon: Icon, ig: slot }, i) => (
+        <li key={title} {...ig(slot)}>
+          {(Icon || numbered) && (
+            <span className="cs-card-top">
+              {Icon && <span className="cs-icon-badge"><Icon className="cs-icon" aria-hidden="true" strokeWidth={1.5} /></span>}
+              {numbered && <span className="cs-num">{String(i + 1).padStart(2, '0')}</span>}
+            </span>
+          )}
           <h3>{title}</h3>
           <p>{text}</p>
         </li>
@@ -106,8 +116,8 @@ export function Insights({ label, items }) {
   return (
     <div className="cs-insights" data-rise>
       {label && <p className="cs-label">{label}</p>}
-      {items.map(({ text, source }) => (
-        <figure key={source + text.slice(0, 12)} className="cs-insight">
+      {items.map(({ text, source, ig: slot }) => (
+        <figure key={source + text.slice(0, 12)} className="cs-insight" {...ig(slot)}>
           <blockquote>{text}</blockquote>
           <figcaption>{source}</figcaption>
         </figure>
@@ -116,10 +126,10 @@ export function Insights({ label, items }) {
   )
 }
 
-/** Two contexts set against each other: { title, points[] } twice. */
+/** Two contexts set against each other: { label, title, points[], ig } twice. */
 export function Compare({ left, right }) {
   const side = (s, cls) => (
-    <div className={`cs-side ${cls}`}>
+    <div className={`cs-side ${cls}`} {...ig(s.ig)}>
       <p className="cs-label">{s.label}</p>
       <h3>{s.title}</h3>
       <ul>{s.points.map(p => <li key={p}>{p}</li>)}</ul>
@@ -176,21 +186,21 @@ export function Decision({ n, question, answer, children, media, edges }) {
 }
 
 /** The decision a page stands behind: a callout with the faded glow inside it. No label: the box says it (hers, 2026-11-15). */
-export function Callout({ title, children }) {
+export function Callout({ title, children, ig: slot }) {
   return (
-    <aside className="cs-callout" data-rise>
+    <aside className="cs-callout" data-rise {...ig(slot)}>
       <p className="cs-callout-title">{title}</p>
       {children && <p>{children}</p>}
     </aside>
   )
 }
 
-/** Outcome numbers: { value, title, text } */
+/** Outcome numbers: { value, title, text, ig } */
 export function Stats({ items }) {
   return (
     <div className="cs-stats" data-rise>
       {items.map(s => (
-        <div key={s.title} className="cs-stat">
+        <div key={s.title} className="cs-stat" {...ig(s.ig)}>
           <span className="cs-stat-value">{s.value}</span>
           <h3>{s.title}</h3>
           <p>{s.text}</p>
