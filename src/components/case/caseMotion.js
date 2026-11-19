@@ -2,8 +2,8 @@ import { animate, inView, scroll } from 'motion'
 
 /**
  * Motion on a case study page, set up once per page (imperative, like the rest of the site):
- * - blocks marked data-rise rise in as they reach the screen (the home page's rise: opacity,
- *   14px, 4px blur);
+ * - blocks marked data-rise rise in as they reach the screen (opacity, 12px, 3px blur, 0.4s;
+ *   her values from ?parallax, 2026-11-19);
  * - panels' contents marked data-parallax drift against the scroll, so the clips and pictures
  *   move a touch slower than the words around them;
  * - clips (data-clip) play only while on screen, like Mavis Lo's.
@@ -11,12 +11,12 @@ import { animate, inView, scroll } from 'motion'
  * `?parallax` opens a live panel with "copy values".
  */
 export const CASE_MOTION = {
-  drift: 28,        // px each way the panel contents travel across a full pass of the screen
-  driftMax: 0.08,   // ...but never more than this share of the panel's height (small panels on phones)
-  rise: 14,         // px a block rises from
-  blur: 4,          // px of blur it sharpens from
-  riseTime: 0.7,    // s
-  riseAt: 0.12,     // how far up from the bottom of the screen a block starts rising (fraction)
+  drift: 10,        // px each way the panel contents travel across a full pass of the screen
+  driftMax: 0.05,   // ...but never more than this share of the panel's height (small panels on phones)
+  rise: 12,         // px a block rises from
+  blur: 3,          // px of blur it sharpens from
+  riseTime: 0.4,    // s
+  riseAt: 0.05,     // how far up from the bottom of the screen a block starts rising (fraction)
 }
 
 const EASE = [0.2, 0, 0, 1] // --ease-out
