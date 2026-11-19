@@ -7,7 +7,21 @@
  * data-parallax: the block drifts against the scroll inside its panel (caseMotion.js, ?parallax).
  */
 
+import { useEffect, useState } from 'react'
 import { igProps } from './infographic'
+
+const PHONE = '(max-width:600px)'
+/** true at phone width (600px and below, the site's phone breakpoint), following resizes */
+function usePhone() {
+  const [phone, setPhone] = useState(() => typeof matchMedia !== 'undefined' && matchMedia(PHONE).matches)
+  useEffect(() => {
+    const m = matchMedia(PHONE)
+    const on = () => setPhone(m.matches)
+    m.addEventListener('change', on)
+    return () => m.removeEventListener('change', on)
+  }, [])
+  return phone
+}
 
 // an infographic element: tagged with its colour slot (infographic.js) so ?infographic can recolour it
 const ig = slot => (slot ? igProps(slot) : {})
@@ -51,15 +65,20 @@ export function Statement({ children, as: Tag = 'p' }) {
 /**
  * A prototype clip, screen or picture in the case study's panel. With `src` it plays (muted, looping,
  * only while on screen); without, a labelled placeholder holds its place.
- * kind: 'phone' (a phone-shaped clip), 'wide' (a 2:1 picture), 'square'.
+ * kind: 'phone' (a phone clip in a single 4:5 panel; its caption sits beside it, as Mavis Lo's), 'wide' (a 2:1
+ * picture), 'square', 'bare' (just the phone, no panel: the edge-case screens).
  */
-export function Media({ kind = 'phone', src, poster, label, caption, parallax = true }) {
+export function Media({ kind = 'phone', src: wideSrc, srcPhone, poster: widePoster, posterPhone, label, caption, parallax = true }) {
+  // phones get the tall (4:5) recording when there is one: the 2:1 one leaves the phone tiny at 362 wide
+  const phone = usePhone()
+  const src = phone && srcPhone ? srcPhone : wideSrc
+  const poster = phone && posterPhone ? posterPhone : widePoster
   const isVideo = src && /\.(mp4|webm)$/i.test(src)
   const inner = !src ? <Placeholder kind={kind} label={label} />
     : isVideo ? <video className={`cs-clip ${kind}`} src={src} poster={poster} muted loop playsInline preload="none" data-clip aria-label={label} />
     : <img className={`cs-clip ${kind}`} src={src} alt={label ?? ''} decoding="async" loading="lazy" />
   return (
-    <figure className={`cs-media ${kind}`} data-rise>
+    <figure className={`cs-media ${kind}${kind === 'phone' && caption ? ' beside' : ''}`} data-rise>
       <div className="cs-panel">
         <div className="cs-panel-in" data-parallax={parallax ? '' : undefined}>{inner}</div>
       </div>
@@ -160,15 +179,24 @@ export function Decision({ n, question, answer, children, media, edges }) {
     <article className="cs-decision">
       <header className="cs-decision-head" data-rise>
         <h3><span className="cs-decision-n">{String(n).padStart(2, '0')}</span> {question}</h3>
-        {answer && <p className="cs-decision-answer">{answer}</p>}
-        {children}
+        {!media && answer && <p className="cs-decision-answer">{answer}</p>}
+        {!media && children}
       </header>
-      {media && <Media {...media} />}
+      {/* with a clip: the clip in a single panel, the answer beside it (Mavis Lo's pattern, hers 2026-11-19) */}
+      {media && (
+        <div className="cs-decision-row">
+          <Media {...media} />
+          <div className="cs-decision-side" data-rise>
+            {answer && <p className="cs-decision-answer">{answer}</p>}
+            {children}
+          </div>
+        </div>
+      )}
       {edges && (
         <div className="cs-edges">
           {edges.map(e => (
             <div key={e.media} className="cs-edge">
-              <Media kind="square" label={e.media} src={e.src} parallax={false} />
+              <Media kind={e.bare ? 'bare' : 'square'} label={e.media} src={e.src} poster={e.poster} parallax={false} />
               {/* an edge with no title is a second screen only (the terrain map view) */}
               {e.title && (
                 <div data-rise>

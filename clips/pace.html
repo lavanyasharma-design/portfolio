@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clip pace</title>
+<!--
+  A page for judging the Bolt clips' pace: each clip loops at a speed you set with its slider (slower
+  below 1x, faster above), and shows how long it then runs. Tell Claude the speeds that feel right
+  ("devices 0.85x") and the clip is re-timed to match. Open on the site's dev server:
+  http://localhost:5173/clips/pace.html (the clips come from public/work/bolt/).
+-->
+<style>
+  :root{--ink:#1a1a1a;--grey:#616161;--panel:#faf7ff;--line:#dddddd;--purple:#6729ae;--bg:#fff}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ink:#eee;--grey:#aaa;--line:#333;--bg:#141414}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui, sans-serif;padding:24px 16px 64px}
+  header{max-width:1280px;margin:0 auto 24px;display:flex;flex-wrap:wrap;gap:12px 32px;align-items:end}
+  h1{font-size:24px;margin:0;font-weight:600}
+  header p{margin:0;color:var(--grey);max-width:60ch}
+  .all{display:flex;gap:10px;align-items:center}
+  .grid{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:28px}
+  figure{margin:0;display:flex;flex-direction:column;gap:10px}
+  video{width:100%;aspect-ratio:2/3;object-fit:cover;background:var(--panel);border:1px solid var(--line);border-radius:8px;display:block}
+  video.square{aspect-ratio:1}
+  .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .name{font-weight:600}
+  .len{color:var(--grey);font-variant-numeric:tabular-nums;font-size:14px}
+  input[type=range]{width:100%;accent-color:var(--purple)}
+  .rate{font-variant-numeric:tabular-nums;font-weight:600;color:var(--purple);min-width:4ch;text-align:right}
+  button{font:inherit;font-size:14px;border:1px solid var(--line);background:none;color:var(--ink);border-radius:6px;padding:4px 10px;cursor:pointer}
+  #copy{border-color:var(--purple);color:var(--purple)}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Clip pace</h1>
+    <p>Slide a clip slower (below 1x) or faster until it feels right, then copy the speeds and send them to Claude. Each clip restarts when you change it.</p>
+  </div>
+  <div class="all">
+    <span>all</span>
+    <input id="all" type="range" min="0.5" max="1.5" step="0.05" value="1" style="width:180px">
+    <span class="rate" id="allRate">1x</span>
+    <button id="copy" type="button">copy speeds</button>
+  </div>
+</header>
+<main class="grid" id="grid"></main>
+<script>
+  const CLIPS = [
+    ['menu', 'menu-tall'], ['fleet', 'fleet-tall'], ['geofence', 'geofence-tall'], ['devices', 'devices-tall'],
+    ['POI', 'poi-tall'], ['subscriptions', 'subscriptions-tall'], ['geofence slider', 'geofence-slider-square', 'square'],
+    ['terrain', 'terrain-square', 'square'], ['vehicle tap', 'vehicle-tall'],
+  ];
+  const grid = document.getElementById('grid');
+  const items = CLIPS.map(([name, file, shape]) => {
+    const f = document.createElement('figure');
+    f.innerHTML = `<video class="${shape || ''}" src="/work/bolt/${file}.mp4" muted loop playsinline autoplay></video>
+      <div class="row"><span class="name">${name}</span><span class="len">…</span></div>
+      <div class="row"><input type="range" min="0.5" max="1.5" step="0.05" value="1"><span class="rate">1x</span></div>`;
+    grid.append(f);
+    const v = f.querySelector('video'), r = f.querySelector('input'), out = f.querySelector('.rate'), len = f.querySelector('.len');
+    const show = () => {
+      const k = +r.value; v.playbackRate = k; out.textContent = k.toFixed(2).replace(/0$/, '') + 'x';
+      len.textContent = v.duration ? `${(v.duration / k).toFixed(1)}s (was ${v.duration.toFixed(1)}s)` : '…';
+    };
+    v.addEventListener('loadedmetadata', show);
+    r.addEventListener('input', () => { v.currentTime = 0; show(); });
+    return { name, r, show, v };
+  });
+  const all = document.getElementById('all');
+  all.addEventListener('input', () => {
+    document.getElementById('allRate').textContent = (+all.value).toFixed(2).replace(/0$/, '') + 'x';
+    for (const it of items) { it.r.value = all.value; it.v.currentTime = 0; it.show(); }
+  });
+  document.getElementById('copy').addEventListener('click', (e) => {
+    const text = items.map((it) => `${it.name} ${(+it.r.value).toFixed(2)}x`).join(', ');
+    navigator.clipboard?.writeText(text); e.target.textContent = 'copied';
+    setTimeout(() => { e.target.textContent = 'copy speeds'; }, 1500);
+  });
+</script>
+</body>
+</html>

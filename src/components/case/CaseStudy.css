@@ -104,19 +104,28 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
 
 /* ---------- media: one panel for every clip and picture ---------- */
 .cs-media{display:flex;flex-direction:column;gap:16px}
+/* the clip panels: a light lilac, lighter than the tile purple and without lilac 1's pink (2026-11-19);
+   the clips have the same colour baked in (clips/src/Root.tsx, background) */
 .cs-panel{
   position:relative;overflow:hidden;aspect-ratio:2 / 1;
-  background:var(--color-tile-background);border:1px solid var(--color-tile-border);border-radius:8px;
+  background:#faf7ff;border:1px solid var(--color-tile-border);border-radius:8px;
 }
 .cs-media.square .cs-panel{aspect-ratio:1}
+/* a phone clip: one 4:5 panel, as the features; with a caption, the caption beside it (Mavis Lo's single panels) */
+.cs-media.phone .cs-panel{aspect-ratio:2 / 3}
+.cs-media.phone.beside{display:grid;grid-template-columns:minmax(0, 1fr) minmax(0, 1fr);gap:40px;align-items:center}
+.cs-media.phone.beside figcaption{font-size:18px;color:var(--color-black-default)}
+/* just the phone, no panel (the edge-case screens): long and clear */
+.cs-media.bare .cs-panel{aspect-ratio:auto;background:none;border:0;overflow:visible}
+.cs-media.bare .cs-panel-in{position:static}
+.cs-media.bare .cs-clip{height:auto;object-fit:contain}
 /* flex rather than grid, so a placeholder's or clip's height in % resolves against the panel */
 .cs-panel-in{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;will-change:transform}
 .cs-media figcaption{font-size:16px;color:var(--color-black-highlight)}  /* Desktop/Caption */
 
-/* a recording, as it comes */
-.cs-clip{display:block;max-width:100%;max-height:100%}
-.cs-clip.phone,.cs-clip.square{height:84%;width:auto;border-radius:16px;box-shadow:0 .6px 1px #4545452e, 1px 5px 8px #45454533} /* shadow/mockup */
-.cs-clip.wide{width:100%;height:100%;object-fit:cover}
+/* a recording: rendered (clips/, Remotion) at the panel's own shape with the phone and the panel colour in
+   it, so it fills the panel; cover trims the odd pixel where a panel's shape is a hair off */
+.cs-clip{display:block;width:100%;height:100%;object-fit:cover}
 
 /* placeholders: a phone outline (or a frame) with what goes there */
 .cs-ph{
@@ -176,7 +185,7 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
 /* ---------- features: clip, then title and one line beside it ---------- */
 .cs-features{display:flex;flex-direction:column;gap:var(--gap)}
 .cs-feature{display:grid;grid-template-columns:minmax(0, 1fr) minmax(0, 1fr);gap:40px;align-items:center}
-.cs-feature .cs-panel{aspect-ratio:4 / 5}
+.cs-feature .cs-panel{aspect-ratio:2 / 3}
 .cs-feature-copy{display:flex;flex-direction:column;gap:12px}
 .cs-feature-copy h3{font-family:var(--font-serif);font-weight:600;font-size:24px;letter-spacing:.02em} /* Desktop/H7 */
 .cs-feature-copy p{font-size:18px}
@@ -193,6 +202,8 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
 .cs-decision-head h3{font-family:var(--font-serif);font-weight:600;font-size:24px;letter-spacing:.02em;color:var(--color-purple-default);margin-bottom:4px}
 .cs-decision-n{margin-right:.15em}
 .cs-decision-answer{font-size:18px}  /* Desktop/H6 (18 on case studies) */
+.cs-decision-row{display:grid;grid-template-columns:minmax(0, 1fr) minmax(0, 1fr);gap:40px;align-items:center}
+.cs-decision-side{display:flex;flex-direction:column;gap:12px}
 .cs-edges{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:24px}
 .cs-edge{display:flex;flex-direction:column;gap:16px}
 .cs-edge > div{display:flex;flex-direction:column;gap:8px}
@@ -322,7 +333,7 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
   .cs-insights,.cs-compare,.cs-stats{grid-template-columns:minmax(0, 1fr)}
   .cs-insights{gap:24px}
   .cs-side,.cs-stat{padding:24px}
-  .cs-feature{grid-template-columns:minmax(0, 1fr);gap:16px}
+  .cs-feature,.cs-decision-row,.cs-media.phone.beside{grid-template-columns:minmax(0, 1fr);gap:16px}
   .cs-callout{padding:24px}
   .cs-decision{gap:24px;padding-top:40px}
   .cs-edges{gap:16px}
@@ -330,8 +341,6 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
   .cs-next-cards{grid-template-columns:minmax(0, 1fr);gap:32px}         /* 32 apart, as the Work page's tiles on phones */
   .cs-next-card{gap:12px}
   .cs-ph.phone,.cs-ph.square{border-radius:14px}
-  /* a phone clip in a 2:1 panel is tiny at 362 wide: taller panels on phones */
-  .cs-media.phone .cs-panel{aspect-ratio:4 / 3}
 }
 
 /* ---------- ?type: each text's style name and size (typeLabels.js), for review only ----------
