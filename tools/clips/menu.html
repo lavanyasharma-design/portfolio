@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>clip: menu</title></head>
+<body>
+<script type="module">
+/**
+ * Menu clip (Lavanya's note, Figma "clip - menu"): the menu page scrolls to show every option, with
+ * Recordly-style zoom; tap Edit, the edit screen; select another shortcut (POI), scroll to Save
+ * Changes, save; it ends on the edited menu, POI now among the shortcuts. Short, like Mavis's clips.
+ */
+import { run, scrollScreen, crop, patch, push, pressLayer, pressed, keys, seg, sample, ease } from './engine.js'
+
+const MENU = { src: 'assets/menu/menu.png', h: 1393 }
+const EDIT = { src: 'assets/menu/edit.png', h: 1363 }
+const D = 23
+
+run(async ({ screen, camera }, variant) => {
+  const menu = scrollScreen(screen, MENU, { top: 54, bottom: 80 })
+  const edit = scrollScreen(screen, EDIT, { top: 102, bottom: 84 })
+
+  // the edited shortcut: POI takes Report's place (the middle tile)
+  const tileBg = await sample(MENU, 147, 256)
+  const poiTile = document.createElement('div')
+  poiTile.style.cssText = 'position:absolute;inset:0;opacity:0'
+  menu.body.append(poiTile)
+  patch(poiTile, 157.7, 204, 78, 54, tileBg)
+  // drawn like its neighbours: an outlined pin in the app's teal, a semibold label
+  const teal = await sample(EDIT, 40, 1183)
+  poiTile.insertAdjacentHTML('beforeend', `
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="${teal}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+      style="position:absolute;left:184.5px;top:208px">
+      <path d="M19 10c0 4.4-4.9 9-6.5 10.4a.8.8 0 0 1-1 0C9.9 19 5 14.4 5 10a7 7 0 0 1 14 0"/><circle cx="12" cy="10" r="2.6"/>
+    </svg>
+    <span style="position:absolute;left:141.7px;top:238px;width:109.7px;height:16px;display:flex;align-items:center;justify-content:center;
+      font:600 10.5px/1 'Inter','Segoe UI',system-ui,sans-serif;color:#262626">POI</span>`)
+  const pressEdit = pressLayer(menu.body, 344, 164, 38, 24, 6)
+
+  // edit: POI gets ticked (the tick borrowed from Geofence's row), then Save Changes
+  const tick = crop(edit.body, EDIT, 313, 206, 44, 48, [313, 351.5])
+  tick.style.transformOrigin = '22px 24px'
+  const pressPoi = pressLayer(edit.body, 0, 351.5 + 4, 393, 40, 0)
+  const pressSave = pressLayer(edit.body, 16, 1163.5, 361, 40, 8)
+
+
+  // her review (2026-11-19): quick but not fast, like Mavis's. About a second's pause on each screen;
+  // the menu scrolls slowly enough to read; the camera never moves sideways and only zooms in (gently)
+  // for a tap, arriving half a second before it; the press stays light
+  const T = {
+    scrollDown: [1.0, 5.5], scrollUp: [6.5, 8.5],
+    edit: 10.4, pushIn: [10.65, 11.2],
+    poi: 14.3,
+    scrollEdit: [16.6, 18.0],
+    save: 19.0, pushOut: [19.3, 19.85],
+  }
+  const IN = 1.35   // how far the camera goes in for a tap
+  return (t) => {
+    // menu scrolls down, rests at the bottom, back up; edit scrolls to the button
+    menu.scroll(keys(t, [[T.scrollDown[0], 0], [T.scrollDown[1], 541], [T.scrollUp[0], 541], [T.scrollUp[1], 0]]))
+    edit.scroll(keys(t, [[T.scrollEdit[0], 0], [T.scrollEdit[1], 511]]))
+
+    pressEdit(pressed(t, T.edit))
+    push(menu.root, edit.root, seg(t, ...T.pushIn, ease.ios) * (1 - seg(t, ...T.pushOut, ease.ios)))
+
+    pressPoi(pressed(t, T.poi))
+    const k = seg(t, T.poi + 0.15, T.poi + 0.45, ease.out)
+    tick.style.opacity = k
+    tick.style.transform = `scale(${0.7 + 0.3 * k})`
+    pressSave(pressed(t, T.save))
+    poiTile.style.opacity = t > T.pushOut[0] ? 1 : 0
+
+    // [zoom, the screen height the camera centres on]; full view (1, 426) except around each tap
+    const [z, fy] = keys(t, [
+      [9.3, [1, 426]],
+      [10.0, [IN, 200]],     // in on Edit
+      [10.65, [IN, 200]],
+      [12.4, [1, 426]],      // out with the push, slowly (hers: a second slower)
+      [13.2, [1, 426]],      // the edit screen, a pause
+      [13.9, [IN, 375]],     // in on the POI row
+      [14.9, [IN, 375]],
+      [16.6, [1, 426]],      // out, slowly, then the scroll to Save
+      [18.0, [1, 426]],
+      [18.6, [IN, 672]],     // in on Save Changes
+      [19.3, [IN, 672]],
+      [21.0, [1, 426]],      // out with the return, slowly; the edited menu holds at full view
+    ])
+    camera(z, 196.5, fy)
+  }
+}, D)
+</script>
+</body>
+</html>

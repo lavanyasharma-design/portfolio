@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>clip: fleet view</title></head>
+<body>
+<script type="module">
+/**
+ * Fleet view clip (Lavanya's note, Figma "clip: fleet view"): cars move on the map; tapping one, the
+ * bottom sheet eases in, opening to half the screen; it's a larger scroll, so it's drawn up to full;
+ * then back to half and a tap on the map closes it.
+ * Pace from her menu review: ~1s per screen, the camera only zooms (gently) for a tap, slow zoom-outs.
+ * Layers from frames Mapfilter_1.0.1 [Nearby Vehicles] and GroupInfo_Overview_1.0.1, exported at 2x.
+ */
+import { run, crop, keys, seg, pressed, ease, keyed } from './engine.js'
+
+const A = 'assets/fleet/'
+const MAP = { src: A + 'map-frame.png', h: 852 }
+const D = 17
+
+// layers that sit over the map lose Figma's flattening grey (see keyed() in engine.js)
+const KEYED = ['car-green', 'car-yellow', 'car-grey', 'car-red', 'label-yellow', 'label-grey', 'btn-back', 'btn-locate']
+const src = {}
+
+const img = (parent, name, x, y, w, h, z = 1) => {
+  const e = document.createElement('img')
+  e.src = src[name] ?? `${A}${name}.png`
+  e.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${w}px;height:${h}px;z-index:${z};will-change:transform`
+  parent.append(e)
+  return e
+}
+const layer = (parent, z, css = 'inset:0') => {
+  const e = document.createElement('div')
+  e.style.cssText = `position:absolute;${css};z-index:${z}`
+  parent.append(e)
+  return e
+}
+
+run(async ({ screen, camera }) => {
+  await Promise.all(KEYED.map(async n => { src[n] = await keyed(`${A}${n}.png`) }))
+
+  // the map and the geofence circle (drawn: its fill is #178b81 at 18%, solved from the frame)
+  img(screen, 'basemap', 0, 0, 393, 852, 0)
+  layer(screen, 1, `left:28px;top:269px;width:324px;height:324px;border-radius:50%;
+    background:rgb(23 139 129 / .18);box-shadow:inset 0 0 0 1px rgb(23 139 129 / .22)`)
+  // the dot at its centre, from the frame (static)
+  crop(layer(screen, 1), MAP, 181, 424, 22, 14)
+  // the cars and their plates; nose directions (unit vectors, along their roads), speeds in px/s
+  const cars = [
+    { el: img(screen, 'car-green', 249.3, 240.7, 47, 54, 2), d: [0.55, -0.83], v: 1.6 },
+    { el: img(screen, 'car-yellow', 131.6, 401, 54, 47.5, 2), d: [-0.85, -0.53], v: 1.3,
+      label: img(screen, 'label-yellow', 42, 336, 103, 44, 2) },
+    { el: img(screen, 'car-grey', 250, 500.8, 53.5, 47, 2), d: [-0.84, -0.54], v: 1.0,
+      label: img(screen, 'label-grey', 237, 528, 102, 44, 2) },
+    { el: img(screen, 'car-red', 87.3, 666.7, 45.5, 54, 2), d: [-0.47, -0.88], v: 1.2 },
+  ]
+  const yellow = cars[1].el
+  yellow.style.transformOrigin = 'center'
+
+  // the map screen's own chrome: search and chips, the right-hand buttons
+  const mapUi = layer(screen, 3)
+  crop(mapUi, MAP, 0, 55, 393, 94)
+  crop(mapUi, MAP, 341, 155, 42, 88)
+  // the vehicle screen's: back, locate
+  const infoUi = layer(screen, 3)
+  img(infoUi, 'btn-back', 16, 62, 48, 52)
+  img(infoUi, 'btn-locate', 335, 68, 38, 38)
+
+  // the sheet: the speed band and the white sheet over it, each clipped to its rounded top
+  // (the exports start 7px above the shape, and their corners are flattened on grey)
+  const sheet = layer(screen, 4)
+  const band = layer(sheet, 0, 'left:0;top:136px;width:393px;height:716px;border-radius:27px 27px 0 0;overflow:hidden;box-shadow:0 -2px 10px #0000001a')
+  img(band, 'sheet-speed', 0, -7, 393, 723)
+  const white = layer(sheet, 1, 'left:0;top:173px;width:393px;height:679px;border-radius:27px 27px 0 0;overflow:hidden')
+  img(white, 'sheet-info', 0, -7, 393, 686)
+
+  // status bar and tab bar stay on top; the sheet covers the tab bar when it's up
+  crop(layer(screen, 5), MAP, 0, 0, 393, 55)
+  const tabs = layer(screen, 3)
+  crop(tabs, MAP, 0, 768, 393, 84, [0, 768])
+
+  const HIDDEN = 740, HALF = 294, FULL = 0   // sheet offsets: off screen, half the screen, full
+  const IN = 1.35
+  const T = { tapCar: 3.1, open: [3.3, 4.0], up: [6.2, 7.4], down: [9.4, 10.4], tapMap: 12.3, close: [12.4, 13.0] }
+
+  return (t) => {
+    for (const c of cars) {
+      const s = c.v * t
+      const tr = `translate(${c.d[0] * s}px, ${c.d[1] * s}px)`
+      c.el.style.transform = tr + (c.el === yellow ? ` scale(${1 - 0.08 * pressed(t, T.tapCar, 0.3)})` : '')
+      if (c.label) c.label.style.transform = tr
+    }
+
+    const y = keys(t, [
+      [T.open[0], HIDDEN], [T.open[1], HALF],
+      [T.up[0], HALF], [T.up[1], FULL],
+      [T.down[0], FULL], [T.down[1], HALF],
+      [T.close[0], HALF], [T.close[1], HIDDEN],
+    ], ease.inOut)
+    sheet.style.transform = `translateY(${y}px)`
+    // the map's search and chips give way to back and locate while the sheet is up
+    const k = seg(t, T.open[0], T.open[0] + 0.35) * (1 - seg(t, T.close[0], T.close[0] + 0.35))
+    mapUi.style.opacity = 1 - k
+    infoUi.style.opacity = k
+
+    const [z, fy] = keys(t, [
+      [2.0, [1, 426]],
+      [2.7, [IN, 425]],      // in on the yellow car
+      [T.open[0], [IN, 425]],
+      [5.0, [1, 426]],       // out, slowly, as the sheet comes up
+      [11.2, [1, 426]],
+      [11.9, [IN, 300]],     // in on the map above the half sheet
+      [T.close[0], [IN, 300]],
+      [14.1, [1, 426]],      // out, slowly
+    ])
+    camera(z, 196.5, fy)
+  }
+}, D)
+</script>
+</body>
+</html>

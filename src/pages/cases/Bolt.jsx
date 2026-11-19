@@ -7,6 +7,7 @@ import CaseIndex from '../../components/case/CaseIndex'
 import { mountCaseMotion, mountCaseMotionPanel } from '../../components/case/caseMotion'
 import { mountTypeLabels } from '../../components/case/typeLabels'
 import { mountInfographicPanel } from '../../components/case/infographic'
+import { heroVars, mountHeroPanel } from '../../components/case/heroZoom'
 import {
   Section, Copy, Statement, Media, Details, Cards, Insights, Compare, Feature, Decision, Callout, Stats,
 } from '../../components/case/blocks'
@@ -46,6 +47,7 @@ const NAV_HIDE_AFTER = 50  // px below the next case study, where the phone nav 
 function Bolt() {
   const page = useRef(null)
   const hideLine = useRef(null)
+  const heroFig = useRef(null)
   const navHidden = useNavHidden(hideLine)
 
   useEffect(() => {
@@ -54,7 +56,8 @@ function Bolt() {
     const panel = q.has('parallax') ? mountCaseMotionPanel() : null
     const unlabel = q.has('type') ? mountTypeLabels(page.current) : null
     const igPanel = q.has('infographic') ? mountInfographicPanel() : null
-    return () => { stop(); panel?.remove(); unlabel?.(); igPanel?.remove() }
+    const heroPanel = q.has('hero') ? mountHeroPanel(heroFig.current) : null
+    return () => { stop(); panel?.remove(); unlabel?.(); igPanel?.remove(); heroPanel?.remove() }
   }, [])
 
   return (
@@ -70,7 +73,7 @@ function Bolt() {
             <header className="cs-hero" data-rise>
               <h1>Mobile friendly fleet management SaaS that gives users flexibility</h1>
             </header>
-            <figure className="cs-hero-visual" data-rise>
+            <figure className="cs-hero-visual" data-rise ref={heroFig} style={heroVars()}>
               <CaseTile tile={BOLT} look={LOOK} bg={BOLT.bg ?? DEFAULT_BG} />
             </figure>
             <Details items={[
@@ -173,11 +176,12 @@ function Bolt() {
               <Feature title="Geofence management" media={{ label: 'geofence clip' }}>
                 Admins can create boundaries, get breach alerts and respond to them promptly.
               </Feature>
-              <Feature title="Devices and subscriptions" media={{ label: 'subscriptions clip' }}>
-                Admins can manage all devices and manage licences on the go, even at the shop where they’re buying them.
+              {/* subscriptions out of this one: only devices here (hers, 2026-11-16) */}
+              <Feature title="Device management" media={{ label: 'devices clip' }}>
+                Admins can manage all their devices on the go, even at the shop where they’re buying them.
               </Feature>
-              <Feature title="POI and driver actions" media={{ label: 'POI clip' }}>
-                Ease of assigning and sending a vehicle from the warehouse, or call a driver straight from their vehicle’s screen.
+              <Feature title="Points of interest" media={{ label: 'POI clip' }}>
+                Create POI on the go during a consignment. Auto updates and goes live to the driver.
               </Feature>
             </div>
           </Section>
