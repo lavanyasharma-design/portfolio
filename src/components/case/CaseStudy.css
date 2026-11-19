@@ -92,10 +92,6 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
 .cs-tags{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:16px;color:var(--color-black-highlight)}
 /* the Bolt tile's composition, shown whole and still (no hover zoom here) */
 .cs-hero-visual .case-tile.case-tile:hover{transform:none;box-shadow:none}
-/* zoomed out a little (heroZoom.js, ?hero): the phones scale by --hz about (--hcx, --hcy), the background stays.
-   A layer at p lands at c + (p - c) * hz, so the unit shrinks by hz and each layer moves c * (1 - hz) */
-.cs-hero-visual .case-tile .tile-stage{--u0:calc(100cqw / 606);--u:calc(var(--u0) * var(--hz, 1))}
-.cs-hero-visual .case-tile .layer{translate:calc(var(--hcx, 0) * (1 - var(--hz, 1)) * var(--u0)) calc(var(--hcy, 0) * (1 - var(--hz, 1)) * var(--u0))}
 
 /* role, industry and so on: label (Desktop/Caption) over value (Desktop/Body), three to a row */
 .cs-details{

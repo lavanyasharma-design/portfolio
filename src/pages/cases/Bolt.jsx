@@ -7,7 +7,7 @@ import CaseIndex from '../../components/case/CaseIndex'
 import { mountCaseMotion, mountCaseMotionPanel } from '../../components/case/caseMotion'
 import { mountTypeLabels } from '../../components/case/typeLabels'
 import { mountInfographicPanel } from '../../components/case/infographic'
-import { heroVars, mountHeroPanel } from '../../components/case/heroZoom'
+import { heroTile, mountHeroPanel } from '../../components/case/heroZoom'
 import {
   Section, Copy, Statement, Media, Details, Cards, Insights, Compare, Feature, Decision, Callout, Stats,
 } from '../../components/case/blocks'
@@ -73,8 +73,8 @@ function Bolt() {
             <header className="cs-hero" data-rise>
               <h1>Mobile friendly fleet management SaaS that gives users flexibility</h1>
             </header>
-            <figure className="cs-hero-visual" data-rise ref={heroFig} style={heroVars()}>
-              <CaseTile tile={BOLT} look={LOOK} bg={BOLT.bg ?? DEFAULT_BG} />
+            <figure className="cs-hero-visual" data-rise ref={heroFig}>
+              <CaseTile tile={heroTile(BOLT)} look={LOOK} bg={BOLT.bg ?? DEFAULT_BG} />
             </figure>
             <Details items={[
               ['Role', 'Primary product designer'],
