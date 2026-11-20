@@ -320,7 +320,7 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
   .cs-section{scroll-margin-top:56px}
   .case-page .cs-head + *{margin-top:calc(24px - var(--gap))}
   .case-page .cs-head + .cs-copy{margin-top:calc(16px - var(--gap))}
-  .case-page .cs-hero + .cs-hero-visual{margin-top:0}  /* title to visual: the section gap (40) */
+  .case-page .cs-hero + .cs-hero-visual{margin-top:calc(24px - var(--gap))}  /* title to visual 24, as visual to details (hers, 2026-11-20) */
   .case-page .cs-hero-visual + .cs-details{margin-top:calc(24px - var(--gap))}  /* visual to details 24, as desktop (hers, 2026-11-20: 40 was too much) */
   .cs-tags,.cs-label,.cs-media figcaption,.cs-insight figcaption{font-size:14px} /* Mobile/Caption; the {labels} too (hers, 2026-11-20, were 16) */
   /* a clip's caption beside it (the menu): caption grey on phones, as the research sources (hers, 2026-11-20) */
