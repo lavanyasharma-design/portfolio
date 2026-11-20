@@ -335,6 +335,9 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
   .cs-cards,.cs-stats,.cs-insights,.cs-compare,.cs-edges{gap:16px}
   .cs-decision{gap:16px}
   .cs-media,.cs-edge{gap:16px}
+  /* an edge case's title and its line pair up, 8 apart (label to title stays 12): at 20 / 14 the 12 / 12 read evenly
+     spread, unlike a section's 24 / 16 (hers, 2026-11-20) */
+  .cs-edge h4 + p{margin-top:-4px}
   .case-page .cs-hero + .cs-hero-visual{margin-top:calc(24px - var(--gap))}  /* title to visual 24, as visual to details (hers, 2026-11-20) */
   .case-page .cs-hero-visual + .cs-details{margin-top:calc(24px - var(--gap))}  /* visual to details 24, as desktop (hers, 2026-11-20: 40 was too much) */
   .cs-tags,.cs-label,.cs-media figcaption,.cs-insight figcaption{font-size:14px} /* Mobile/Caption; the {labels} too (hers, 2026-11-20, were 16) */
