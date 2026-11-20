@@ -329,7 +329,10 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
   .cs-callout-title{font-size:24px}  /* 24 so the line ends in two (hers, 2026-11-20) */
   .cs-copy,.cs-side ul,.cs-feature-copy p,.cs-callout > p:not(.cs-callout-title),.cs-decision-answer{font-size:16px} /* Mobile/Body (labels: H6 on desktop) */
   .cs-cards p,.cs-edge p:not(.cs-label),.cs-stat p{font-size:14px}
-  .cs-head h2,.cs-statement,.cs-decision-head h3,.cs-sub,.cs-cards h3,.cs-insight blockquote,.cs-side h3,.cs-feature-copy h3,.cs-edge h4,.cs-stat h3{font-size:20px;letter-spacing:0} /* Mobile/h5 */
+  /* section headings, the purple lines (problem, design brief) and the decision questions: 24, Desktop/H7 (hers,
+     2026-11-20: 20 read small in Cormorant beside DM Sans) */
+  .cs-head h2,.cs-statement,.cs-decision-head h3{font-size:24px;letter-spacing:0}
+  .cs-sub,.cs-cards h3,.cs-insight blockquote,.cs-side h3,.cs-feature-copy h3,.cs-edge h4,.cs-stat h3{font-size:20px;letter-spacing:0} /* Mobile/h5 */
   /* the details: three columns in one row, the rules between them, words wrapping inside a column */
   .cs-details{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));column-gap:12px;font-size:12px}  /* equal thirds, so the rules sit evenly; 12 so each value takes a line or two (hers, 2026-11-20) */
   .cs-details dt,.cs-details dd{font-size:12px}
