@@ -314,12 +314,22 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
 
 /* ---------- phones: the mobile text styles, 20 at the sides, top 56 ---------- */
 @media (max-width:600px){
-  .case-page{--side:20px;--gap:40px;padding-top:56px}
+  /* phones, one spacing system (hers, 2026-11-20): 12 text to text (label, heading, body, a question and its answer),
+     16 anything beside a visual (cards, panels, clips) and between stacked cards, 32 between repeated groups
+     (features, decisions) or where a new thought starts (the product, the design brief), 56 between sections */
+  .case-page{--side:20px;--gap:16px;padding-top:56px}
   .cs-wrap{margin-bottom:160px}
   .cs-main{gap:56px}  /* desktop 70 is hers (2026-11-16, was 120); 56 on phones is mine, scaled down from 80 to match */
   .cs-section{scroll-margin-top:56px}
-  .case-page .cs-head + *{margin-top:calc(24px - var(--gap))}
-  .case-page .cs-head + .cs-copy{margin-top:calc(16px - var(--gap))}
+  .case-page .cs-head + *{margin-top:calc(16px - var(--gap))}
+  .case-page .cs-head + .cs-copy{margin-top:calc(12px - var(--gap))}
+  .case-page .cs-details + .cs-copy,.case-page .cs-copy + .cs-brief{margin-top:calc(32px - var(--gap))}
+  .case-page .cs-callout + .cs-decision,.case-page .cs-decision + .cs-decision{margin-top:calc(32px - var(--gap))}
+  .cs-features{gap:32px}
+  .cs-cards,.cs-stats,.cs-insights,.cs-compare,.cs-edges{gap:16px}
+  .cs-decision{gap:16px}
+  .cs-decision-head h3,.cs-side h3{margin-bottom:0}
+  .cs-insight,.cs-edge > div{gap:12px}
   .case-page .cs-hero + .cs-hero-visual{margin-top:calc(24px - var(--gap))}  /* title to visual 24, as visual to details (hers, 2026-11-20) */
   .case-page .cs-hero-visual + .cs-details{margin-top:calc(24px - var(--gap))}  /* visual to details 24, as desktop (hers, 2026-11-20: 40 was too much) */
   .cs-tags,.cs-label,.cs-media figcaption,.cs-insight figcaption{font-size:14px} /* Mobile/Caption; the {labels} too (hers, 2026-11-20, were 16) */
@@ -339,14 +349,12 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
   .cs-details div{gap:4px}
   .cs-details div + div{padding-left:12px}
   .cs-insights,.cs-compare,.cs-stats{grid-template-columns:minmax(0, 1fr)}
-  .cs-insights{gap:24px}
   .cs-side,.cs-stat{padding:24px}
   .case-page .cs-insight[data-ig]{padding:24px}  /* as the why cards above them, all stacked here (hers, 2026-11-20) */
   /* the why cards' lines: smaller and tucked into the corner, clear of the words (hers, 2026-11-20) */
   .case-page .cs-cards [data-deco=lines]::before{width:calc(var(--ig-deco-size) * .75);right:-16%;bottom:-38%}
   .cs-feature,.cs-decision-row,.cs-media.phone.beside{grid-template-columns:minmax(0, 1fr);gap:16px}
   .cs-callout{padding:12px}  /* hers, 2026-11-20 */
-  .cs-decision{gap:24px}
   /* the edge cases (decisions 01 and 02): one row you swipe through, out to the screen's edges, so each
      screen is big enough to read and the long page doesn't grow (hers, 2026-11-20) */
   .cs-edges{
