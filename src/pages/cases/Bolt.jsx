@@ -214,9 +214,11 @@ function Bolt() {
               question="How was creating geofences on mobile made flexible?"
               answer="A quick, light tap to create circular fences, a usual mobile interaction pattern. Added different views for the map, similar to other navigation apps for familiarity."
               edges={[
-                { media: 'geofence clip', src: '/work/bolt/geofence-slider-square.mp4', poster: '/work/bolt/geofence-slider-square.jpg' },
-                { media: 'terrain map view', src: '/work/bolt/terrain-square.mp4', poster: '/work/bolt/terrain-square.jpg' },
-              ]}  // two clips side by side (hers, 2026-11-15)
+                { media: 'geofence clip', src: '/work/bolt/geofence-slider-square.mp4', poster: '/work/bolt/geofence-slider-square.jpg',
+                  kindPhone: 'phone', srcPhone: '/work/bolt/geofence-slider-tall.mp4', posterPhone: '/work/bolt/geofence-slider-tall.jpg' },
+                { media: 'terrain map view', src: '/work/bolt/terrain-square.mp4', poster: '/work/bolt/terrain-square.jpg',
+                  kindPhone: 'phone', srcPhone: '/work/bolt/terrain-tall.mp4', posterPhone: '/work/bolt/terrain-tall.jpg' },
+              ]}  // two clips side by side (hers, 2026-11-15); on phones tall cuts, the swipe row's panel (2026-11-20)
             />
 
             <Decision

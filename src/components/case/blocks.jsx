@@ -178,6 +178,9 @@ export function Feature({ title, children, media }) {
  * edge cases that go with it.
  */
 export function Decision({ n, question, answer, children, media, edges }) {
+  // phones: an edge can bring its own shape and cut (kindPhone, srcPhone, posterPhone), so every panel in the
+  // swipe row matches (decision 02's square clips take tall cuts there; hers, 2026-11-20)
+  const phone = usePhone()
   return (
     <article className="cs-decision">
       <header className="cs-decision-head" data-rise>
@@ -200,7 +203,10 @@ export function Decision({ n, question, answer, children, media, edges }) {
           {edges.map(e => (
             <div key={e.media} className="cs-edge">
               {/* kind: 'phone' puts a screen in a 2:3 panel like the clips' (the edge cases, hers 2026-11-20) */}
-              <Media kind={e.kind ?? (e.bare ? 'bare' : 'square')} label={e.media} src={e.src} poster={e.poster} parallax={e.kind === 'phone'} />
+              {(() => {
+                const kind = (phone && e.kindPhone) || e.kind || (e.bare ? 'bare' : 'square')
+                return <Media kind={kind} label={e.media} src={e.src} poster={e.poster} srcPhone={e.srcPhone} posterPhone={e.posterPhone} parallax={kind === 'phone'} />
+              })()}
               {/* an edge with no title is a second screen only (the terrain map view) */}
               {e.title && (
                 <div data-rise>
