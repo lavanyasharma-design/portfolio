@@ -73,7 +73,9 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
 .case-page .cs-head + *{margin-top:calc(24px - var(--gap))}
 .case-page .cs-head + .cs-copy{margin-top:calc(12px - var(--gap))}
 .case-page .cs-details + .cs-copy,.case-page .cs-copy + .cs-brief{margin-top:calc(48px - var(--gap))}
-.case-page .cs-callout + .cs-decision,.case-page .cs-decision + .cs-decision{margin-top:calc(48px - var(--gap))}
+.case-page .cs-callout + .cs-decision{margin-top:calc(48px - var(--gap))}
+/* one decision to the next: 70, as between sections, so each question stands on its own (hers, 2026-11-20; was 48) */
+.case-page .cs-decision + .cs-decision{margin-top:calc(70px - var(--gap))}
 /* Desktop/Body */
 .cs-copy{display:flex;flex-direction:column;gap:12px;font-size:18px}
 /* Desktop/H7 in purple/default: a line that carries the story on its own, the problem line and the
