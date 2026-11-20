@@ -333,7 +333,7 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
   .case-page .cs-head + .cs-copy{margin-top:calc(12px - var(--gap))}
   .case-page .cs-details + .cs-copy,.case-page .cs-copy + .cs-brief{margin-top:calc(32px - var(--gap))}
   .case-page .cs-callout + .cs-decision{margin-top:calc(32px - var(--gap))}
-  .case-page .cs-decision + .cs-decision{margin-top:calc(36px - var(--gap))}  /* 36: each decision carries clips and text (hers, 2026-11-20) */
+  .case-page .cs-decision + .cs-decision{margin-top:calc(56px - var(--gap))}  /* 56, as between sections: each decision carries clips and text (hers, 2026-11-20; 36 still read crowded) */
   .cs-features{gap:32px}
   .cs-cards,.cs-stats,.cs-insights,.cs-compare,.cs-edges{gap:16px}
   .cs-decision{gap:16px}
