@@ -18,9 +18,10 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
   padding-top:131px;
   font-family:var(--font-sans);font-variation-settings:"opsz" 14;line-height:normal;
 }
-.case-page p,.case-page h1,.case-page h2,.case-page h3,.case-page h4,.case-page figure,
-.case-page blockquote,.case-page dl,.case-page dd,.case-page ul,.case-page ol{margin:0}
-.case-page ul,.case-page ol{padding:0;list-style:none}
+/* the story's own resets, kept inside .cs-wrap: on all of .case-page they outranked the footer's margins (its paragraph
+   lost the 11 drop that lines it up with the heading, and on phones the push to the right edge; 2026-11-20) */
+.cs-wrap :is(p,h1,h2,h3,h4,figure,blockquote,dl,dd,ul,ol){margin:0}
+.cs-wrap :is(ul,ol){padding:0;list-style:none}
 
 /* the index in the left track, the column in the middle; on mid-size windows the left track keeps
    room for the index and the column gives way first */
@@ -319,22 +320,36 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
   .cs-section{scroll-margin-top:56px}
   .case-page .cs-head + *{margin-top:calc(24px - var(--gap))}
   .case-page .cs-head + .cs-copy{margin-top:calc(16px - var(--gap))}
-  .case-page .cs-hero + .cs-hero-visual,.case-page .cs-hero-visual + .cs-details{margin-top:0}  /* phones keep the section gap (40) round the hero visual: her 24 was for desktop */
-  .cs-tags,.cs-media figcaption,.cs-details dt,.cs-insight figcaption{font-size:14px} /* Mobile/Caption */
+  .case-page .cs-hero + .cs-hero-visual{margin-top:0}  /* title to visual: the section gap (40) */
+  .case-page .cs-hero-visual + .cs-details{margin-top:calc(24px - var(--gap))}  /* visual to details 24, as desktop (hers, 2026-11-20: 40 was too much) */
+  .cs-tags,.cs-media figcaption,.cs-details dt,.cs-details dd,.cs-insight figcaption{font-size:14px} /* Mobile/Caption; the details all caption (hers, 2026-11-20) */
   .cs-hero h1{font-size:36px}                                            /* Mobile/h4: the long title at Mobile/h2 (40) ran to six lines */
-  .cs-callout-title{font-size:36px}                                      /* Mobile/h4, as the title (H2 on desktop) */
-  .cs-label,.cs-copy,.cs-details dd,.cs-side ul,.cs-feature-copy p,.cs-callout > p:not(.cs-callout-title),.cs-decision-answer{font-size:16px} /* Mobile/Body (labels: H6 on desktop) */
+  .cs-callout-title{font-size:32px}  /* 32 so the line ends in three (hers, 2026-11-20; 36 ran to four on an iPhone 16) */
+  .cs-label,.cs-copy,.cs-side ul,.cs-feature-copy p,.cs-callout > p:not(.cs-callout-title),.cs-decision-answer{font-size:16px} /* Mobile/Body (labels: H6 on desktop) */
   .cs-cards p,.cs-edge p:not(.cs-label),.cs-stat p{font-size:14px}
   .cs-head h2,.cs-statement,.cs-decision-head h3,.cs-sub,.cs-cards h3,.cs-insight blockquote,.cs-side h3,.cs-feature-copy h3,.cs-edge h4,.cs-stat h3{font-size:20px;letter-spacing:0} /* Mobile/h5 */
-  .cs-details{gap:16px}  /* the columns wrap to a second row when they run out of room */
-  .cs-details div + div{padding-left:16px}
+  /* the details: three columns in one row, the rules between them, words wrapping inside a column */
+  .cs-details{display:grid;grid-template-columns:repeat(3, auto);justify-content:start;column-gap:12px}
+  .cs-details div{gap:4px}
+  .cs-details div + div{padding-left:12px}
   .cs-insights,.cs-compare,.cs-stats{grid-template-columns:minmax(0, 1fr)}
   .cs-insights{gap:24px}
   .cs-side,.cs-stat{padding:24px}
   .cs-feature,.cs-decision-row,.cs-media.phone.beside{grid-template-columns:minmax(0, 1fr);gap:16px}
-  .cs-callout{padding:24px}
+  .cs-callout{padding:16px}  /* hers, 2026-11-20 */
   .cs-decision{gap:24px}
-  .cs-edges{gap:16px}
+  /* the edge cases (decisions 01 and 02): one row you swipe through, out to the screen's edges, so each
+     screen is big enough to read and the long page doesn't grow (hers, 2026-11-20) */
+  .cs-edges{
+    display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;
+    margin-inline:calc(-1 * var(--side));padding-inline:var(--side);scroll-padding-inline:var(--side);scrollbar-width:none;
+  }
+  .cs-edges::-webkit-scrollbar{display:none}
+  .cs-edge{flex:none;width:calc(100% - 32px);scroll-snap-align:start}  /* the next one peeks in */
+  /* every phone panel 20 shorter than 2:3 (hers, 2026-11-20): the clip, rendered 2:3, trims a little of its
+     lilac above and below */
+  .cs-media.phone{container-type:inline-size}
+  .case-page .cs-media.phone .cs-panel{aspect-ratio:auto;height:calc(150cqw - 20px)}
   .cs-stat-value{font-size:60px;font-weight:600}                         /* Mobile/h1 */
   .cs-ph.phone,.cs-ph.square{border-radius:14px}
 }

@@ -8,7 +8,7 @@ import { mountTypeLabels } from '../../components/case/typeLabels'
 import { mountInfographicPanel } from '../../components/case/infographic'
 import { heroTile, mountHeroPanel } from '../../components/case/heroZoom'
 import {
-  Section, Copy, Statement, Media, Details, Cards, Insights, Compare, Feature, Decision, Callout, Stats,
+  Section, Copy, Statement, Media, Details, Cards, Insights, Compare, Feature, Decision, Callout, Stats, usePhone,
 } from '../../components/case/blocks'
 import { TILES, LOOK, DEFAULT_BG, lookVars } from '../../components/work/tiles'
 import { useNavHidden } from '../../lib/useNavHidden'
@@ -46,6 +46,7 @@ function Bolt() {
   const page = useRef(null)
   const hideLine = useRef(null)
   const heroFig = useRef(null)
+  const phone = usePhone()
   const navHidden = useNavHidden(hideLine, { peek: true })  // hides while scrolling down, back only on a scroll up (hers, 2026-11-20)
 
   useEffect(() => {
@@ -72,7 +73,8 @@ function Bolt() {
               <h1>Mobile friendly fleet management SaaS that gives users flexibility</h1>
             </header>
             <figure className="cs-hero-visual" data-rise ref={heroFig}>
-              <CaseTile tile={heroTile(BOLT)} look={LOOK} bg={BOLT.bg ?? DEFAULT_BG} />
+              {/* phones: the Work page tile as it is; the zoomed-out phones read too small there (hers, 2026-11-20) */}
+              <CaseTile tile={phone ? BOLT : heroTile(BOLT)} look={LOOK} bg={BOLT.bg ?? DEFAULT_BG} />
             </figure>
             <Details items={[
               ['Role', 'Primary product designer'],

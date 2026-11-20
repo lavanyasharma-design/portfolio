@@ -12,7 +12,7 @@ import { igProps } from './infographic'
 
 const PHONE = '(max-width:600px)'
 /** true at phone width (600px and below, the site's phone breakpoint), following resizes */
-function usePhone() {
+export function usePhone() {
   const [phone, setPhone] = useState(() => typeof matchMedia !== 'undefined' && matchMedia(PHONE).matches)
   useEffect(() => {
     const m = matchMedia(PHONE)
