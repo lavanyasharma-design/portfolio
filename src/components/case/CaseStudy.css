@@ -326,7 +326,7 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
   /* a clip's caption beside it (the menu): caption grey on phones, as the research sources (hers, 2026-11-20) */
   .cs-media.phone.beside figcaption{font-size:14px;color:var(--color-black-highlight)}
   .cs-hero h1{font-size:36px}                                            /* Mobile/h4: the long title at Mobile/h2 (40) ran to six lines */
-  .cs-callout-title{font-size:24px}  /* 24 so the line ends in two (hers, 2026-11-20) */
+  .cs-callout-title{font-size:24px;font-weight:600}  /* 24 so the line ends in two; semibold, as the heading above it (500 read light; hers, 2026-11-20) */
   .cs-copy,.cs-side ul,.cs-feature-copy p,.cs-callout > p:not(.cs-callout-title),.cs-decision-answer{font-size:16px} /* Mobile/Body (labels: H6 on desktop) */
   .cs-cards p,.cs-edge p:not(.cs-label),.cs-stat p{font-size:14px}
   /* section headings, the purple lines (problem, design brief) and the decision questions: 24, Desktop/H7 (hers,
