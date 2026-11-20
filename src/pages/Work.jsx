@@ -4,21 +4,13 @@ import Tuner from '../components/work/Tuner'
 import LookTuner from '../components/work/LookTuner'
 import NavBar from '../components/nav/NavBar'
 import PageFooter from '../components/footer/PageFooter'
-import MotifField from '../components/motif/MotifField'
 import { FX, applyFx, mountFxPanel } from '../components/work/tileFx'
 import { TILES, LOOK, DEFAULT_BG, TILE_W, lookVars } from '../components/work/tiles'
 import { useNavHidden } from '../lib/useNavHidden'
 import { navigate } from '../router'
 import './Work.css'
 
-/**
- * The motif reveal, on test (Lavanya, 2026-11-14): the page stays plain, and only under a mouse
- * pointer in the empty space does the home page motif show, in its hover purple (MotifField draws
- * just that part). Desktop only; tiles, text, the garden and the nav switch it off (data-no-motif).
- * Set to false to drop it.
- */
-const MOTIF_REVEAL = true
-const FINE_POINTER = '(hover: hover) and (pointer: fine)'
+// no motif reveal under the pointer (dropped 2026-11-21, hers: it felt over engineered); the page stays plain
 
 const NAV_HIDE_AFTER = 50   // px below the last case study, where the phone nav bar steps aside
 
@@ -43,7 +35,6 @@ function Work() {
   const [tiles, setTiles] = useState(TUNE ? () => load(KEY, TILES) : TILES)
   const [bgs, setBgs] = useState(BG_TUNE ? () => ({ ...BGS, ...load(BG_KEY, {}) }) : BGS)
   const [active, setActive] = useState({ tile: 'bolt', layer: 'bolt-1' })
-  const [motif] = useState(() => MOTIF_REVEAL && matchMedia(FINE_POINTER).matches)
 
   // the tiles' hover look (tileFx.js); ?hover opens its panel
   useEffect(() => {
@@ -100,7 +91,6 @@ function Work() {
     <>
     <NavBar active="work" hidden={navHidden} />
     <main className="work-page">
-      {motif && <MotifField />}
       <section className="work-section" aria-labelledby="work-title">
         <h1 id="work-title"><span data-no-motif>Work</span></h1>
         <div className="cases" style={lookVars(LOOK)} onClickCapture={TUNE ? e => e.preventDefault() : undefined}>

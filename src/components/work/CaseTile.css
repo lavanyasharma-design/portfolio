@@ -4,7 +4,7 @@
   position: relative;
   display: block;
   aspect-ratio: 606 / 396;
-  transition: box-shadow var(--fx-zoom-time, .3s) var(--ease-out), transform var(--fx-zoom-time, .3s) var(--ease-out);
+  transition: box-shadow var(--fx-zoom-time, .3s) var(--ease-out);
   /* the ratio is for the inside, so the 1px border doesn't squash the 606x396 design */
   box-sizing: content-box;
   /* background, border and shadow come from LOOK in tiles.js, set as variables by Work.jsx */
@@ -21,6 +21,7 @@
   /* one design pixel of the 606px tile */
   --u: calc(100cqw / 606);
   background: var(--tile-bg, #f7f2ff);
+  transition: transform var(--fx-zoom-time, .3s) var(--ease-out);
 }
 
 /* motif mode: the home page's background motif, at its Figma spacing in tile units */
@@ -52,7 +53,9 @@
     drop-shadow(calc(var(--sh-x) * var(--u)) calc(var(--sh-y) * var(--u)) calc(var(--sh-blur) * var(--u)) rgb(var(--sh-rgb) / var(--sh-a)));
 }
 
-/* hover (desktop) or a tap (phones, .tapped from Work.jsx): the tile zooms in a little and the purple
+/* hover (desktop) or a tap (phones, .tapped from Work.jsx): the picture zooms in a little inside the card,
+   which stays put, and a light purple glow comes up round it (2026-11-21, hers; before, the tile itself grew).
+   Earlier: the tile zooms in a little and the purple
    shadow glows brighter and richer (tileFx.js, Lavanya 2026-11-14; shadow/card was the hover before) */
 @media (hover: hover) {
   .case-tile:not(.tuning):hover { box-shadow: var(--fx-shadow, var(--shadow-card)); }
@@ -60,10 +63,10 @@
 .tile-fx.tapped .case-tile { box-shadow: var(--fx-shadow, var(--shadow-card)); }
 
 @media (prefers-reduced-motion: no-preference) {
-  .tile-fx.tapped .case-tile { transform: scale(var(--fx-zoom, 1)); }
+  .tile-fx.tapped .case-tile .tile-stage { transform: scale(var(--fx-zoom, 1)); }
 }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .case-tile:not(.tuning):hover { transform: scale(var(--fx-zoom, 1)); }
+  .case-tile:not(.tuning):hover .tile-stage { transform: scale(var(--fx-zoom, 1)); }
   .case-tile:not(.tuning):hover .layer {
     transform: translate(calc(var(--lx) * var(--u)), calc(var(--ly) * var(--u))) rotate(calc(var(--rot) * 1deg));
   }
