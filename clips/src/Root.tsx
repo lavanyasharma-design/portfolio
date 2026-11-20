@@ -42,7 +42,7 @@ export const RemotionRoot: React.FC = () => {
         fps={30}
         width={1600}
         height={800}
-        defaultProps={{ variant: 'tall', background: '#faf7ff', duration: 13.1 }}
+        defaultProps={{ variant: 'tall', background: '#faf7ff', duration: 13.6 }}
       />
       <Composition
         id="fleet"
@@ -154,7 +154,7 @@ export const RemotionRoot: React.FC = () => {
         calculateMetadata={fitStill}
         width={900}
         height={1860}
-        defaultProps={{ variant: 'phone', background: 'transparent', duration: 1, src: 'bolt/subs/low-balance.png' }}
+        defaultProps={{ variant: 'tall', background: '#faf7ff', duration: 1, src: 'bolt/subs/low-balance.png' }}
       />
       <StillComp
         id="grace-period"
@@ -163,7 +163,7 @@ export const RemotionRoot: React.FC = () => {
         calculateMetadata={fitStill}
         width={900}
         height={1860}
-        defaultProps={{ variant: 'phone', background: 'transparent', duration: 1, src: 'bolt/subs/grace-period.png' }}
+        defaultProps={{ variant: 'tall', background: '#faf7ff', duration: 1, src: 'bolt/subs/grace-period.png' }}
       />
     </Folder>
   );

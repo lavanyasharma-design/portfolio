@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react'
 import NavBar from '../../components/nav/NavBar'
-import PageFooter from '../../components/footer/PageFooter'
-import { Link } from '../../components/footer/sayHi'
+import CaseFooter from '../../components/case/CaseFooter'
 import CaseTile from '../../components/work/CaseTile'
 import CaseIndex from '../../components/case/CaseIndex'
 import { mountCaseMotion, mountCaseMotionPanel } from '../../components/case/caseMotion'
@@ -40,7 +39,7 @@ const SECTIONS = [
 
 const tile = id => TILES.find(t => t.id === id)
 const BOLT = tile('bolt')
-const NEXT = [tile('fci'), tile('emi')]   // the next case studies (no pages yet, so pictures for now)
+const NEXT = [tile('fci'), tile('emi'), tile('bbps')]   // the other case studies, three smaller tiles (no pages yet, so pictures for now)
 
 const NAV_HIDE_AFTER = 50  // px below the next case study, where the phone nav bar steps aside
 
@@ -48,7 +47,7 @@ function Bolt() {
   const page = useRef(null)
   const hideLine = useRef(null)
   const heroFig = useRef(null)
-  const navHidden = useNavHidden(hideLine)
+  const navHidden = useNavHidden(hideLine, { peek: true })  // hides while scrolling down, back only on a scroll up (hers, 2026-11-20)
 
   useEffect(() => {
     const stop = mountCaseMotion(page.current)
@@ -155,7 +154,7 @@ function Bolt() {
             {/* the design brief and how it was answered, 12 apart */}
             <div className="cs-brief">
               <Statement>
-                So, my design brief was: what does a supervisor need to act on when they’re away from their desk?
+                Hence, the design brief was: what does a supervisor need to act on when they’re away from their desk?
               </Statement>
               <Copy>
                 <p>
@@ -197,8 +196,8 @@ function Bolt() {
               answer="Users can take up licence subscriptions the moment they receive a new device, wherever they are."
               media={{ kind: 'phone', label: 'subscriptions clip', src: '/work/bolt/subscriptions-tall.mp4', poster: '/work/bolt/subscriptions-tall.jpg' }}
               edges={[
-                { title: 'Low balance', media: 'low balance screen', src: '/work/bolt/low-balance.png', bare: true, text: 'Just an additional small step, in the usual flow, to renew their devices and plans.' },
-                { title: 'Grace period', media: 'grace period screen', src: '/work/bolt/grace-period.png', bare: true, text: 'Grace period notice for ease, no abrupt endings, and user flexibility to renew in their own time.' },
+                { title: 'Low balance', media: 'low balance screen', src: '/work/bolt/low-balance.jpg', kind: 'phone', text: 'Just an additional small step, in the usual flow, to renew their devices and plans.' },
+                { title: 'Grace period', media: 'grace period screen', src: '/work/bolt/grace-period.jpg', kind: 'phone', text: 'Grace period notice for ease, no abrupt endings, and user flexibility to renew in their own time.' },
               ]}
             >
               <Copy>
@@ -245,9 +244,7 @@ function Bolt() {
               },
             ]} />
           </Section>
-
-          {/* the end of the case study (hers, 2026-11-16); the side index stops here */}
-          <hr className="cs-end" />
+          {/* no end line after the outcome (hers, 2026-11-20) */}
         </article>
       </div>
 
@@ -267,10 +264,7 @@ function Bolt() {
           </section>
       </div>
 
-      <PageFooter heading="Thanks for reading this far.">
-        If context and system design is what drives your product or if you’d like to hear how the rest of Bolt
-        came together, say hi on {Link.linkedin} or {Link.x}, or write to me at {Link.mail}
-      </PageFooter>
+      <CaseFooter />
     </main>
     </>
   )

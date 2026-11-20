@@ -196,7 +196,8 @@ export function Decision({ n, question, answer, children, media, edges }) {
         <div className="cs-edges">
           {edges.map(e => (
             <div key={e.media} className="cs-edge">
-              <Media kind={e.bare ? 'bare' : 'square'} label={e.media} src={e.src} poster={e.poster} parallax={false} />
+              {/* kind: 'phone' puts a screen in a 2:3 panel like the clips' (the edge cases, hers 2026-11-20) */}
+              <Media kind={e.kind ?? (e.bare ? 'bare' : 'square')} label={e.media} src={e.src} poster={e.poster} parallax={e.kind === 'phone'} />
               {/* an edge with no title is a second screen only (the terrain map view) */}
               {e.title && (
                 <div data-rise>

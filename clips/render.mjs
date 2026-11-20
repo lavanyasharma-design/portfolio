@@ -14,6 +14,8 @@ const [clip, ...shapes] = process.argv.slice(2);
 if (!clip) throw new Error('which clip? e.g. npm run render -- menu');
 const OUT = '../public/work/bolt';
 mkdirSync(OUT, { recursive: true });
+// the poster's frame: 0 unless the clip fades in (the menu, 2026-11-20)
+const POSTER_FRAME = { menu: 15 };
 
 for (const variant of shapes.length ? shapes : ['wide', 'tall']) {
   const props = join(tmpdir(), `clip-props-${variant}.json`);
@@ -21,6 +23,6 @@ for (const variant of shapes.length ? shapes : ['wide', 'tall']) {
   const run = (...args) => execFileSync('npx', ['remotion', ...args], { stdio: 'inherit', shell: true });
   run('render', clip, `${OUT}/${clip}-${variant}.mp4`, `--props=${props}`, '--scale=1.6', '--codec=h264',
     '--crf=16', '--x264-preset=slow', '--color-space=bt709', '--concurrency=2');
-  run('still', clip, `${OUT}/${clip}-${variant}.jpg`, `--props=${props}`, '--scale=1.6', '--frame=0',
+  run('still', clip, `${OUT}/${clip}-${variant}.jpg`, `--props=${props}`, '--scale=1.6', `--frame=${POSTER_FRAME[clip] ?? 0}`,
     '--image-format=jpeg', '--jpeg-quality=85');
 }

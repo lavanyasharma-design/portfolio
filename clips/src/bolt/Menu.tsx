@@ -17,6 +17,9 @@ const T = {
   edit: 6.7, pushIn: [6.9, 7.45],
   reports: 8.6, poi: 9.1,
   save: 10.2, pushOut: [10.4, 10.95],
+  // the loop: the phone fades out once POI has landed and back in at the start, so the restart (Report
+  // back in the middle) doesn't read as the edit undoing itself (her catch, 2026-11-20)
+  fadeIn: [0, 0.4], fadeOut: [12.9, 13.4],
 };
 const POI_ROW: [number, number] = [486.5, 535]; // the POI row and the divider under it, lifted out
 
@@ -44,7 +47,8 @@ export const Menu: React.FC<ClipProps> = (p) => {
   ]);
 
   return (
-    <Stage variant={p.variant} background={p.background} zoom={zoom} fy={fy}>
+    <Stage variant={p.variant} background={p.background} zoom={zoom} fy={fy}
+      opacity={seg(t, T.fadeIn[0], T.fadeIn[1], ease.out) * (1 - seg(t, T.fadeOut[0], T.fadeOut[1]))}>
       <ScrollScreen
         img={MENU}
         top={54}

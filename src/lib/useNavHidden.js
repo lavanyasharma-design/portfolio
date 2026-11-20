@@ -1,16 +1,19 @@
 import { useEffect, useState } from 'react'
 
 /**
- * When the nav bar steps aside for the footer (Work page and case studies).
- * It hides while scrolling down near the footer and comes back, in place, the moment you scroll up
+ * When the nav bar steps aside (Work page and case studies).
+ * Near the footer it hides while scrolling down and comes back, in place, the moment you scroll up
  * (Lavanya, 2026-11-14). Where "near" starts:
  * - phones: once the line `lineRef` marks has risen above the band the bottom bar sits on, so the
  *   bar never sits over the footer (the Work page puts it 50px below the last case study);
  * - desktop: once the footer comes into view.
+ * `peek` (case studies, hers 2026-11-20: the bar sat over the clips): anywhere on the page it hides
+ * while scrolling down and comes back only on a scroll up, however slight. Not when the scroll stops:
+ * people stop to watch a clip.
  */
 const PHONE = '(max-width: 600px)'
 
-export function useNavHidden(lineRef) {
+export function useNavHidden(lineRef, { peek = false } = {}) {
   const [hidden, setHidden] = useState(false)
   useEffect(() => {
     const phone = matchMedia(PHONE)
@@ -29,7 +32,7 @@ export function useNavHidden(lineRef) {
         : phone.matches ? line.getBoundingClientRect().top <= innerHeight - dock.offsetHeight
         // desktop: the footer is in view
         : foot.getBoundingClientRect().top < innerHeight
-      if (!near || up) hid = false
+      if (up || (!near && !peek)) hid = false
       else if (down) hid = true
       setHidden(hid)
     }
@@ -44,6 +47,6 @@ export function useNavHidden(lineRef) {
       removeEventListener('resize', queue)
       phone.removeEventListener('change', queue)
     }
-  }, [lineRef])
+  }, [lineRef, peek])
   return hidden
 }

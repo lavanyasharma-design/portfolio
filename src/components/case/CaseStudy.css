@@ -85,20 +85,27 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
 
 /* ---------- hero ---------- */
 .cs-hero{display:flex;flex-direction:column;gap:24px}
+/* the hero visual sits 24 under the title and 24 over the details (hers, 2026-11-20; was the section gap, 56) */
+.case-page .cs-hero + .cs-hero-visual,.case-page .cs-hero-visual + .cs-details{margin-top:calc(24px - var(--gap))}
 /* Desktop/H2, brought down from Figma's 72 to 48 (Lavanya, 2026-11-15) */
 .cs-hero h1{font-family:var(--font-serif);font-weight:500;font-size:48px}
 .case-page .nowrap{white-space:nowrap}
 /* Desktop/Caption, as the Work page's tags */
 .cs-tags{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:16px;color:var(--color-black-highlight)}
-/* the Bolt tile's composition, shown whole and still (no hover zoom here) */
-.cs-hero-visual .case-tile.case-tile:hover{transform:none;box-shadow:none}
+/* every case study's hero visual: the tile's composition as a still picture. No hover (zoom, lift or
+   glow) and no shadow at all, the devices' drop-shadow included (hers, 2026-11-20) */
+.cs-hero-visual .case-tile.case-tile,.cs-hero-visual .case-tile.case-tile:hover{transform:none;box-shadow:none;transition:none}
+.cs-hero-visual .case-tile.case-tile .layer img{filter:none}
+.cs-hero-visual .case-tile.case-tile:hover .layer{transform:rotate(calc(var(--rot) * 1deg))}
 
-/* role, industry and so on: label (Desktop/Caption) over value (Desktop/Body), three to a row */
-.cs-details{
-  display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:24px;
-  padding-top:24px;border-top:1px solid var(--color-tile-border);
-}
+/* role, industry and so on: label (Desktop/Caption) over value (Desktop/Body), three to a row.
+   No line above; a vertical rule between the columns instead, two for three (hers, 2026-11-20), centred
+   in the gap (32 either side). Each column is as wide
+   as its words with the same space after it, so the gaps read even: with equal thirds the last column
+   sat far out on its own */
+.cs-details{display:flex;flex-wrap:wrap;gap:16px 32px}
 .cs-details div{display:flex;flex-direction:column;gap:8px}
+.cs-details div + div{padding-left:32px;border-left:1px solid var(--color-tile-border)}
 .cs-details dt{font-size:16px;color:var(--color-black-highlight)}
 .cs-details dd{font-size:18px}
 
@@ -191,11 +198,11 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
 .cs-feature-copy p{font-size:18px}
 
 /* ---------- decisions: set apart, numbered ---------- */
-.cs-callout{display:flex;flex-direction:column;gap:16px;padding:56px;border:1px solid var(--color-tile-border);border-radius:8px}
+.cs-callout{display:flex;flex-direction:column;gap:16px;padding:32px;border:1px solid var(--color-tile-border);border-radius:8px}
 .cs-callout-title{font-family:var(--font-serif);font-weight:500;font-size:48px}  /* Desktop/H2 (48 on case studies), the callout's only line (hers, 2026-11-15) */
 .cs-callout > p:not(.cs-callout-title){font-size:18px;max-width:640px}
 
-.cs-decision{display:flex;flex-direction:column;gap:32px;padding-top:56px;border-top:1px solid var(--color-tile-border)}
+.cs-decision{display:flex;flex-direction:column;gap:32px}  /* no divider above each decision, the callout included (hers, 2026-11-20) */
 /* the number and the question on one line, Desktop/H7 in purple (Lavanya, 2026-11-15; was an H4 number
    beside an H3 question). Heading to body 16, body to body 12 */
 .cs-decision-head{display:flex;flex-direction:column;gap:12px}
@@ -204,7 +211,7 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
 .cs-decision-answer{font-size:18px}  /* Desktop/H6 (18 on case studies) */
 .cs-decision-row{display:grid;grid-template-columns:minmax(0, 1fr) minmax(0, 1fr);gap:40px;align-items:center}
 .cs-decision-side{display:flex;flex-direction:column;gap:12px}
-.cs-edges{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:24px}
+.cs-edges{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:40px}  /* 40, as a clip and its answer, so the edge-case panels are the clips' size */
 .cs-edge{display:flex;flex-direction:column;gap:16px}
 .cs-edge > div{display:flex;flex-direction:column;gap:8px}
 .cs-edge h4{font-family:var(--font-serif);font-weight:600;font-size:24px;letter-spacing:.02em}  /* Desktop/H7 */
@@ -221,18 +228,18 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
 .cs-stat p{font-size:16px}
 
 /* ---------- next case studies: the Work page's tiles, titles and tags, two side by side, 40 apart as on Work ---------- */
-/* the story ends on a line, 70 under the outcome and 120 above "More work"; the side index fades before it.
+/* the story ends 120 above "More work"; the side index fades as More work comes on screen.
    More work is its own block across the whole container, 200 clear of the footer so the two read apart (2026-11-16) */
-.cs-end{margin:0;border:0;border-top:1px solid var(--color-tile-border)}
+/* no end line any more (hers, 2026-11-20): the outcome is 120 above More work */
 .cs-wrap:has(+ .cs-after){margin-bottom:120px}
 .cs-after{margin-bottom:200px}
 .cs-after > *{grid-column:1 / -1;min-width:0}  /* the full container, 130 at the sides: tiles as big as on Work (hers, 2026-11-16) */
 .cs-next{position:relative;display:flex;flex-direction:column;gap:32px}
 /* "More work": Figma's Desktop/H3 at its full 56 (hers, 2026-11-16), purple */
 .cs-more{font-family:var(--font-serif);font-weight:600;font-size:56px;line-height:normal;color:var(--color-purple-default)}
-.cs-next-cards{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:40px}
+.cs-next-cards{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:40px}  /* three smaller tiles in a row (hers, 2026-11-20; was two at Work size) */
 .cs-next-card{display:flex;flex-direction:column;gap:24px}
-.cs-next-card h2{font-family:var(--font-serif);font-weight:600;font-size:24px;letter-spacing:.02em} /* Desktop/H7. No {tags}: those live on the Work page only (hers, 2026-11-16) */
+.cs-next-card h2{font-family:var(--font-serif);font-weight:600;font-size:20px;letter-spacing:.02em} /* 20 (hers, 2026-11-20: H7 24 read too big on the smaller tiles). No {tags}: those live on the Work page only (hers, 2026-11-16) */
 
 /* ---------- infographics: her pastel palettes (infographic.js, ?infographic), 2026-11-16 ----------
    Each element tagged data-ig gets --ig, its colour (and --ig-to, a second one for gradients). The
@@ -323,19 +330,21 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
   .cs-section{scroll-margin-top:56px}
   .case-page .cs-head + *{margin-top:calc(24px - var(--gap))}
   .case-page .cs-head + .cs-copy{margin-top:calc(16px - var(--gap))}
+  .case-page .cs-hero + .cs-hero-visual,.case-page .cs-hero-visual + .cs-details{margin-top:0}  /* phones keep the section gap (40) round the hero visual: her 24 was for desktop */
   .cs-tags,.cs-media figcaption,.cs-details dt,.cs-insight figcaption{font-size:14px} /* Mobile/Caption */
   .cs-hero h1{font-size:36px}                                            /* Mobile/h4: the long title at Mobile/h2 (40) ran to six lines */
   .cs-callout-title{font-size:36px}                                      /* Mobile/h4, as the title (H2 on desktop) */
   .cs-label,.cs-copy,.cs-details dd,.cs-side ul,.cs-feature-copy p,.cs-callout > p:not(.cs-callout-title),.cs-decision-answer{font-size:16px} /* Mobile/Body (labels: H6 on desktop) */
   .cs-cards p,.cs-edge p:not(.cs-label),.cs-stat p{font-size:14px}
   .cs-head h2,.cs-statement,.cs-decision-head h3,.cs-sub,.cs-cards h3,.cs-insight blockquote,.cs-side h3,.cs-feature-copy h3,.cs-edge h4,.cs-stat h3,.cs-next-card h2{font-size:20px;letter-spacing:0} /* Mobile/h5 */
-  .cs-details{grid-template-columns:repeat(2, minmax(0, 1fr));gap:16px}
+  .cs-details{gap:16px}  /* the columns wrap to a second row when they run out of room */
+  .cs-details div + div{padding-left:16px}
   .cs-insights,.cs-compare,.cs-stats{grid-template-columns:minmax(0, 1fr)}
   .cs-insights{gap:24px}
   .cs-side,.cs-stat{padding:24px}
   .cs-feature,.cs-decision-row,.cs-media.phone.beside{grid-template-columns:minmax(0, 1fr);gap:16px}
   .cs-callout{padding:24px}
-  .cs-decision{gap:24px;padding-top:40px}
+  .cs-decision{gap:24px}
   .cs-edges{gap:16px}
   .cs-stat-value{font-size:60px;font-weight:600}                         /* Mobile/h1 */
   .cs-next-cards{grid-template-columns:minmax(0, 1fr);gap:32px}         /* 32 apart, as the Work page's tiles on phones */

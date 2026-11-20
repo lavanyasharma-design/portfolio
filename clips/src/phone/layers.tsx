@@ -16,8 +16,10 @@ export const Stage: React.FC<{
   zoom: number;
   fx?: number;
   fy: number;
+  /** the phone's opacity (1 by default): a looping clip fades out and back in so the restart reads as one */
+  opacity?: number;
   children: React.ReactNode;
-}> = ({ variant, background, zoom, fx = SCREEN.w / 2, fy, children }) => {
+}> = ({ variant, background, zoom, fx = SCREEN.w / 2, fy, opacity = 1, children }) => {
   useFonts();
   const v = VARIANTS[variant];
   const dw = SCREEN.w + 2 * BEZEL;
@@ -41,7 +43,7 @@ export const Stage: React.FC<{
     <AbsoluteFill style={{ background, overflow: 'hidden' }}>
       <div
         style={{
-          position: 'absolute', left: 0, top: 0, transformOrigin: '0 0',
+          position: 'absolute', left: 0, top: 0, transformOrigin: '0 0', opacity,
           transform: `translate(${v.w / 2 - (fx + BEZEL) * S}px, ${v.h / 2 - (fy + BEZEL) * S}px) scale(${S})`,
         }}
       >

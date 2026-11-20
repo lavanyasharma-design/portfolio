@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react'
  */
 function CaseIndex({ sections }) {
   const [current, setCurrent] = useState(sections[0]?.id)
-  // past the last section (the outcome) the index fades away, before the story's end line (hers, 2026-11-16)
+  // the index fades away once More work is on screen
   const [gone, setGone] = useState(false)
 
   // the current section is the last one whose top has passed 40% of the way down the screen
@@ -23,8 +23,9 @@ function CaseIndex({ sections }) {
         if (el && el.getBoundingClientRect().top <= line) id = s.id
       }
       setCurrent(id)
-      const last = document.getElementById(sections[sections.length - 1]?.id)
-      setGone(!!last && last.getBoundingClientRect().bottom <= line)
+      // gone as soon as More work (.cs-after) comes on screen (hers, 2026-11-20; was past the outcome)
+      const after = document.querySelector('.cs-after')
+      setGone(!!after && after.getBoundingClientRect().top < innerHeight)
     }
     const queue = () => { if (!raf) raf = requestAnimationFrame(check) }
     addEventListener('scroll', queue, { passive: true })
