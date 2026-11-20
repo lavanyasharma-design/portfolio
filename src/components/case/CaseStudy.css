@@ -11,7 +11,11 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
 .case-page{
   --side:clamp(20px, 8.6vw, 130px);
   --col:826px;
-  --gap:56px;           /* between blocks in a section: spacing/56 */
+  /* one spacing system (hers, 2026-11-20), as on phones at desktop sizes: 12 text to text (label, heading, body, a
+     question and its answer), 24 beside a visual (cards, panels, clips, captions) and between cards, 48 between
+     repeated groups (features, decisions) or where a new thought starts (the product, the design brief), 70 between
+     sections. --gap is the 24 */
+  --gap:24px;
   min-height:100%;
   background:var(--color-white-default);
   color:var(--color-black-default);
@@ -66,8 +70,10 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
 /* heading to its first block: 16 to body, 32 to anything else (cards, callouts, stats).
    .case-page in front so it outranks the margin reset on lists (.case-page ol), which had left the
    why cards a full 56 under their heading (her catch, 2026-11-16) */
-.case-page .cs-head + *{margin-top:calc(32px - var(--gap))}
-.case-page .cs-head + .cs-copy{margin-top:calc(16px - var(--gap))}
+.case-page .cs-head + *{margin-top:calc(24px - var(--gap))}
+.case-page .cs-head + .cs-copy{margin-top:calc(12px - var(--gap))}
+.case-page .cs-details + .cs-copy,.case-page .cs-copy + .cs-brief{margin-top:calc(48px - var(--gap))}
+.case-page .cs-callout + .cs-decision,.case-page .cs-decision + .cs-decision{margin-top:calc(48px - var(--gap))}
 /* Desktop/Body */
 .cs-copy{display:flex;flex-direction:column;gap:12px;font-size:18px}
 /* Desktop/H7 in purple/default: a line that carries the story on its own, the problem line and the
@@ -111,7 +117,7 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
 .cs-details dd{font-size:18px}
 
 /* ---------- media: one panel for every clip and picture ---------- */
-.cs-media{display:flex;flex-direction:column;gap:16px}
+.cs-media{display:flex;flex-direction:column;gap:24px}
 /* the clip panels: a light lilac, lighter than the tile purple and without lilac 1's pink (2026-11-19);
    the clips have the same colour baked in (clips/src/Root.tsx, background) */
 .cs-panel{
@@ -164,7 +170,7 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
 /* what we kept hearing: pull-quote callouts, purple rule at the left */
 .cs-insights{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:24px}
 .cs-insights > .cs-label{grid-column:1 / -1}
-.cs-insight{display:flex;flex-direction:column;gap:16px;padding-left:24px;border-left:2px solid var(--color-purple-highlight)}
+.cs-insight{display:flex;flex-direction:column;gap:12px;padding-left:24px;border-left:2px solid var(--color-purple-highlight)}
 .cs-insight blockquote{font-family:var(--font-serif);font-weight:600;font-size:24px;letter-spacing:.02em} /* Desktop/H7 */
 .cs-insight figcaption{font-size:16px;color:var(--color-black-highlight)}
 
@@ -184,14 +190,14 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
     radial-gradient(60% 80% at 90% 0%, color-mix(in srgb, var(--color-tile-background) 90%, transparent), transparent 70%),
     var(--color-white-default);
 }
-.cs-side h3{font-family:var(--font-serif);font-weight:600;font-size:24px;letter-spacing:.02em;margin-bottom:4px}
+.cs-side h3{font-family:var(--font-serif);font-weight:600;font-size:24px;letter-spacing:.02em}
 .cs-side ul{display:flex;flex-direction:column;gap:8px;font-size:18px}
 .cs-side li{display:flex;align-items:baseline;gap:12px}
 .cs-side li::before{content:"";flex:none;width:6px;height:6px;border-radius:50%;background:var(--color-purple-default);transform:translateY(-.15em)}
 .cs-side.left li::before{background:var(--color-black-highlight)}
 
 /* ---------- features: clip, then title and one line beside it ---------- */
-.cs-features{display:flex;flex-direction:column;gap:var(--gap)}
+.cs-features{display:flex;flex-direction:column;gap:48px}
 .cs-feature{display:grid;grid-template-columns:minmax(0, 1fr) minmax(0, 1fr);gap:40px;align-items:center}
 .cs-feature .cs-panel{aspect-ratio:2 / 3}
 .cs-feature-copy{display:flex;flex-direction:column;gap:12px}
@@ -203,18 +209,18 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
 .cs-callout-title{font-family:var(--font-serif);font-weight:500;font-size:48px}  /* Desktop/H2 (48 on case studies), the callout's only line (hers, 2026-11-15) */
 .cs-callout > p:not(.cs-callout-title){font-size:18px;max-width:640px}
 
-.cs-decision{display:flex;flex-direction:column;gap:32px}  /* no divider above each decision, the callout included (hers, 2026-11-20) */
+.cs-decision{display:flex;flex-direction:column;gap:24px}  /* no divider above each decision, the callout included (hers, 2026-11-20) */
 /* the number and the question on one line, Desktop/H7 in purple (Lavanya, 2026-11-15; was an H4 number
    beside an H3 question). Heading to body 16, body to body 12 */
 .cs-decision-head{display:flex;flex-direction:column;gap:12px}
-.cs-decision-head h3{font-family:var(--font-serif);font-weight:600;font-size:24px;letter-spacing:.02em;color:var(--color-purple-default);margin-bottom:4px}
+.cs-decision-head h3{font-family:var(--font-serif);font-weight:600;font-size:24px;letter-spacing:.02em;color:var(--color-purple-default)}
 .cs-decision-n{margin-right:.15em}
 .cs-decision-answer{font-size:18px}  /* Desktop/H6 (18 on case studies) */
 .cs-decision-row{display:grid;grid-template-columns:minmax(0, 1fr) minmax(0, 1fr);gap:40px;align-items:center}
 .cs-decision-side{display:flex;flex-direction:column;gap:12px}
 .cs-edges{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:40px}  /* 40, as a clip and its answer, so the edge-case panels are the clips' size */
-.cs-edge{display:flex;flex-direction:column;gap:16px}
-.cs-edge > div{display:flex;flex-direction:column;gap:8px}
+.cs-edge{display:flex;flex-direction:column;gap:24px}
+.cs-edge > div{display:flex;flex-direction:column;gap:12px}
 .cs-edge h4{font-family:var(--font-serif);font-weight:600;font-size:24px;letter-spacing:.02em}  /* Desktop/H7 */
 .cs-edge p:not(.cs-label){font-size:16px}
 
@@ -328,8 +334,7 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
   .cs-features{gap:32px}
   .cs-cards,.cs-stats,.cs-insights,.cs-compare,.cs-edges{gap:16px}
   .cs-decision{gap:16px}
-  .cs-decision-head h3,.cs-side h3{margin-bottom:0}
-  .cs-insight,.cs-edge > div{gap:12px}
+  .cs-media,.cs-edge{gap:16px}
   .case-page .cs-hero + .cs-hero-visual{margin-top:calc(24px - var(--gap))}  /* title to visual 24, as visual to details (hers, 2026-11-20) */
   .case-page .cs-hero-visual + .cs-details{margin-top:calc(24px - var(--gap))}  /* visual to details 24, as desktop (hers, 2026-11-20: 40 was too much) */
   .cs-tags,.cs-label,.cs-media figcaption,.cs-insight figcaption{font-size:14px} /* Mobile/Caption; the {labels} too (hers, 2026-11-20, were 16) */
