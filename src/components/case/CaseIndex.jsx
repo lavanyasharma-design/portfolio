@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react'
  */
 function CaseIndex({ sections }) {
   const [current, setCurrent] = useState(sections[0]?.id)
-  // the index fades away once More work is on screen
+  // the index fades away once the footer is on screen
   const [gone, setGone] = useState(false)
 
   // the current section is the last one whose top has passed 40% of the way down the screen
@@ -23,8 +23,8 @@ function CaseIndex({ sections }) {
         if (el && el.getBoundingClientRect().top <= line) id = s.id
       }
       setCurrent(id)
-      // gone as soon as More work (.cs-after) comes on screen (hers, 2026-11-20; was past the outcome)
-      const after = document.querySelector('.cs-after')
+      // gone as soon as the footer comes on screen (hers, 2026-11-20: was More work, since removed)
+      const after = document.querySelector('.page-foot')
       setGone(!!after && after.getBoundingClientRect().top < innerHeight)
     }
     const queue = () => { if (!raf) raf = requestAnimationFrame(check) }

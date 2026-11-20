@@ -39,9 +39,8 @@ const SECTIONS = [
 
 const tile = id => TILES.find(t => t.id === id)
 const BOLT = tile('bolt')
-const NEXT = [tile('fci'), tile('emi'), tile('bbps')]   // the other case studies, three smaller tiles (no pages yet, so pictures for now)
 
-const NAV_HIDE_AFTER = 50  // px below the next case study, where the phone nav bar steps aside
+const NAV_HIDE_AFTER = 50  // px below the outcome, where the phone nav bar steps aside for the footer
 
 function Bolt() {
   const page = useRef(null)
@@ -244,24 +243,10 @@ function Bolt() {
               },
             ]} />
           </Section>
-          {/* no end line after the outcome (hers, 2026-11-20) */}
+          {/* no end line after the outcome, and no More work: the nav bar leads to work (hers, 2026-11-20).
+              The story runs straight into the footer */}
+          <div ref={hideLine} className="nav-hide-line" style={{ '--after': `${NAV_HIDE_AFTER}px` }} aria-hidden="true" />
         </article>
-      </div>
-
-      {/* ---------- 11. more work: its own block below the story, no index beside it ---------- */}
-      <div className="cs-wrap cs-after">
-          <section className="cs-next" aria-label="More work">
-            <h2 className="cs-more" data-rise>More work</h2>
-            <div className="cs-next-cards">
-              {NEXT.map(t => (
-                <div key={t.id} className="cs-next-card" data-rise>
-                  <CaseTile tile={t} look={LOOK} bg={t.bg ?? DEFAULT_BG} />
-                  <h2>{t.title}</h2>
-                </div>
-              ))}
-            </div>
-            <div ref={hideLine} className="nav-hide-line" style={{ '--after': `${NAV_HIDE_AFTER}px` }} aria-hidden="true" />
-          </section>
       </div>
 
       <CaseFooter />

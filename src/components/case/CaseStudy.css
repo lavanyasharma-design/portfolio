@@ -25,10 +25,10 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
 /* the index in the left track, the column in the middle; on mid-size windows the left track keeps
    room for the index and the column gives way first */
 .cs-wrap{
-  max-width:calc(1252px + 2 * var(--side));margin:0 auto 120px;padding-inline:var(--side);box-sizing:border-box;
+  max-width:calc(1252px + 2 * var(--side));margin:0 auto 200px;padding-inline:var(--side);box-sizing:border-box;
   display:grid;grid-template-columns:minmax(150px, 1fr) minmax(0, var(--col)) minmax(0, 1fr);column-gap:24px;
 }
-.cs-main{grid-column:2;display:flex;flex-direction:column;gap:70px;min-width:0}
+.cs-main{position:relative;grid-column:2;display:flex;flex-direction:column;gap:70px;min-width:0}  /* relative: the phone nav's footer line hangs off its bottom */
 .cs-section{display:flex;flex-direction:column;gap:var(--gap);scroll-margin-top:131px}
 
 /* rise-in (caseMotion.js) starts hidden only once the motion script has taken over */
@@ -231,16 +231,9 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
 /* the story ends 120 above "More work"; the side index fades as More work comes on screen.
    More work is its own block across the whole container, 200 clear of the footer so the two read apart (2026-11-16) */
 /* no end line any more (hers, 2026-11-20): the outcome is 120 above More work */
-.cs-wrap:has(+ .cs-after){margin-bottom:120px}
-.cs-after{margin-bottom:200px}
-.cs-after > *{grid-column:1 / -1;min-width:0}  /* the full container, 130 at the sides: tiles as big as on Work (hers, 2026-11-16) */
-.cs-next{position:relative;display:flex;flex-direction:column;gap:32px}
-/* "More work": Figma's Desktop/H3 at its full 56 (hers, 2026-11-16), purple */
-.cs-more{font-family:var(--font-serif);font-weight:600;font-size:56px;line-height:normal;color:var(--color-purple-default)}
-.cs-next-cards{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:40px}  /* three smaller tiles in a row (hers, 2026-11-20; was two at Work size) */
-.cs-next-card{display:flex;flex-direction:column;gap:24px}
-.cs-next-card h2{font-family:var(--font-serif);font-weight:600;font-size:20px;letter-spacing:.02em} /* 20 (hers, 2026-11-20: H7 24 read too big on the smaller tiles). No {tags}: those live on the Work page only (hers, 2026-11-16) */
-
+/* ---------- the end of the story: the outcome, then the footer, 200 apart (160 on phones): the gap More work had
+   above the footer (it was removed, hers 2026-11-20: the nav bar already leads to work). The side index fades
+   as the footer comes on screen ---------- */
 /* ---------- infographics: her pastel palettes (infographic.js, ?infographic), 2026-11-16 ----------
    Each element tagged data-ig gets --ig, its colour (and --ig-to, a second one for gradients). The
    colour washes in from one corner and fades to white (--ig-wash at its strongest), and the marks
@@ -312,20 +305,16 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
   .cs-wrap{grid-template-columns:minmax(0, var(--col));justify-content:center}
   .cs-index{display:none}
   .cs-main{grid-column:1}
-  .cs-wrap.cs-after{grid-template-columns:minmax(0, 1fr)}
 }
 @media (max-width:840px){
-  .cs-cards,.cs-next-cards{grid-template-columns:minmax(0, 1fr)}  /* one column here, as the Work page */
+  .cs-cards{grid-template-columns:minmax(0, 1fr)}  /* one column here, as the Work page */
   .cs-feature{gap:24px}
 }
 
 /* ---------- phones: the mobile text styles, 20 at the sides, top 56 ---------- */
 @media (max-width:600px){
   .case-page{--side:20px;--gap:40px;padding-top:56px}
-  .cs-wrap:has(+ .cs-after){margin-bottom:56px}
-  .cs-after{margin-bottom:160px}
-  .cs-more{font-size:28px;font-weight:500}                               /* Mobile/h3 */
-  .cs-next{gap:24px}
+  .cs-wrap{margin-bottom:160px}
   .cs-main{gap:56px}  /* desktop 70 is hers (2026-11-16, was 120); 56 on phones is mine, scaled down from 80 to match */
   .cs-section{scroll-margin-top:56px}
   .case-page .cs-head + *{margin-top:calc(24px - var(--gap))}
@@ -336,7 +325,7 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
   .cs-callout-title{font-size:36px}                                      /* Mobile/h4, as the title (H2 on desktop) */
   .cs-label,.cs-copy,.cs-details dd,.cs-side ul,.cs-feature-copy p,.cs-callout > p:not(.cs-callout-title),.cs-decision-answer{font-size:16px} /* Mobile/Body (labels: H6 on desktop) */
   .cs-cards p,.cs-edge p:not(.cs-label),.cs-stat p{font-size:14px}
-  .cs-head h2,.cs-statement,.cs-decision-head h3,.cs-sub,.cs-cards h3,.cs-insight blockquote,.cs-side h3,.cs-feature-copy h3,.cs-edge h4,.cs-stat h3,.cs-next-card h2{font-size:20px;letter-spacing:0} /* Mobile/h5 */
+  .cs-head h2,.cs-statement,.cs-decision-head h3,.cs-sub,.cs-cards h3,.cs-insight blockquote,.cs-side h3,.cs-feature-copy h3,.cs-edge h4,.cs-stat h3{font-size:20px;letter-spacing:0} /* Mobile/h5 */
   .cs-details{gap:16px}  /* the columns wrap to a second row when they run out of room */
   .cs-details div + div{padding-left:16px}
   .cs-insights,.cs-compare,.cs-stats{grid-template-columns:minmax(0, 1fr)}
@@ -347,8 +336,6 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
   .cs-decision{gap:24px}
   .cs-edges{gap:16px}
   .cs-stat-value{font-size:60px;font-weight:600}                         /* Mobile/h1 */
-  .cs-next-cards{grid-template-columns:minmax(0, 1fr);gap:32px}         /* 32 apart, as the Work page's tiles on phones */
-  .cs-next-card{gap:12px}
   .cs-ph.phone,.cs-ph.square{border-radius:14px}
 }
 
