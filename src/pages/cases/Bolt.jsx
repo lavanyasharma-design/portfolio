@@ -40,7 +40,7 @@ const SECTIONS = [
 const tile = id => TILES.find(t => t.id === id)
 const BOLT = tile('bolt')
 
-const NAV_HIDE_AFTER = 50  // px below the outcome, where the phone nav bar steps aside for the footer
+const NAV_HIDE_AFTER = 160  // the footer's top on phones (160 below the outcome): the phone nav bar steps aside as the footer rolls in (hers, 2026-11-20)
 
 function Bolt() {
   const page = useRef(null)
