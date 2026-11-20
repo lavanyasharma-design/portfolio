@@ -75,7 +75,10 @@ export function Media({ kind = 'phone', src: wideSrc, srcPhone, poster: widePost
   const poster = phone && posterPhone ? posterPhone : widePoster
   const isVideo = src && /\.(mp4|webm)$/i.test(src)
   const inner = !src ? <Placeholder kind={kind} label={label} />
-    : isVideo ? <video className={`cs-clip ${kind}`} src={src} poster={poster} muted loop playsInline preload="none" data-clip aria-label={label} />
+    // the poster also sits behind the video: iOS drops the poster while a clip starts, which left an empty
+    // panel (her catch, 2026-11-20). caseMotion.js starts loading a clip a screen before it arrives
+    : isVideo ? <video className={`cs-clip ${kind}`} src={src} poster={poster} muted loop playsInline preload="none" data-clip aria-label={label}
+        style={poster ? { background: `url(${poster}) center / cover no-repeat` } : undefined} />
     : <img className={`cs-clip ${kind}`} src={src} alt={label ?? ''} decoding="async" loading="lazy" />
   return (
     <figure className={`cs-media ${kind}${kind === 'phone' && caption ? ' beside' : ''}`} data-rise>

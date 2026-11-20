@@ -51,6 +51,12 @@ export function mountCaseMotion(root) {
 
   root.querySelectorAll('video[data-clip]').forEach((v) => {
     if (reduce) v.loop = false
+    // load a screen ahead, so a clip is ready to play when it arrives (it sat empty while it loaded on phones)
+    stops.push(inView(v, () => {
+      if (v.preload === 'auto') return
+      v.preload = 'auto'
+      if (v.paused && v.readyState === 0) v.load()  // never when it has already started playing
+    }, { margin: '0px 0px 100% 0px' }))
     stops.push(inView(v, () => {
       v.play().catch(() => {})
       return () => v.pause()

@@ -170,17 +170,17 @@ function Bolt() {
           {/* ---------- 8. design: what made it to mobile ---------- */}
           <Section id="design" label="design" title="What made it to mobile">
             <div className="cs-features">
-              <Feature title="Fleet overview" media={{ label: 'fleet overview clip', src: '/work/bolt/fleet-tall.mp4', poster: '/work/bolt/fleet-tall.jpg' }}>
+              <Feature title="Fleet Overview" media={{ label: 'fleet overview clip', src: '/work/bolt/fleet-tall.mp4', poster: '/work/bolt/fleet-tall.jpg' }}>
                 Every vehicle and every status could be seen live on a phone
               </Feature>
-              <Feature title="Geofence management" media={{ label: 'geofence clip', src: '/work/bolt/geofence-tall.mp4', poster: '/work/bolt/geofence-tall.jpg' }}>
+              <Feature title="Geofence Management" media={{ label: 'geofence clip', src: '/work/bolt/geofence-tall.mp4', poster: '/work/bolt/geofence-tall.jpg' }}>
                 Admins can create boundaries, get breach alerts and respond to them promptly.
               </Feature>
               {/* subscriptions out of this one: only devices here (hers, 2026-11-16) */}
-              <Feature title="Device management" media={{ label: 'devices clip', src: '/work/bolt/devices-tall.mp4', poster: '/work/bolt/devices-tall.jpg' }}>
+              <Feature title="Device Management" media={{ label: 'devices clip', src: '/work/bolt/devices-tall.mp4', poster: '/work/bolt/devices-tall.jpg' }}>
                 Admins can manage all their devices on the go, even at the shop where they’re buying them.
               </Feature>
-              <Feature title="Points of interest" media={{ label: 'POI clip', src: '/work/bolt/poi-tall.mp4', poster: '/work/bolt/poi-tall.jpg' }}>
+              <Feature title="Points of Interest" media={{ label: 'POI clip', src: '/work/bolt/poi-tall.mp4', poster: '/work/bolt/poi-tall.jpg' }}>
                 Create POI on the go during a consignment. Auto updates and goes live to the driver.
               </Feature>
             </div>

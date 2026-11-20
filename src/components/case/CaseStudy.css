@@ -322,21 +322,27 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
   .case-page .cs-head + .cs-copy{margin-top:calc(16px - var(--gap))}
   .case-page .cs-hero + .cs-hero-visual{margin-top:0}  /* title to visual: the section gap (40) */
   .case-page .cs-hero-visual + .cs-details{margin-top:calc(24px - var(--gap))}  /* visual to details 24, as desktop (hers, 2026-11-20: 40 was too much) */
-  .cs-tags,.cs-media figcaption,.cs-details dt,.cs-details dd,.cs-insight figcaption{font-size:14px} /* Mobile/Caption; the details all caption (hers, 2026-11-20) */
+  .cs-tags,.cs-label,.cs-media figcaption,.cs-insight figcaption{font-size:14px} /* Mobile/Caption; the {labels} too (hers, 2026-11-20, were 16) */
+  /* a clip's caption beside it (the menu): caption grey on phones, as the research sources (hers, 2026-11-20) */
+  .cs-media.phone.beside figcaption{font-size:14px;color:var(--color-black-highlight)}
   .cs-hero h1{font-size:36px}                                            /* Mobile/h4: the long title at Mobile/h2 (40) ran to six lines */
-  .cs-callout-title{font-size:32px}  /* 32 so the line ends in three (hers, 2026-11-20; 36 ran to four on an iPhone 16) */
-  .cs-label,.cs-copy,.cs-side ul,.cs-feature-copy p,.cs-callout > p:not(.cs-callout-title),.cs-decision-answer{font-size:16px} /* Mobile/Body (labels: H6 on desktop) */
+  .cs-callout-title{font-size:24px}  /* 24 so the line ends in two (hers, 2026-11-20) */
+  .cs-copy,.cs-side ul,.cs-feature-copy p,.cs-callout > p:not(.cs-callout-title),.cs-decision-answer{font-size:16px} /* Mobile/Body (labels: H6 on desktop) */
   .cs-cards p,.cs-edge p:not(.cs-label),.cs-stat p{font-size:14px}
   .cs-head h2,.cs-statement,.cs-decision-head h3,.cs-sub,.cs-cards h3,.cs-insight blockquote,.cs-side h3,.cs-feature-copy h3,.cs-edge h4,.cs-stat h3{font-size:20px;letter-spacing:0} /* Mobile/h5 */
   /* the details: three columns in one row, the rules between them, words wrapping inside a column */
-  .cs-details{display:grid;grid-template-columns:repeat(3, auto);justify-content:start;column-gap:12px}
+  .cs-details{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));column-gap:12px;font-size:12px}  /* equal thirds, so the rules sit evenly; 12 so each value takes a line or two (hers, 2026-11-20) */
+  .cs-details dt,.cs-details dd{font-size:12px}
   .cs-details div{gap:4px}
   .cs-details div + div{padding-left:12px}
   .cs-insights,.cs-compare,.cs-stats{grid-template-columns:minmax(0, 1fr)}
   .cs-insights{gap:24px}
   .cs-side,.cs-stat{padding:24px}
+  .case-page .cs-insight[data-ig]{padding:24px}  /* as the why cards above them, all stacked here (hers, 2026-11-20) */
+  /* the why cards' lines: smaller and tucked into the corner, clear of the words (hers, 2026-11-20) */
+  .case-page .cs-cards [data-deco=lines]::before{width:calc(var(--ig-deco-size) * .75);right:-16%;bottom:-38%}
   .cs-feature,.cs-decision-row,.cs-media.phone.beside{grid-template-columns:minmax(0, 1fr);gap:16px}
-  .cs-callout{padding:16px}  /* hers, 2026-11-20 */
+  .cs-callout{padding:12px}  /* hers, 2026-11-20 */
   .cs-decision{gap:24px}
   /* the edge cases (decisions 01 and 02): one row you swipe through, out to the screen's edges, so each
      screen is big enough to read and the long page doesn't grow (hers, 2026-11-20) */
