@@ -57,7 +57,7 @@ export const VARIANTS = {
  * Slows a clip's timeline by k (her pace, 2026-11-19: the geofence slider's, with time to see the UI
  * between actions): every time is multiplied by k, but a [start, end] pair (a screen slide, a sheet)
  * stretches its length by at most 1.25 so the motion itself doesn't go slow-motion. Longer lists (the
- * slider's moves) stretch fully. The camera is slowed by evaluating its keyframes at t / k.
+ * slider's moves) stretch fully.
  */
 export function stretch<T extends Record<string, number | number[]>>(T: T, k: number): T {
   const out: Record<string, number | number[]> = {};
@@ -70,31 +70,5 @@ export function stretch<T extends Record<string, number | number[]>>(T: T, k: nu
 }
 export type Variant = keyof typeof VARIANTS;
 
-/** the camera's rest: whole phone, centred */
-export const REST: [number, number] = [1, SCREEN.h / 2];
-
-/**
- * The camera as plain keyframes: [time, zoom, screen height to centre on], eased between, held
- * outside. Zooms are slight (1.15) unless a clip says otherwise; 1 is the whole phone.
- */
-export function cam(t: number, list: [number, number, number][]): [number, number] {
-  return keys(t, list.map(([at, z, fy]) => [at, [z, fy]] as [number, number[]])) as [number, number];
-}
-
-/**
- * Camera keyframes from a list of taps. For each tap the camera goes in on `fy` (the screen height to
- * centre on), arriving `before` s ahead of the tap after `inFor` s, holds `hold` s past the tap, then
- * eases back out to the whole phone over `outFor` s. Her pacing: gentle in, slow out, never sideways.
- */
-export function tapCamera(
-  taps: { at: number; fy: number; hold: number }[],
-  o: { zoom: number; inFor: number; before: number; outFor: number },
-) {
-  const list: [number, number[]][] = [];
-  for (const tap of [...taps].sort((a, b) => a.at - b.at)) {
-    const arrive = tap.at - o.before;
-    const leave = tap.at + tap.hold;
-    list.push([arrive - o.inFor, REST], [arrive, [o.zoom, tap.fy]], [leave, [o.zoom, tap.fy]], [leave + o.outFor, REST]);
-  }
-  return list.length ? list : [[0, REST] as [number, number[]]];
-}
+// no camera (hers, 2026-11-21): the zooms read as a wobble and the whole phone is clear enough in its panel,
+// so every clip shows the phone whole and still, centred (Stage)

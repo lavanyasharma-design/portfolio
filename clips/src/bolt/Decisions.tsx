@@ -1,10 +1,10 @@
 /**
  * The decision clips and stills (decision 01's edge cases, decision 02's pair, decision 03).
  *  - GeofenceSlider (decision 02, left): the create screen held; the slider goes up and the circle grows,
- *    down and it shrinks, back to the middle; slow, ease in and out, no zoom (her note in Figma).
- *  - Terrain (decision 02, right): a very slight zoom on the map-type button, tap; the sheet rises and
- *    the camera goes in on it; tap Satellite; the sheet closes and the map turns satellite; zoom out.
- *  - Vehicle (decision 03): cars driving; zoom in on the green car, tap; the sheet rises to half; Path,
+ *    down and it shrinks, back to the middle; slow, ease in and out(her note in Figma).
+ *  - Terrain (decision 02, right): tap the map-type button; the sheet rises; tap Satellite;
+ *    the sheet closes and the map turns satellite.
+ *  - Vehicle (decision 03): cars driving; tap the green car; the sheet rises to half; Path,
  *    then Sensors; tap the map and the sheet closes.
  *  - Still: one of her frames in the phone (low balance, grace period).
  * Times in seconds in each T.
@@ -12,7 +12,7 @@
 import React from 'react';
 import { AbsoluteFill, useCurrentFrame, useVideoConfig } from 'remotion';
 import { z } from 'zod';
-import { cam, stretch, ease, keys, pressed, seg } from '../phone/engine';
+import { stretch, ease, keys, pressed, seg } from '../phone/engine';
 import { Box, Crop, Press, Screen, Stage, frame } from '../phone/layers';
 import { clipSchema, type ClipProps } from '../phone/schema';
 import { CreateScreen, f12 } from './Geofence';
@@ -24,7 +24,7 @@ export const GeofenceSlider: React.FC<ClipProps> = (p) => {
   // up 1.5s, a beat, down 1.5s past the start, a beat, back to 12 km
   const f = keys(t, [[0.3, f12], [1.8, 0.86], [2.2, 0.86], [3.7, 0.3], [4.1, 0.3], [5.4, f12]]);
   return (
-    <Stage variant={p.variant} background={p.background} zoom={1} fy={426}>
+    <Stage variant={p.variant} background={p.background}>
       <CreateScreen f={f} />
     </Stage>
   );
@@ -43,17 +43,8 @@ export const Terrain: React.FC<ClipProps> = (p) => {
   const open = seg(t, TT.open[0], TT.open[1], ease.ios) * (1 - seg(t, TT.close[0], TT.close[1], ease.inOut));
   const sat = seg(t, TT.fade[0], TT.fade[1]);
 
-  const [zoom, fy] = cam(t / KT, [
-    [0, 1, 426],
-    [0.4, 1.08, 330],    // very slight, toward the map-type button
-    [0.6, 1.08, 330],
-    [1.1, 1.35, 740],    // in on the sheet
-    [1.4, 1.35, 740],
-    [2.9, 1, 426],
-  ]);
-
   return (
-    <Stage variant={p.variant} background={p.background} zoom={zoom} fy={fy}>
+    <Stage variant={p.variant} background={p.background}>
       <Screen img={MAP}>
         <Press x={347} y={219} w={30} h={30} r={6} k={pressed(t, TT.button)} />
         <Screen img={SAT} style={{ opacity: sat }} />
@@ -85,15 +76,8 @@ export const Vehicle: React.FC<ClipProps> = (p) => {
   const path = seg(t, VT.path + 0.1, VT.path + 0.25);
   const sensors = seg(t, VT.sensors + 0.1, VT.sensors + 0.25);
 
-  const [zoom, fy] = cam(t / KV, [
-    [0, 1, 426],
-    [0.6, 1.35, 268],    // in on the green car
-    [0.9, 1.35, 268],
-    [2.1, 1, 426],
-  ]);
-
   return (
-    <Stage variant={p.variant} background={p.background} zoom={zoom} fy={fy}>
+    <Stage variant={p.variant} background={p.background}>
       <FleetMap t={t} speed={4} sheetUi={sheetUi} tapGreen={VT.car} />
       <Box z={3}><Press x={150} y={280} w={90} h={90} r={45} k={pressed(t, VT.map)} /></Box>
       {/* the sheet at half: her frames' lower part, one per tab (Overview's title made GJ27-V-XXXX, as the others) */}
@@ -113,7 +97,7 @@ export const Vehicle: React.FC<ClipProps> = (p) => {
 /* ---------- a still: one frame in the phone ---------- */
 export const stillSchema = clipSchema.extend({ src: z.string().describe('The frame, under public/') });
 export const Still: React.FC<z.infer<typeof stillSchema>> = (p) => (
-  <Stage variant={p.variant} background={p.background} zoom={1} fy={426}>
+  <Stage variant={p.variant} background={p.background}>
     <Screen img={frame(p.src, 852)} />
   </Stage>
 );

@@ -7,44 +7,29 @@ export type Frame = { src: string; h: number };
 export const frame = (path: string, h: number): Frame => ({ src: staticFile(path), h });
 
 /**
- * The stage: the panel background, the iPhone (393 x 852 screen, 12px bezel, island) and the camera.
- * The camera puts screen point (fx, fy) at the stage centre, at the variant's fill times `zoom`.
+ * The stage: the panel background and the iPhone (393 x 852 screen, 12px bezel, island), whole and still,
+ * centred in the frame at the variant's fill. No camera: the zooms were dropped (hers, 2026-11-21), they read
+ * as a wobble and the phone is clear enough in its panel without them.
  */
 export const Stage: React.FC<{
   variant: Variant;
   background: string;
-  zoom: number;
-  fx?: number;
-  fy: number;
   /** the phone's opacity (1 by default): a looping clip fades out and back in so the restart reads as one */
   opacity?: number;
   children: React.ReactNode;
-}> = ({ variant, background, zoom, fx = SCREEN.w / 2, fy, opacity = 1, children }) => {
+}> = ({ variant, background, opacity = 1, children }) => {
   useFonts();
   const v = VARIANTS[variant];
   const dw = SCREEN.w + 2 * BEZEL;
   const dh = SCREEN.h + 2 * BEZEL;
-  // the phone is never cut (hers, 2026-11-19): a zoom goes only as far as the whole phone still fits,
-  // and the camera leans toward the point it's after only as far as the phone stays in the frame
-  // zooms stay slight (1.15 at most); the phone may run past the panel then (hers, 2026-11-19, round 3),
-  // but the camera never shows past the phone's own top or bottom. When the whole phone fits, it keeps
-  // a 2.5% margin from the frame's edge.
-  zoom = Math.min(zoom, 1.15);
-  const S = ((v.h * v.fill) / dh) * zoom;
-  const half = v.h / 2 / S; // half the frame's height, in design px
-  if (dh * S > v.h) {
-    fy = Math.min(dh - BEZEL - half, Math.max(half - BEZEL, fy));
-  } else {
-    const hv = half - (0.025 * v.h) / S;
-    const lo = dh - BEZEL - hv, hi = hv - BEZEL;
-    fy = lo <= hi ? Math.min(hi, Math.max(lo, fy)) : SCREEN.h / 2;
-  }
+  const S = (v.h * v.fill) / dh;
+
   return (
     <AbsoluteFill style={{ background, overflow: 'hidden' }}>
       <div
         style={{
           position: 'absolute', left: 0, top: 0, transformOrigin: '0 0', opacity,
-          transform: `translate(${v.w / 2 - (fx + BEZEL) * S}px, ${v.h / 2 - (fy + BEZEL) * S}px) scale(${S})`,
+          transform: `translate(${(v.w - dw * S) / 2}px, ${(v.h - dh * S) / 2}px) scale(${S})`,
         }}
       >
         <div

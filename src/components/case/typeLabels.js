@@ -7,8 +7,8 @@
 const STYLES = [
   ['.cs-hero h1', 'Desktop/H2', 'Mobile/h4'],
   ['.cs-tags', 'Desktop/Caption', 'Mobile/Caption'],
-  ['.cs-details dt', 'Desktop/Caption', 'Mobile/Caption'],
-  ['.cs-details dd', 'Desktop/Body', 'Mobile/Body'],
+  ['.cs-details th', 'Desktop/Caption', 'Mobile/Caption'],
+  ['.cs-details td', 'Desktop/Body', 'Mobile/Body'],
   ['.cs-index ol', 'Desktop/Caption', 'Desktop/Caption'],
   ['.cs-label', 'Desktop/H6', 'Mobile/Body'],
   ['.cs-head h2.cs-statement', 'Desktop/H7, purple', 'Mobile/h5, purple'],

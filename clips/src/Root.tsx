@@ -64,10 +64,6 @@ export const RemotionRoot: React.FC = () => {
           sheetUpSeconds: 1.2,
           tapSheet: 7.53,
           sheetOutSeconds: 1,
-          zoom: 1.35,
-          zoomInSeconds: 0.7,
-          zoomArrivesBefore: 0.4,
-          zoomOutSeconds: 1.7,
         }}
       />
       <Composition

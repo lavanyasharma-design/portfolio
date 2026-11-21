@@ -108,16 +108,18 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
 .cs-hero-visual .case-tile.case-tile:hover .layer{transform:rotate(calc(var(--rot) * 1deg))}
 .cs-hero-visual .case-tile.case-tile:hover .tile-stage{transform:none}  /* the Work tile's hover zooms its picture: not here */
 
-/* role, industry and so on: label (Desktop/Caption) over value (Desktop/Body), three to a row.
-   No line above; a vertical rule between the columns instead, two for three (hers, 2026-11-20), centred
-   in the gap (32 either side). Each column is as wide
-   as its words with the same space after it, so the gaps read even: with equal thirds the last column
-   sat far out on its own */
-.cs-details{display:flex;flex-wrap:wrap;gap:16px 32px}
-.cs-details div{display:flex;flex-direction:column;gap:8px}
-.cs-details div + div{padding-left:32px;border-left:1px solid var(--color-tile-border)}
-.cs-details dt{font-size:16px;color:var(--color-black-highlight)}
-.cs-details dd{font-size:18px}
+/* role, industry and so on: a table across the whole column, like Notion's (hers, 2026-11-21; the row of
+   columns as wide as their words left the right side empty). Equal columns, a header row of the terms
+   (Desktop/Caption) shaded in the clip panels' lilac, the values (Desktop/Body) under them, 1px tile-border
+   lines between every cell, the panels' 8 radius */
+.cs-details{
+  width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;
+  border:1px solid var(--color-tile-border);border-radius:8px;overflow:hidden;
+}
+.cs-details :is(th,td){padding:12px 16px;text-align:left;vertical-align:top}
+.cs-details :is(th,td) + :is(th,td){border-left:1px solid var(--color-tile-border)}
+.cs-details th{font-size:16px;font-weight:400;color:var(--color-black-highlight);background:#faf7ff;border-bottom:1px solid var(--color-tile-border)}
+.cs-details td{font-size:18px}
 
 /* ---------- media: one panel for every clip and picture ---------- */
 .cs-media{display:flex;flex-direction:column;gap:24px}
@@ -208,7 +210,8 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
 .cs-feature-copy p{font-size:18px}
 
 /* ---------- decisions: set apart, numbered ---------- */
-.cs-callout{display:flex;flex-direction:column;gap:16px;padding:32px;border:1px solid var(--color-tile-border);border-radius:8px}
+/* the callout's padding 16 all round (hers, 2026-11-21; 32 read big and abrupt, then 20 still did) */
+.cs-callout{display:flex;flex-direction:column;gap:16px;padding:16px;border:1px solid var(--color-tile-border);border-radius:8px}
 .cs-callout-title{font-family:var(--font-serif);font-weight:500;font-size:48px}  /* Desktop/H2 (48 on case studies), the callout's only line (hers, 2026-11-15) */
 .cs-callout > p:not(.cs-callout-title){font-size:18px;max-width:640px}
 
@@ -355,11 +358,8 @@ html:has(.case-page),html:has(.case-page) body{background:var(--color-white-defa
      2026-11-20: 20 read small in Cormorant beside DM Sans) */
   .cs-head h2,.cs-statement,.cs-decision-head h3{font-size:24px;letter-spacing:0}
   .cs-sub,.cs-cards h3,.cs-insight blockquote,.cs-side h3,.cs-feature-copy h3,.cs-edge h4,.cs-stat h3{font-size:20px;letter-spacing:0} /* Mobile/h5 */
-  /* the details: three columns in one row, the rules between them, words wrapping inside a column */
-  .cs-details{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));column-gap:12px;font-size:12px}  /* equal thirds, so the rules sit evenly; 12 so each value takes a line or two (hers, 2026-11-20) */
-  .cs-details dt,.cs-details dd{font-size:12px}
-  .cs-details div{gap:4px}
-  .cs-details div + div{padding-left:12px}
+  /* the details table: 12 so each value takes a line or two (hers, 2026-11-20), cells padded 8 / 12 */
+  .cs-details :is(th,td){padding:8px 12px;font-size:12px}
   .cs-insights,.cs-compare,.cs-stats{grid-template-columns:minmax(0, 1fr)}
   .cs-side,.cs-stat{padding:24px}
   .case-page .cs-insight[data-ig]{padding:24px}  /* as the why cards above them, all stacked here (hers, 2026-11-20) */

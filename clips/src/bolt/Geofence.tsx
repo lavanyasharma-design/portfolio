@@ -1,14 +1,14 @@
 /**
  * Geofence clip (feature 2; Figma "clip:geofence", script locked 2026-11-19): the create screen with
  * the whole phone in view; the slider goes up and back down and the circle grows and settles; Done;
- * the details slide in and scroll to Link Groups; Link; tick two groups; a slight zoom on the floating
- * Link Vehicles button; back on the details with 2 groups linked; Create; the list, with the toast
+ * the details slide in and scroll to Link Groups; Link; tick two groups; the floating Link Vehicles
+ * button; back on the details with 2 groups linked; Create; the list, with the toast
  * rising from below. Layers for the map: geofence/basemap, pin; the slider and label are drawn.
  * Times in seconds in T.
  */
 import React from 'react';
 import { staticFile, useCurrentFrame, useVideoConfig } from 'remotion';
-import { cam, stretch, ease, keys, pressed, seg } from '../phone/engine';
+import { stretch, ease, keys, pressed, seg } from '../phone/engine';
 import { Crop, Pic, Press, Retext, Screen, ScrollScreen, Stage, frame, pop, push } from '../phone/layers';
 import type { ClipProps } from '../phone/schema';
 
@@ -47,18 +47,12 @@ export const Geofence: React.FC<ClipProps> = (p) => {
   const n = (t > T.tick1 + 0.1 ? 1 : 0) + (t > T.tick2 + 0.1 ? 1 : 0);
   const toast = seg(t, T.toast, T.toast + 0.45, ease.ios);
 
-  const [zoom, fy] = cam(t / K, [
-    [4.7, 1, 426],
-    [5.0, 1.15, 700],   // slight, on the floating Link Vehicles button
-    [5.3, 1.15, 700],
-    [6.3, 1, 426],
-  ]);
 
   // which screen is where: create -> details -> link -> details (linked) -> list
   const detailsStyle = t < T.toLink[0] ? toDetails.to : t < T.back[0] ? toLink.from : t < T.toList[0] ? back.to : toList.from;
 
   return (
-    <Stage variant={p.variant} background={p.background} zoom={zoom} fy={fy}>
+    <Stage variant={p.variant} background={p.background}>
       {/* create: the map, the circle, the pin, the slider */}
       <CreateScreen f={f} style={toDetails.from}>
         <Press x={16} y={772} w={361} h={40} r={8} k={pressed(t, T.done)} />

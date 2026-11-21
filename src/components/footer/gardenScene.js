@@ -8,7 +8,8 @@
  * slowly with a glide every few seconds (Lavanya, 2026-11-14: the old loops and hops read as
  * glitchy), easing round at each side, and now and then
  * glides down to a sunflower, touches down softly (the flower dips under it), rests with its wings
- * slowly opening and closing, and lifts off again. It has no sound. With the cursor right over it (desktop) it darts away.
+ * slowly opening and closing, and lifts off again. It has no sound. With the cursor right over it (desktop), or a
+ * finger tapping it (touch screens, 2026-11-21), it darts away.
  *
  * The grass does, on desktop (Lavanya, 2026-11-14): every blade (and sunflower) is a small spring.
  * The cursor brushes blades along as it moves through them and parts them where it rests; let go,
@@ -566,6 +567,16 @@ export function mountGarden(canvas) {
   const onLeave = () => { ptr.in = false; ptr.lx = null }
   canvas.addEventListener('pointermove', onMove)
   canvas.addEventListener('pointerleave', onLeave)
+  // a tap on a touch screen (hers, 2026-11-21: her mum tapped the butterfly to see what it does): it darts
+  // away as from the cursor, and nothing else (the grass stays still). The tap holds for a moment, so a
+  // butterfly flying under the finger still goes
+  const tap = { x: 0, y: 0, until: 0 }
+  const onDown = (e) => {
+    if (e.pointerType !== 'touch') return
+    const r = canvas.getBoundingClientRect()
+    tap.x = e.clientX - r.left; tap.y = e.clientY - r.top; tap.until = T + 0.25
+  }
+  canvas.addEventListener('pointerdown', onDown)
 
   // a springy thing (blade or stem) of height h leaning by `lean` from its base (x, y): how close the
   // cursor is to it, 0 out of reach to 1 touching
@@ -637,14 +648,17 @@ export function mountGarden(canvas) {
     }
   }
 
-  /* the dart (desktop): with the cursor right over it, it darts off away from it, wings racing,
+  /* the dart: with the cursor right over it (desktop), or a tap on it (touch), it darts off away from it, wings racing,
      up and out; then it carries on calmly from where it got to. On a flower, or landing on one,
      it lifts off at once. dx / dy: the dart's offset from its usual path */
   function dartAway(dt) {
     const { s } = scene, bw = bSize()
     const om = 4.5 / Math.max(0.2, G.dartTime)
-    if (ptr.in && T >= fly.dartReady && Math.hypot(ptr.x - fly.x, ptr.y - fly.y) < bw * 0.55) {
-      let ax = fly.x - ptr.x, ay = fly.y - ptr.y - bw * 0.35   // away, and a little up
+    // a fingertip is broad and the butterfly small on a phone: a tap counts a little further out than the cursor
+    const from = ptr.in ? { x: ptr.x, y: ptr.y, r: 0.55 } : T < tap.until ? { x: tap.x, y: tap.y, r: 0.9 } : null
+    if (from && T >= fly.dartReady && Math.hypot(from.x - fly.x, from.y - fly.y) < bw * from.r) {
+      tap.until = 0
+      let ax = fly.x - from.x, ay = fly.y - from.y - bw * 0.35   // away, and a little up
       const n = Math.hypot(ax, ay) || 1
       ax /= n; ay /= n
       fly.dvx += ax * G.dart * s * 2 * om
@@ -814,6 +828,7 @@ export function mountGarden(canvas) {
       stop(); ro.disconnect(); io.disconnect()
       canvas.removeEventListener('pointermove', onMove)
       canvas.removeEventListener('pointerleave', onLeave)
+      canvas.removeEventListener('pointerdown', onDown)
       reduce.removeEventListener('change', onMotion)
       panel?.remove()
     },

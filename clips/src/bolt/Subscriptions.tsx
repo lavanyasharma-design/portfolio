@@ -1,13 +1,12 @@
 /**
  * Subscriptions clip (decision 01; Figma "clip:subcriptions", script locked 2026-11-19): tap Choose
- * plan (no zoom); plan details, a slight zoom on the Fuel Management System card; the payment breakup
- * sheet opens and closes within 1.4s; Continue; the summary, a slight zoom on it that moves down to
- * Pay; Pay; Payment Successful with a green tick that lands (drawn here, crisper than the GIF in her
- * frame). Times in seconds in T.
+ * plan; plan details, the Fuel Management System card; the payment breakup sheet opens and closes
+ * within 1.4s; Continue; the summary; Pay; Payment Successful with a green tick that lands (drawn here,
+ * crisper than the GIF in her frame). Times in seconds in T.
  */
 import React from 'react';
 import { AbsoluteFill, useCurrentFrame, useVideoConfig } from 'remotion';
-import { cam, stretch, ease, pressed, seg } from '../phone/engine';
+import { stretch, ease, pressed, seg } from '../phone/engine';
 import { Box, Crop, Press, Screen, Stage, SuccessTick, frame, push } from '../phone/layers';
 import type { ClipProps } from '../phone/schema';
 
@@ -33,21 +32,8 @@ export const Subscriptions: React.FC<ClipProps> = (p) => {
   const sheet = seg(t, T.open[0], T.open[1], ease.ios) * (1 - seg(t, T.close[0], T.close[1], ease.inOut));
   const success = seg(t, T.success[0], T.success[1]);
 
-  const [zoom, fy] = cam(t / K, [
-    [0.75, 1, 426],
-    [1.25, 1.15, 533],   // slight, on the Fuel Management System card
-    [1.6, 1.15, 533],
-    [2.5, 1, 426],
-    [3.75, 1, 426],
-    [4.15, 1.15, 270],   // slight, on the summary
-    [4.25, 1.15, 270],
-    [4.5, 1.25, 700],    // moving down to Pay
-    [4.75, 1.25, 700],
-    [5.8, 1, 426],
-  ]);
-
   return (
-    <Stage variant={p.variant} background={p.background} zoom={zoom} fy={fy}>
+    <Stage variant={p.variant} background={p.background}>
       <Screen img={PLANS} style={toDetails.from}>
         <Press x={32} y={575} w={298} h={46} r={8} k={pressed(t, T.choose)} />
       </Screen>

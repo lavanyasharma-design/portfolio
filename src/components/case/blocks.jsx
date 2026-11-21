@@ -99,14 +99,16 @@ function Placeholder({ kind, label }) {
   )
 }
 
-/** The case study's details: role, industry and so on, in one row. */
+/**
+ * The case study's details: role, industry and so on, as a table across the column, like Notion's: the
+ * terms in a shaded header row, the values under them, every column the same width (hers, 2026-11-21).
+ */
 export function Details({ items }) {
   return (
-    <dl className="cs-details" data-rise>
-      {items.map(([term, value]) => (
-        <div key={term}><dt>{term}</dt><dd>{value}</dd></div>
-      ))}
-    </dl>
+    <table className="cs-details" data-rise>
+      <thead><tr>{items.map(([term]) => <th key={term} scope="col">{term}</th>)}</tr></thead>
+      <tbody><tr>{items.map(([term, value]) => <td key={term}>{value}</td>)}</tr></tbody>
+    </table>
   )
 }
 

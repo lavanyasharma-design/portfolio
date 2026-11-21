@@ -1,13 +1,13 @@
 /**
- * Points of interest clip (feature 4; Figma "clip:POI", script locked 2026-11-19): tap + (no zoom);
+ * Points of interest clip (feature 4; Figma "clip:POI", script locked 2026-11-19): tap +;
  * the map slides in; tap the map and the pin drops, the POI Details peek rises; tap it and the form
- * rises, a slight zoom on the details; the form scrolls (the floating Create POI and Cancel stay put);
- * zoom out; Create POI; the POI view; back to the list with the toast.
+ * rises; the form scrolls (the floating Create POI and Cancel stay put);
+ * Create POI; the POI view; back to the list with the toast.
  * The map under the pin is geofence/basemap (the same map as her frames). Times in seconds in T.
  */
 import React from 'react';
 import { staticFile, useCurrentFrame, useVideoConfig } from 'remotion';
-import { cam, stretch, ease, keys, pressed, seg } from '../phone/engine';
+import { stretch, ease, keys, pressed, seg } from '../phone/engine';
 import { Box, Crop, Pic, Press, Retext, Screen, Stage, frame, pop, push, useSampled } from '../phone/layers';
 import type { ClipProps } from '../phone/schema';
 
@@ -43,15 +43,8 @@ export const Poi: React.FC<ClipProps> = (p) => {
   const toast = seg(t, T.toast, T.toast + 0.45, ease.ios);
   const sheetTop = PEEK + (SHEET - PEEK) * rise;
 
-  const [zoom, fy] = cam(t / K, [
-    [2.3, 1, 426],
-    [2.8, 1.15, 470],   // slight, on the details
-    [3.5, 1.15, 470],
-    [4.5, 1, 426],
-  ]);
-
   return (
-    <Stage variant={p.variant} background={p.background} zoom={zoom} fy={fy}>
+    <Stage variant={p.variant} background={p.background}>
       <Screen img={LIST} style={toMap.from}>
         <Press x={321} y={716} w={48} h={48} r={8} k={pressed(t, T.plus)} />
       </Screen>

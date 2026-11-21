@@ -1,7 +1,7 @@
 /**
  * Device management clip (feature 3; Figma "clip:devices", script locked 2026-11-19), all in view, no
- * scrolling: tap the Maintenance card, it expands, a slight zoom holds on it for 0.5s; zoom out; tap
- * the filter icon; on the filter, untick Devices only and tick Device groups (a slight zoom on it);
+ * scrolling: tap the Maintenance card, it expands and holds for 0.5s; tap
+ * the filter icon; on the filter, untick Devices only and tick Device groups;
  * Apply; the group-wise list.
  * Her edits over the frames: the filter icon beside search (from the fourth frame) on the list; only
  * the Maintenance card expands (frame 2 has Inactive open too); groups "ABC Corp" and "XYZ shop" and
@@ -9,7 +9,7 @@
  */
 import React from 'react';
 import { useCurrentFrame, useVideoConfig } from 'remotion';
-import { cam, stretch, ease, pressed, seg } from '../phone/engine';
+import { stretch, ease, pressed, seg } from '../phone/engine';
 import { Box, Crop, Press, Retext, Screen, Stage, frame, pop, push, useTextWidths, type Frame } from '../phone/layers';
 import type { ClipProps } from '../phone/schema';
 
@@ -69,18 +69,8 @@ export const Devices: React.FC<ClipProps> = (p) => {
   const devicesOnly = t < T.devicesOnly + 0.1;
   const groups = t > T.groups + 0.1;
 
-  const [zoom, fy] = cam(t / K, [
-    [0.45, 1, 426],
-    [0.95, 1.15, 525],   // slight, on the opened card
-    [1.45, 1.15, 525],   // held 0.5s
-    [2.45, 1, 426],
-    [2.95, 1.2, 160],    // slight, on the two options
-    [3.9, 1.2, 160],
-    [4.9, 1, 426],
-  ]);
-
   return (
-    <Stage variant={p.variant} background={p.background} zoom={zoom} fy={fy}>
+    <Stage variant={p.variant} background={p.background}>
       {/* the list: frame 1, the Maintenance card from frame 2 opening in place, the cards below moving down */}
       <Screen img={LIST} style={toFilter.from}>
         <Plate y={202} i={0} />

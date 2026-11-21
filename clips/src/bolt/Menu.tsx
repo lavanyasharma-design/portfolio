@@ -8,7 +8,7 @@
  */
 import React from 'react';
 import { useCurrentFrame, useVideoConfig } from 'remotion';
-import { cam, ease, keys, pressed, seg } from '../phone/engine';
+import { ease, keys, pressed, seg } from '../phone/engine';
 import { Crop, Patch, Press, Screen, ScrollScreen, Stage, frame, push, useSampled } from '../phone/layers';
 import type { ClipProps } from '../phone/schema';
 
@@ -33,21 +33,8 @@ export const Menu: React.FC<ClipProps> = (p) => {
   const unticked = seg(t, T.reports + 0.1, T.reports + 0.3, ease.out); // Reports' tick goes
   const ticked = seg(t, T.poi + 0.1, T.poi + 0.35, ease.out);         // POI's comes
 
-  const [zoom, fy] = cam(t, [
-    [5.6, 1, 426],
-    [6.3, 1.35, 196],     // in on Edit
-    [6.9, 1.35, 196],
-    [8.1, 1, 426],        // out with the push
-    [8.4, 1.15, 490],     // slight, on Reports and POI together
-    [9.4, 1.15, 490],
-    [9.9, 1.35, 708],     // down to the floating Save Changes
-    [10.4, 1.35, 708],
-    [11.1, 1.15, 250],    // up to Shortcuts as the menu returns, so POI is seen arriving
-    [12.3, 1, 426],
-  ]);
-
   return (
-    <Stage variant={p.variant} background={p.background} zoom={zoom} fy={fy}
+    <Stage variant={p.variant} background={p.background}
       opacity={seg(t, T.fadeIn[0], T.fadeIn[1], ease.out) * (1 - seg(t, T.fadeOut[0], T.fadeOut[1]))}>
       <ScrollScreen
         img={MENU}

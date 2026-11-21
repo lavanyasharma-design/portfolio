@@ -2,13 +2,13 @@
  * Fleet view clip (Lavanya's note, Figma "clip: fleet view"): cars move on the map; tap one and the
  * bottom sheet eases in to half the screen; it's a long scroll, so it's drawn up to full; a tap on its
  * top edge sends it all the way down and the map is back; it ends 1s later and loops (her timings,
- * 2026-11-19: starts as the camera goes in on the car, no stop at half on the way down). Layers from
+ * 2026-11-19: starts as the car is tapped, no stop at half on the way down). Layers from
  * frames Mapfilter_1.0.1 [Nearby Vehicles] and GroupInfo_Overview_1.0.1, exported at 2x.
  */
 import React from 'react';
 import { staticFile, useCurrentFrame, useVideoConfig } from 'remotion';
 import { z } from 'zod';
-import { keys, pressed, seg, tapCamera } from '../phone/engine';
+import { keys, pressed, seg } from '../phone/engine';
 import { Box, Crop, Pic, Press, Stage, frame, useKeyed } from '../phone/layers';
 
 export const fleetSchema = z.object({
@@ -22,10 +22,6 @@ export const fleetSchema = z.object({
   sheetUpSeconds: z.number().min(0.1).max(4).describe('Sheet up to full, length (s)'),
   tapSheet: z.number().min(0).max(60).describe('Tap on the top edge of the full sheet, which closes it (s)'),
   sheetOutSeconds: z.number().min(0.1).max(3).describe('Sheet sliding all the way down, length (s)'),
-  zoom: z.number().min(1).max(2).step(0.01).describe('How far the camera goes in for a tap (1 = no zoom)'),
-  zoomInSeconds: z.number().min(0.1).max(3).describe('Zoom in length (s)'),
-  zoomArrivesBefore: z.number().min(0).max(2).describe('Zoom is in this long before the tap (s)'),
-  zoomOutSeconds: z.number().min(0.1).max(4).describe('Zoom out length (s)'),
 });
 
 const A = 'bolt/fleet/';
@@ -45,16 +41,8 @@ export const Fleet: React.FC<z.infer<typeof fleetSchema>> = (p) => {
   // the map's search and chips give way to back and locate while the sheet is up
   const sheetUi = seg(t, open[0], open[0] + 0.35) * (1 - seg(t, close[0], close[0] + 0.35));
 
-  const [zoom, fy] = keys(t, tapCamera(
-    [
-      { at: p.tapCar, fy: 425, hold: 0.2 },  // the yellow car
-      { at: p.tapSheet, fy: 160, hold: 0.1 }, // the full sheet's top edge (the speed band)
-    ],
-    { zoom: p.zoom, inFor: p.zoomInSeconds, before: p.zoomArrivesBefore, outFor: p.zoomOutSeconds },
-  ));
-
   return (
-    <Stage variant={p.variant} background={p.background} zoom={zoom} fy={fy}>
+    <Stage variant={p.variant} background={p.background}>
       <FleetMap t={t} speed={p.carSpeed} sheetUi={sheetUi} tapYellow={p.tapCar} />
 
       {/* the sheet: the speed band and the white sheet over it, each clipped to its rounded top
