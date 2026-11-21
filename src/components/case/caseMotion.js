@@ -6,7 +6,7 @@ import { animate, inView, scroll } from 'motion'
  *   her values from ?parallax, 2026-11-19);
  * - panels' contents marked data-parallax drift against the scroll, so the clips and pictures
  *   move a touch slower than the words around them;
- * - clips (data-clip) play only while on screen, like Mavis Lo's.
+ * - clips (data-clip) play only while on screen, like Mavis Lo's, starting once (nearly) whole on screen.
  * Reduced motion: no rise, no drift; clips still play when on screen but don't loop forever.
  * `?parallax` opens a live panel with "copy values".
  */
@@ -57,10 +57,18 @@ export function mountCaseMotion(root) {
       v.preload = 'auto'
       if (v.paused && v.readyState === 0) v.load()  // never when it has already started playing
     }, { margin: '0px 0px 100% 0px' }))
-    stops.push(inView(v, () => {
-      v.play().catch(() => {})
-      return () => v.pause()
-    }, { amount: 0.35 }))
+    // play once the clip is (nearly) whole on screen, so it starts where you can see it from the beginning
+    // (hers, 2026-11-21: at 35% on screen the subscriptions clip began before she reached it); a panel taller
+    // than the window starts once it fills most of it. It keeps playing until less than a quarter is left in
+    // view, so a small scroll while watching doesn't stop it
+    const h = v.getBoundingClientRect().height || 1
+    const start = Math.min(0.9, (innerHeight * 0.85) / h)
+    const io = new IntersectionObserver(([e]) => {
+      if (e.intersectionRatio >= start - 0.01) v.play().catch(() => {})
+      else if (e.intersectionRatio < 0.25) v.pause()
+    }, { threshold: [0, 0.25, start] })
+    io.observe(v)
+    stops.push(() => io.disconnect())
   })
 
   return () => stops.forEach(stop => stop())

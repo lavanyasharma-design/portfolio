@@ -6,9 +6,12 @@
  * Her edits over the frames: the filter icon beside search (from the fourth frame) on the list; only
  * the Maintenance card expands (frame 2 has Inactive open too); groups "ABC Corp" and "XYZ shop" and
  * a different Indian-style number for every device. Times in seconds in T.
+ * The list and group-wise frames were exported with a shorter, Android-style status bar (19:02) and their
+ * header 20 higher than the iOS filter frame's: both are moved down 20 under the filter frame's iOS status
+ * bar, so every screen lines up with the phone (her catch, 2026-11-21).
  */
 import React from 'react';
-import { useCurrentFrame, useVideoConfig } from 'remotion';
+import { Img, useCurrentFrame, useVideoConfig } from 'remotion';
 import { stretch, ease, pressed, seg } from '../phone/engine';
 import { Box, Crop, Press, Retext, Screen, Stage, frame, pop, push, useTextWidths, type Frame } from '../phone/layers';
 import type { ClipProps } from '../phone/schema';
@@ -21,6 +24,8 @@ const T = stretch({
   apply: 4.5, back: [4.65, 5.2],
 }, K);
 const INK = '#272838';
+// the list and group-wise frames move down this far, so their header lines up with the filter frame's
+const DY = 20;
 const TEAL = '#2c958c';
 // a different number for every device (no spaces, the frames' own pattern, so the badges stay put)
 // each card's badge width in the compact list (frames 1 and 2), by status
@@ -44,6 +49,19 @@ const Named: React.FC<{ img: Frame; x: number; capTop: number; capH: number; tex
       </>
     );
   };
+
+/**
+ * Inside a Screen moved down by DY: the filter frame's iOS status bar (9:41, white, down to y 51, before its
+ * divider) at the top, and the frame's own home-indicator strip (its last 20) back at the bottom.
+ */
+const IosEdges: React.FC<{ img: Frame; filter: Frame }> = ({ img, filter }) => (
+  <>
+    <div style={{ position: 'absolute', left: 0, top: -DY, width: 393, height: 51, overflow: 'hidden' }}>
+      <Img src={filter.src} style={{ position: 'absolute', left: -2, top: 0, width: 397, height: filter.h, maxWidth: 'none' }} />
+    </div>
+    <Crop img={img} x={0} y={832} w={393} h={20} at={[0, 832 - DY]} />
+  </>
+);
 
 /** an empty checkbox, as the app draws them */
 const Box0: React.FC<{ x: number; y: number }> = ({ x, y }) => (
@@ -72,7 +90,7 @@ export const Devices: React.FC<ClipProps> = (p) => {
   return (
     <Stage variant={p.variant} background={p.background}>
       {/* the list: frame 1, the Maintenance card from frame 2 opening in place, the cards below moving down */}
-      <Screen img={LIST} style={toFilter.from}>
+      <Screen img={LIST} dy={DY} style={toFilter.from}>
         <Plate y={202} i={0} />
         <Plate y={300} i={1} />
         <Box x={0} y={398} w={393} h={434} style={{ overflow: 'hidden' }}>
@@ -94,6 +112,7 @@ export const Devices: React.FC<ClipProps> = (p) => {
         {/* the filter icon beside search, from the group-wise frame (2px higher there) */}
         <Crop img={GROUPS} x={0} y={90} w={393} h={56} at={[0, 92]} />
         <Press x={325} y={96} w={48} h={48} r={8} k={pressed(t, T.filter)} />
+        <IosEdges img={LIST} filter={FILTER} />
       </Screen>
 
       {/* the filter: Devices only goes off, Device groups on */}
@@ -106,7 +125,7 @@ export const Devices: React.FC<ClipProps> = (p) => {
       </Screen>
 
       {/* group-wise: her names */}
-      <Screen img={GROUPS} style={back.to}>
+      <Screen img={GROUPS} dy={DY} style={back.to}>
         <Retext x={32.5} capTop={216} capH={12.3} text="ABC Corp" color={INK} bg="#ebf6f4" cover={[31, 210, 100, 25]} />
         <Retext x={32.5} capTop={554} capH={12.3} text="XYZ shop" color={INK} bg="#ebf6f4" cover={[31, 548, 100, 25]} />
         <Named img={GROUPS} x={70} capTop={262.5} capH={13} text={PLATES[0]} badge={[178, 256, 45, 26]} width={w18[PLATES[0]]} />
@@ -115,6 +134,7 @@ export const Devices: React.FC<ClipProps> = (p) => {
         <Named img={GROUPS} x={70} capTop={600.5} capH={13} text={PLATES[3]} badge={[178, 594, 45, 26]} width={w18[PLATES[3]]} />
         <Named img={GROUPS} x={49} capTop={686.5} capH={13} text={PLATES[4]} badge={[156, 680, 84, 26]} width={w18[PLATES[4]]} />
         <Named img={GROUPS} x={36.5} capTop={797} capH={12.5} text={PLATES[5]} badge={[144, 790, 52, 26]} width={w17[PLATES[5]]} />
+        <IosEdges img={GROUPS} filter={FILTER} />
       </Screen>
     </Stage>
   );

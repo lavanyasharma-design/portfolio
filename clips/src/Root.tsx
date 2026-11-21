@@ -56,13 +56,13 @@ export const RemotionRoot: React.FC = () => {
         defaultProps={{
           variant: 'wide',
           background: '#faf7ff',
-          duration: 9.63,
+          duration: 8.63, // 1s shorter: the full sheet held 1s less (hers, 2026-11-21)
           carSpeed: 4,
           tapCar: 1.27,
           sheetInSeconds: 0.7,
           sheetUpStart: 3.17,
           sheetUpSeconds: 1.2,
-          tapSheet: 7.53,
+          tapSheet: 6.53, // the full sheet held about 2.3s, was 3.3 (it read as stuck; hers, 2026-11-21)
           sheetOutSeconds: 1,
         }}
       />

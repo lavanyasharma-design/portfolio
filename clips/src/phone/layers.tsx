@@ -160,10 +160,17 @@ export function pop(k: number): { from: React.CSSProperties; to: React.CSSProper
 }
 
 /** a whole frame as a screen layer (frames may export a few px wider than 393: `w`) */
-export const Screen: React.FC<{ img: Frame; w?: number; style?: React.CSSProperties; children?: React.ReactNode }> = ({ img, w = SCREEN.w, style, children }) => (
+/**
+ * A frame filling the screen. `w`: the frame's design width if not 393 (centred). `dy`: moves the frame and
+ * its children down, for a frame exported with a shorter status bar than the iOS one (children keep the
+ * frame's own coordinates; draw the new status bar at y = -dy).
+ */
+export const Screen: React.FC<{ img: Frame; w?: number; dy?: number; style?: React.CSSProperties; children?: React.ReactNode }> = ({ img, w = SCREEN.w, dy = 0, style, children }) => (
   <AbsoluteFill style={{ overflow: 'hidden', ...style }}>
-    <Img src={img.src} style={{ position: 'absolute', left: (SCREEN.w - w) / 2, top: 0, width: w, height: img.h, maxWidth: 'none' }} />
-    {children}
+    <div style={{ position: 'absolute', inset: 0, transform: dy ? `translateY(${dy}px)` : undefined }}>
+      <Img src={img.src} style={{ position: 'absolute', left: (SCREEN.w - w) / 2, top: 0, width: w, height: img.h, maxWidth: 'none' }} />
+      {children}
+    </div>
   </AbsoluteFill>
 );
 
