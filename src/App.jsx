@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import Home from './pages/Home'
 import Work from './pages/Work'
 import Bolt from './pages/cases/Bolt'
+import About from './pages/About'
 import { SOON } from './site'
 import { usePath } from './router'
 import { armUnlockOnFirstGesture } from './lib/sound/engine'
@@ -15,6 +16,7 @@ function App() {
   if (SOON) return <Home />
   if (path === '/work') return <Work />
   if (path === '/work/bolt') return <Bolt />
+  if (path === '/about') return <About />
   return <Home />
 }
 

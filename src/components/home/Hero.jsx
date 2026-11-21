@@ -66,7 +66,7 @@ function Hero({ revealed, heroRef, bflyRef }) {
         </section>
         <nav className="links sans rise" style={{ animationDelay: '.45s' }} aria-label="Sections">
           <SectionLink name="work" to="/work" />
-          <SectionLink name="about" />
+          <SectionLink name="about" to="/about" />
           <SectionLink name="play" />
         </nav>
         </>}

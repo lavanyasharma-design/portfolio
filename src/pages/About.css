@@ -1,0 +1,175 @@
+/* ---------- About: Figma "About" (Portfolio-Design 414:7014, desktop 1512), her draft layout (2026-11-21) ----------
+   From her frame: content 1252 wide with 130 each side (as Work); the words 782 wide (paragraphs 676, the middle one
+   set in by 106); the Experience box 401 wide, 69 to their right (2px teal/highlight border, radius 5, padding 24, as
+   long as its content: her notes). Numbers under the photos right-aligned, 4 below (Desktop/Caption 2).
+   Her first look (2026-11-21): her photo smaller and zoomed in, the intro beside it at 36 (Desktop/H8), the photo and
+   intro together as wide as the words, the box beside them from the top, job titles in black, paragraphs 16 apart,
+   a smaller gap under {a visual throwback}, and the photos in a loose layout (aboutContent.js). The values she tunes
+   come in as CSS variables from aboutLayout.js (?about).
+   Top padding 131 / 56 (the rule for pages after work; her frame has 141). Body: Desktop/Body 18, as the case studies. */
+html:has(.about-page),html:has(.about-page) body{background:var(--color-white-default)}
+
+.about-page{
+  --side:clamp(20px, 8.6vw, 130px);
+  min-height:100%;
+  background:var(--color-white-default);
+  color:var(--color-black-default);
+  padding-top:131px;
+  font-family:var(--font-sans);font-variation-settings:"opsz" 14;line-height:normal;
+}
+.ab-wrap :is(p,h1,h2,h3,figure,ul,ol){margin:0}
+.ab-wrap :is(ul,ol){padding:0;list-style:none}
+.ab-wrap{max-width:calc(1252px + 2 * var(--side));margin:0 auto 200px;padding-inline:var(--side);box-sizing:border-box}
+
+/* rise-in (caseMotion.js) starts hidden only once the motion script has taken over */
+.about-page.cs-motion [data-rise]{opacity:0}
+
+/* ---------- her photo and the intro, the words, the Experience box ---------- */
+.ab-top{
+  position:relative;  /* the intro's offsetTop is measured from here (About.jsx) */
+  display:grid;grid-template-columns:minmax(0, 782fr) minmax(0, 401fr);
+  column-gap:clamp(24px, 4.6vw, 69px);align-items:start;
+}
+.ab-left{display:flex;flex-direction:column;gap:var(--words-gap, 32px);min-width:0}
+.ab-head{display:flex;align-items:var(--head-align, end);gap:var(--head-gap, 32px)}
+/* her photo as a print stuck onto the page (hers, 2026-11-21, a scrapbook feel): the collage's white edge and
+   shadow, leaning right, a strip of see-through teal tape over its top left corner */
+.ab-me-print{
+  position:relative;flex:none;width:var(--me-size, 180px);box-sizing:border-box;padding:var(--paper, 8px);
+  background:#fff;rotate:var(--me-tilt, 2deg);
+  box-shadow:
+    0 1px 2px rgb(26 26 26 / calc(.10 * var(--shadow-k, 1))),
+    0 6px 14px -4px rgb(26 26 26 / calc(.14 * var(--shadow-k, 1))),
+    0 18px 36px -12px rgb(26 26 26 / calc(.16 * var(--shadow-k, 1)));
+}
+/* zoomed in on her face: the picture scales up about the point she sets (?about) */
+.ab-me{aspect-ratio:1;overflow:hidden}
+.ab-me img{
+  display:block;width:100%;height:100%;object-fit:cover;
+  transform:scale(var(--me-zoom, 1.25));transform-origin:var(--me-x, 52%) var(--me-y, 38%);
+}
+/* paper tape after her reference (Tape.jsx): matte, speckled, torn ends, a twist partway along, a soft shadow.
+   Teal/default lifted towards white, with a lighter and a darker tone for the light and the fold */
+.ab-tape{
+  --tape:color-mix(in srgb, var(--color-teal-default) 78%, #fff);
+  --tape-light:color-mix(in srgb, var(--color-teal-default) 55%, #fff);
+  --tape-dark:color-mix(in srgb, var(--color-teal-default) 82%, #1a3a48);
+  position:absolute;z-index:1;left:calc(var(--me-size, 180px) * .07);top:calc(var(--me-size, 180px) * .07);
+  width:calc(var(--me-size, 180px) * var(--tape-size, .5));height:auto;overflow:visible;
+  translate:-50% -50%;rotate:var(--tape-angle, -38deg);
+  opacity:var(--tape-alpha, .92);pointer-events:none;
+  filter:drop-shadow(0 1px 1px rgb(26 26 26 / .14)) drop-shadow(0 2px 4px rgb(26 26 26 / .08));
+}
+/* Desktop/H8 */
+.ab-head h1{font-family:var(--font-serif);font-weight:500;font-size:36px;min-width:0}
+
+.ab-words{display:flex;flex-direction:column;gap:var(--para-gap, 16px)}
+/* Desktop/Body; 676 of the 782, the middle one pushed to the right */
+.ab-words p{width:86.45%;font-size:18px}
+.ab-words p.ab-in{margin-left:auto}
+
+/* lighter and smaller (hers, 2026-11-21: at 36 / 24 it overpowered the page), starting level with the intro */
+.ab-resume-box{
+  display:flex;flex-direction:column;align-items:flex-start;margin-top:var(--box-top, 0px);
+  padding:24px;border:2px solid var(--color-teal-highlight);border-radius:5px;
+  color:var(--color-black-highlight);
+}
+/* Desktop/H7 size, Cormorant Medium */
+.ab-resume-box h2{font-family:var(--font-serif);font-weight:500;font-size:var(--exp-size, 24px)}
+.ab-resume-box .ab-jobs{display:flex;flex-direction:column;gap:var(--job-gap, 12px);margin-top:20px}
+.ab-jobs li{display:flex;flex-direction:column;gap:4px}
+/* Mobile/h5 (Cormorant SemiBold 20) in black, then Desktop/Caption in grey */
+.ab-jobs h3{font-family:var(--font-serif);font-weight:600;font-size:var(--job-size, 20px);color:var(--color-black-default)}
+.ab-jobs p{font-size:var(--date-size, 16px)}
+.ab-resume-box > :last-child{margin-top:20px}
+/* Desktop/Caption in teal, with an arrow out, the line running under both (hers): it opens her resume on
+   Google Drive in a new tab */
+.ab-resume{
+  display:inline-flex;align-items:center;gap:2px;padding-bottom:2px;
+  font-size:var(--date-size, 16px);line-height:1;color:var(--color-teal-default);text-decoration:none;border-bottom:1px solid currentColor;
+  -webkit-tap-highlight-color:transparent;transition:color .2s var(--ease-out);
+}
+.ab-resume:hover{color:var(--color-teal-pressed)}
+.ab-resume:focus-visible{outline:1px solid currentColor;outline-offset:3px;border-radius:2px}
+.ab-resume-icon{width:1em;height:1em;flex:none;transition:translate .2s var(--ease-out)}
+.ab-resume:hover .ab-resume-icon{translate:2px -2px}
+
+/* ---------- {a visual throwback} ---------- */
+/* desktop: four to a row, every photo upright at its own shape, nothing cropped, as on Rachel Chen's page
+   (hers, 2026-11-21: the tilted, overlapping prints cut people out and felt chaotic). Her sketch of the final
+   arrangement is to come */
+.ab-gallery{
+  position:relative;margin-top:var(--throw-top, 120px);
+  display:flex;flex-direction:column;gap:var(--group-gap, 56px);
+}
+.ab-gallery > .ab-label + *{margin-top:calc(var(--throw-gap, 24px) - var(--group-gap, 56px))}
+/* Desktop/Button 3, teal/pressed */
+.ab-label{font-size:20px;font-weight:400;color:var(--color-teal-pressed)}
+
+.ab-collage{display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:16px 24px;align-items:start}
+.ab-collage-label{font-size:20px;color:var(--color-black-highlight)}
+.ab-photo{display:flex;flex-direction:column;gap:4px;outline:none;-webkit-tap-highlight-color:transparent}
+.ab-frame{position:relative;overflow:hidden;aspect-ratio:var(--ratio);background:var(--color-tile-border)}
+.ab-frame img{display:block;width:100%;height:100%;object-fit:cover}
+.ab-photo:focus-visible .ab-frame{outline:2px solid var(--color-teal-default);outline-offset:2px}
+/* Desktop/Caption 2 */
+.ab-num{font-family:var(--font-serif);font-weight:600;font-size:16px;color:var(--color-black-highlight);text-align:right}
+
+/* the caption: beside the pointer on desktop (.ab-cursor, photoCaption.js), on the photo after a tap on
+   phones or when tabbed to (.ab-chip). Both are the nav bar's [about] chip: teal/highlight, black words */
+.ab-cursor,.ab-chip{
+  padding:6px 10px;border-radius:4px;
+  background:var(--color-teal-highlight);color:var(--color-black-default);
+  font-family:var(--font-sans);font-variation-settings:"opsz" 14;font-size:16px;line-height:1.1;white-space:nowrap;
+}
+.ab-cursor{position:fixed;left:0;top:0;z-index:60;pointer-events:none;opacity:0;transform-origin:0 0;will-change:translate}
+.ab-chip{
+  position:absolute;left:8px;bottom:8px;max-width:calc(100% - 16px);white-space:normal;
+  opacity:0;translate:0 4px;transition:opacity .2s var(--ease-out),translate .2s var(--ease-out);pointer-events:none;
+}
+.ab-photo.shown .ab-chip,.ab-photo:focus-visible .ab-chip{opacity:1;translate:0 0}
+
+/* the line the phone nav bar hides at (as on Work) */
+.ab-gallery .nav-hide-line{position:absolute;left:0;bottom:calc(-1 * var(--after));width:1px;height:0;pointer-events:none}
+
+/* ---------- narrower windows ---------- */
+/* the box drops under the words once the two side by side get tight */
+@media (max-width:960px){
+  .ab-top{grid-template-columns:minmax(0, 1fr);row-gap:56px}
+  .ab-words p{width:auto}
+  .ab-resume-box{max-width:560px}
+  .ab-resume-box{margin-top:0}   /* stacked: no lining up with the intro */
+}
+/* phones and narrow windows: two to a row, each {label} over its own photos (Rachel Chen's layout on phones) */
+@media (max-width:840px){
+  .ab-collage{display:flex;flex-wrap:wrap;align-items:flex-start;gap:16px}
+  .ab-collage > li{order:var(--order)}
+  .ab-collage-label{flex-basis:100%;margin-bottom:-4px}
+  .ab-collage-label:not(:first-child){margin-top:16px}   /* a second team in the same row: 32 above its label */
+  .ab-print{width:calc(50% - 8px)}
+}
+
+/* ---------- phones: her photo and the intro, the words, the Experience box, the photos (her note), on the
+   case studies' spacing: 12 text to text, 16 beside a visual, 32 between groups, 56 between sections ---------- */
+@media (max-width:600px){
+  .about-page{--side:20px;padding-top:56px}
+  .ab-wrap{margin-bottom:160px}
+  .ab-left{gap:24px}
+  .ab-head{gap:16px}
+  .ab-me-print{--me-size:var(--me-size-phone, 120px);padding:calc(var(--paper, 8px) * .6)}
+  .ab-head h1{font-size:24px;font-weight:600}   /* Desktop/H7, as the case studies' phone headings */
+  .ab-words p{font-size:16px}                   /* Mobile/Body */
+  .ab-resume-box{max-width:none}
+  .ab-resume-box h2{font-size:22px}
+  .ab-resume-box .ab-jobs{gap:12px;margin-top:16px}
+  .ab-jobs li{gap:4px}
+  .ab-jobs h3{font-size:18px}
+  .ab-jobs p{font-size:14px}                    /* Mobile/Caption */
+  .ab-resume-box > :last-child{margin-top:16px}
+  .ab-resume{font-size:14px}
+  .ab-gallery{margin-top:56px;gap:32px}
+  .ab-gallery > .ab-label + *{margin-top:-16px}  /* 16 under the title */
+  .ab-label,.ab-collage-label{font-size:14px}    /* Mobile/Caption, as the case studies' {labels} */
+  .ab-num{font-size:14px}
+  .ab-chip{font-size:14px;left:6px;bottom:6px;max-width:calc(100% - 12px);padding:5px 8px}
+}

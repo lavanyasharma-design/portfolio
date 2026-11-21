@@ -6,8 +6,8 @@ import { navigate } from '../../router'
 /**
  * [work] / [about] / [play]. Pressing one (never hovering) plays the section's motif and eases the
  * brackets out and back in. Both start on the press itself, not the release, so the sound lands
- * under the finger. [work] then opens /work once the brackets have settled; about and play have
- * no page yet, so they stay put until their "soon" state is designed. Keyboard: Enter / Space.
+ * under the finger. [work] and [about] then open their page once the brackets have settled; play has
+ * no page yet, so it stays put until its "soon" state is designed. Keyboard: Enter / Space.
  */
 const BRACKETS = {
   spread: 0.25,     // em each bracket moves out (6px at the desktop 24px)

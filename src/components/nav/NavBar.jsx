@@ -38,7 +38,7 @@ function NavBar({ active, hidden = false }) {
           </span>
         </a>
         <SectionLink name="work" to="/work" current={active === 'work'} />
-        <SectionLink name="about" current={active === 'about'} />
+        <SectionLink name="about" to="/about" current={active === 'about'} />
         <SectionLink name="play" current={active === 'play'} />
       </nav>
     </div>

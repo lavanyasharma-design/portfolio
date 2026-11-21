@@ -33,6 +33,7 @@ src/components/intro/WindowIntro   the loader: orb canvas, veil, window, sash, h
 src/components/intro/orbField.js   WebGL orb field + pencil pass (two-pass shader)
 src/components/home/Hero           the Figma home screen
 src/pages/cases/Bolt.jsx           the Bolt case study (/work/bolt), composed from src/components/case/
+src/pages/About.jsx                the About page (/about); words and photos in src/components/about/aboutContent.js
 public/assets/                     window-back-clean.webp, window-sash-clean.webp (used), window-back.webp, window-sash.webp (untouched originals), butterfly.png, dot.svg
 public/motif.svg                   tiled page background
 ```
@@ -85,6 +86,16 @@ public/motif.svg                   tiled page background
 - Media: `<Media label=\"...\" />` shows a labelled placeholder; give it `src` (an .mp4 in `/public/work/bolt/`) and it plays muted and looping. Use MP4 rather than GIF.
 - `<Draft note=\"...\">` highlights words she still has to write or check (pink, note on hover). Clear them all before merging.
 - The Bolt tile on the Work page links here (`page` in `tiles.js`); tiles without a page stay pictures.
+
+## About page (`/about`, first draft 2026-11-21, branch `about`)
+
+- Figma "About" (Portfolio-Design `sTVMEoN8NWkzAaEgBFy2xM`, page 1:6, frame 414:7014, desktop 1512), her draft layout with notes beside it: her photo (220 square), "I'm Lavanya and I'm a product designer." (Desktop/H7), three paragraphs 676 wide and 36 apart, the middle one set in by 106; the Experience box on the right (2px teal/highlight border, radius 5, padding 24, as long as its content: her notes), then {a visual throwback}: photo groups (Roadcast and BharatPe side by side, BharatPe 149 lower; Design Grad and Adventures in rows of four), a running number under each photo (Desktop/Caption 2); her frame drew them 295 x 214, now a loose layout (below). Top padding 131 / 56 (her frame has 141). Phones (her note): photo, words, Experience box, photos two to a row (Rachel Chen's layout), on the case studies' phone spacing.
+- Her first look (2026-11-21): her photo smaller (180) and zoomed in on her face, the intro beside it at Desktop/H8 36 (bottom-aligned), the two together as wide as the words, the Experience box beside them from the top, job titles black, paragraphs 16 apart, 24 under {a visual throwback}, no pink on "my resume" and its line runs under the arrow too. `?about` (`aboutLayout.js`) tunes photo size / zoom / focus, the intro's place, and the gaps, with "copy values". The gallery: a collage of tilted, overlapping prints (after Daria Stolyarova's and Paloma Wool's sites) was tried and dropped the same day (hers: the crops cut people out of the group photos and it felt chaotic). Now, until her rough layout sketch arrives: every photo upright at its own shape (`ratio` from the originals, nothing cropped), four to a row on desktop with each {label} over its photos (the teams share a row), two to a row up to 840 and on phones, as Rachel Chen's page. The design hackathon photo is out (12 photos, numbered 01 to 12).
+- Her second look (2026-11-21): her photo is a print stuck onto the page (white edge, collage shadow, leaning right 2°, a strip of teal paper tape over its top left corner, drawn after her reference in `Tape.jsx` (SVG: matte, fine paper grain from an SVG noise filter, torn ends, a twist partway along, soft shadow; teal/default lifted towards white); scrapbook feel); the Experience box starts level with the intro (`--box-top` from the intro's offsetTop, About.jsx) and is lighter: Experience 24 (was 36), job titles 20, dates and "my resume" 16, jobs 12 apart, 20 from the heading and to the link. All in `?about` (tilt, tape, sizes, job gap).
+- Captions (`photoCaption.js`, `?caption` panel), after rachelchen.tech/about (her reference): on desktop a label rides beside the pointer over a photo (pointer kept, unlike Rachel's), in the nav's [about] chip look (teal/highlight, black words), spring pop-in (motion); on phones a tap shows it on the photo for `tapHold` (her pick, 2026-11-21); keyboard focus shows it too. Captions in her words and case (Figma 415:11136).
+- Experience entries from her resume ("Role @ Company / dates", as Rachel's). "my resume" opens her Google Drive file in a new tab, with an arrow-out icon (hers); `RESUME_URL` in aboutContent.js (empty until she sends the Drive link; no pink marker, hers).
+- Photos: her originals in `public/about page photos/` (not committed, the resume PDF too); the page uses WebP copies in `public/about/` (800 wide, quality 80, ffmpeg-static). Re-make them the same way if she swaps a photo.
+- [about] in the nav bar and on the home page now opens /about.
 
 ## Coming soon (lavanyaaa.com)
 
