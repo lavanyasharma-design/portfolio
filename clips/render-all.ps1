@@ -1,8 +1,8 @@
 # Every Bolt clip in the shape the case study uses: all of them tall, 2:3, decision 02's pair included (hers,
 # 2026-11-21, were square on desktop), then the two edge-case screens in the same 2:3 panel (JPEG), all at 1.2x
 # (render.mjs says why). Run from PowerShell: launched from Claude's bash shell the renderer's headless Chrome crashes.
-# Close any browser tab showing the case study first: Windows locks an mp4 a page is playing, so Remotion's last
-# step (renaming <clip>.mp4.<id>.remotion-in-progress to <clip>.mp4) fails with exit 1. The in-progress file is the
+# Close any browser tab showing the case study first (and, if it still fails, stop the dev server): Windows locks an mp4
+# a page has played, so Remotion's last step (renaming <clip>.mp4.<id>.remotion-in-progress to <clip>.mp4) fails with exit 1. The in-progress file is the
 # finished clip then: check it plays, move it into place and render its poster (2026-11-21).
 # powershell -File render-all.ps1
 Set-Location $PSScriptRoot

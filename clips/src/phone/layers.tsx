@@ -14,10 +14,8 @@ export const frame = (path: string, h: number): Frame => ({ src: staticFile(path
 export const Stage: React.FC<{
   variant: Variant;
   background: string;
-  /** the phone's opacity (1 by default): a looping clip fades out and back in so the restart reads as one */
-  opacity?: number;
   children: React.ReactNode;
-}> = ({ variant, background, opacity = 1, children }) => {
+}> = ({ variant, background, children }) => {
   useFonts();
   const v = VARIANTS[variant];
   const dw = SCREEN.w + 2 * BEZEL;
@@ -28,7 +26,7 @@ export const Stage: React.FC<{
     <AbsoluteFill style={{ background, overflow: 'hidden' }}>
       <div
         style={{
-          position: 'absolute', left: 0, top: 0, transformOrigin: '0 0', opacity,
+          position: 'absolute', left: 0, top: 0, transformOrigin: '0 0',
           transform: `translate(${(v.w - dw * S) / 2}px, ${(v.h - dh * S) / 2}px) scale(${S})`,
         }}
       >
