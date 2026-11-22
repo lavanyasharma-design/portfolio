@@ -161,8 +161,9 @@ html:has(.about-page),html:has(.about-page) body{background:var(--color-white-de
   .ab-gallery > .ab-label + *{margin-top:calc(var(--throw-gap-narrow, 28px) - var(--group-gap-narrow, 80px))}
   .ab-row{flex-direction:column;row-gap:var(--group-gap-narrow, 80px)}
   .ab-group{flex-basis:auto;width:100%}
-  .ab-photos{flex-wrap:wrap;gap:16px}
-  .ab-print{width:calc(50% - 8px) !important}
+  /* wider apart across than down, so a group reads as two upright stacks (hers, 2026-11-23: "congested") */
+  .ab-photos{flex-wrap:wrap;column-gap:var(--photo-col-gap, 32px);row-gap:var(--photo-row-gap, 16px)}
+  .ab-print{width:calc(50% - var(--photo-col-gap, 32px) / 2) !important}
 }
 
 /* ---------- phones: her photo and the intro, the words, the Experience box, the photos (her note), on the
@@ -183,9 +184,9 @@ html:has(.about-page),html:has(.about-page) body{background:var(--color-white-de
   .ab-resume-box h2{font-size:24px;letter-spacing:0}  /* as the intro on phones (was 22, not a style) */
   .ab-jobs h3{font-size:20px}                       /* Mobile/h5 (was 18, not a style) */
   .ab-jobs p,.ab-resume{font-size:14px}              /* Mobile/Caption */
-  .about-page .ab-gallery{margin-top:56px;gap:32px}
-  .ab-gallery > .ab-label + *{margin-top:-8px}      /* 24 under the title */
-  .ab-row{row-gap:32px}
+  .about-page .ab-gallery{margin-top:56px;gap:var(--group-gap-phone, 56px)}
+  .ab-gallery > .ab-label + *{margin-top:calc(24px - var(--group-gap-phone, 56px))}   /* 24 under the title */
+  .ab-row{row-gap:var(--group-gap-phone, 56px)}
   .ab-group{gap:16px}
   .ab-label{font-size:16px}
   .ab-group-label{font-size:20px;letter-spacing:0}  /* Mobile/h5 */

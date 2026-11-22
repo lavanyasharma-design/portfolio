@@ -20,7 +20,8 @@ import { prepareRichInline, layoutNextRichInlineLineRange, materializeRichInline
 const HOVER = '(hover: hover) and (pointer: fine)'
 const BOX_LIFT = 20   // the Experience box starts this far above the second paragraph, so its heading lines up with it (her Figma)
 const BOX_SIDE = 24   // px between the words and the box (her Figma: 923 + 24 + 305 = 1252)
-const PHOTO_BELOW = 8 // px under her photo's brackets before a line may run under it
+const PHOTO_BELOW = 8 // px from her photo's bottom bracket to a line's words before the line may run under it
+                      // (to the words, not the line box: a phone line 4 short of that stayed beside the photo, leaving a hole)
 
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 const cls = (r) => (typeof r === 'string' ? '' : [r.u && 'u', r.i && 'i'].filter(Boolean).join(' '))
@@ -166,7 +167,8 @@ export function mountTextFlow(root, box, paragraphs) {
     paraGap = parseFloat(getComputedStyle(root).getPropertyValue('--para-gap')) || 16
     const wordsGap = parseFloat(getComputedStyle(root).getPropertyValue('--words-gap')) || 24
     startY = intro.offsetTop + intro.offsetHeight + wordsGap
-    const photo = { x0: -1e6, x1: intro.offsetLeft, y0: group.offsetTop, y1: group.offsetTop + group.offsetHeight + PHOTO_BELOW }
+    const lead = (lh - parseFloat(getComputedStyle(firstP).fontSize)) / 2   // the space above a line's words
+    const photo = { x0: -1e6, x1: intro.offsetLeft, y0: group.offsetTop, y1: group.offsetTop + group.offsetHeight + PHOTO_BELOW - lead }
     const boxInFlow = getComputedStyle(box).position === 'absolute'
     staticRect = [photo]
     let end = layoutAll(staticRect)

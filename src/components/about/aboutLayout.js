@@ -17,12 +17,18 @@ export const LAYOUT = {
   introTop: 36,       // px from the top of her photo's brackets to "Hi!"
   wordsGap: 28,       // px from the intro to the first paragraph (hers 29, onto the grid)
   paraGap: 16,        // px between paragraphs (her Figma)
-  throwTop: 80,       // px from the words and the Experience box down to {visuals from my journey so far} (hers: 56 looked congested)
+  throwTop: 72,       // px from the words and the Experience box down to {visuals from my journey so far} (hers: 56 looked congested;
+                      // 80 → 72, the next step down on the grid, 2026-11-23, so the title shows again at the foot of the first screen)
   throwGap: 24,       // px from that title to the first group heading
   labelGap: 12,       // px from a group heading to its photos
   groupGap: 88,       // px between photo groups (hers 90, onto the grid)
   throwGapNarrow: 28, // the same two between 601 and 840 wide, the photos two to a row (hers, 2026-11-22)
   groupGapNarrow: 80,  // (hers 78, onto the grid)
+  // photos two to a row (840 and under): wider apart across than down, so each group reads as two upright
+  // stacks rather than a tight grid (hers, 2026-11-23: "congested"), and the groups further apart on phones
+  photoColGap: 32,    // px between the two columns (was 16)
+  photoRowGap: 16,    // px between a photo and the one under it
+  groupGapPhone: 56,  // px from one group's photos to the next group's heading on phones (was 32)
 }
 
 // each gallery photo's fit inside the frame she drew: zoom (1 = just fills it) and the point it centres on (%).
@@ -43,7 +49,7 @@ export const PHOTO_FIT = {
 }
 const fit = (id) => (PHOTO_FIT[id] ??= { zoom: 1, x: 50, y: 50 })
 
-const KEY = 'about-layout-v8'
+const KEY = 'about-layout-v9'
 if (new URLSearchParams(location.search).has('about')) {
   try {
     const saved = JSON.parse(localStorage.getItem(KEY)) || {}
@@ -54,7 +60,7 @@ if (new URLSearchParams(location.search).has('about')) {
 
 export function photoFit(id) { return fit(id) }
 
-const px = ['meSize', 'meSizePhone', 'introTop', 'wordsGap', 'paraGap', 'throwTop', 'throwGap', 'labelGap', 'groupGap', 'throwGapNarrow', 'groupGapNarrow']
+const px = ['meSize', 'meSizePhone', 'introTop', 'wordsGap', 'paraGap', 'throwTop', 'throwGap', 'labelGap', 'groupGap', 'throwGapNarrow', 'groupGapNarrow', 'photoColGap', 'photoRowGap', 'groupGapPhone']
 const kebab = (k) => k.replace(/[A-Z]/g, c => `-${c.toLowerCase()}`)
 
 export function applyLayout(root) {
@@ -93,6 +99,9 @@ export function mountLayoutPanel(root, onChange) {
     ['groupGap', 'between groups', 16, 120, 2],
     ['throwGapNarrow', 'title gap (601-840)', 8, 64, 1],
     ['groupGapNarrow', 'groups (601-840)', 16, 120, 2],
+    ['photoColGap', 'photo columns (840 and under)', 8, 64, 4],
+    ['photoRowGap', 'photo rows (840 and under)', 8, 64, 4],
+    ['groupGapPhone', 'groups (phone)', 16, 120, 4],
   ]
   const ids = [...root.querySelectorAll('.ab-frame[data-id]')].map(f => f.dataset.id)
   el.innerHTML = `<b>about layout</b>${rows.map(([k, text, min, max, step]) =>

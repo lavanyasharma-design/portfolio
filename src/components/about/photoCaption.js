@@ -6,7 +6,7 @@ import { DUR, EASE } from '../../lib/motion'
  * caption rides beside the pointer while it's over a photo. Unlike hers, the pointer itself stays (the
  * rest of the site needs it), and the label is the nav bar's [about] chip: pale teal, black words.
  * - desktop (a mouse or trackpad): one label for the page, following the pointer with a little lag,
- *   popping in on a spring (motion) and fading out as the pointer leaves the photos;
+ *   popping in over 0.4s (--dur-base, eased out; was a spring) and fading out as the pointer leaves the photos;
  * - phones (no hover, hers: option 1): a tap shows the caption on the photo for `tapHold`, or until
  *   another photo is tapped;
  * - keyboard: tabbing to a photo shows its caption on the photo (CSS, :focus-visible).
@@ -16,9 +16,7 @@ export const CAPTION = {
   offsetX: 16,       // px right of the pointer
   offsetY: 14,       // px below it
   follow: 0.28,      // how quickly the label catches up with the pointer, per frame (1 = glued to it)
-  pop: 0.85,         // the scale it pops in from
-  stiffness: 520,    // its spring
-  damping: 28,
+  pop: 0.85,         // the scale it pops in from (over --dur-base, 0.4s, eased out)
   tapHold: 2500,     // ms a tapped caption stays on a phone
 }
 
@@ -85,8 +83,8 @@ export function mountPhotoCaptions(root) {
     const [tx, ty] = target()  // appears at the pointer, not sliding in from where it was
     x = tx; y = ty
     label.style.translate = `${x}px ${y}px`
-    animate(label, { opacity: 1, scale: reduce ? 1 : [CAPTION.pop, 1] },
-      reduce ? { duration: 0.1 } : { type: 'spring', stiffness: CAPTION.stiffness, damping: CAPTION.damping, opacity: { duration: DUR.quick, ease: EASE } })
+    // one eased tween in the base timing, no spring (hers, 2026-11-23: on the site's three timings)
+    animate(label, { opacity: 1, scale: reduce ? 1 : [CAPTION.pop, 1] }, { duration: reduce ? 0.1 : DUR.base, ease: EASE })
   }
   const hide = () => {
     if (!current) return
@@ -132,8 +130,6 @@ export function mountCaptionPanel() {
     ['offsetY', 'below pointer', -24, 48, 1],
     ['follow', 'follow (1 = glued)', 0.05, 1, 0.01],
     ['pop', 'pops in from', 0.5, 1, 0.01],
-    ['stiffness', 'spring stiffness', 100, 1000, 10],
-    ['damping', 'spring damping', 5, 60, 1],
     ['tapHold', 'phone tap (ms)', 800, 5000, 100],
   ]
   el.innerHTML = `<b>photo captions</b>${rows.map(([k, text, min, max, step]) =>
