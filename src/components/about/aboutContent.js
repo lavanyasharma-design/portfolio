@@ -27,8 +27,8 @@ export const EXPERIENCE = [
   { role: 'Product Design Intern', at: 'BharatPe', dates: 'Oct 2024 - Feb 2025' },
 ]
 
-// her Google Drive link (still to come); until then the link has no address
-export const RESUME_URL = ''
+// her resume on Google Drive (hers, 2026-11-23), opened in a new tab by "my resume"
+export const RESUME_URL = 'https://drive.google.com/file/d/1nsAgccrpDmNjIlEQ4BGVwGXDCt3mhU_s/view?usp=sharing'
 
 export const GALLERY_TITLE = '{visuals from my journey so far}'
 
