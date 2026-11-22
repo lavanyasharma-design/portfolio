@@ -118,7 +118,7 @@ export const MEADOW = {
   leanPhone: 0.25,       // how far the stems lean (1 as on desktop)
   followPhone: 0.55,     // how far a head turns with its stem (desktop 1.2)
   nodPhone: 0.12,        // the heads' own tip over
-  swayPhone: 0.9,        // the wind's sway (hers; the heads swing with it)
+  swayPhone: 0.5,        // the wind's sway (hers, 2026-11-23 for the meadow; the tulips had 0.9)
 }
 
 /* Lavanya's values from her phone, 2026-11-14, second round (calm on the phone); the bigger
