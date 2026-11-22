@@ -137,7 +137,7 @@ export default function WaterPhoto({ src, alt }) {
 
     // drawn at the zoom it's shown at (the CSS scale from ?about), so it stays sharp
     const resize = () => {
-      const k = Math.min(devicePixelRatio || 1, 2) * Math.max(1, LAYOUT.meZoom)
+      const k = Math.min(devicePixelRatio || 1, 2) * Math.max(1, LAYOUT.meZoom, LAYOUT.meZoomPhone)
       const w = Math.max(1, Math.round(canvas.clientWidth * k)), h = Math.max(1, Math.round(canvas.clientHeight * k))
       if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; gl.viewport(0, 0, w, h) }
       updateCover()

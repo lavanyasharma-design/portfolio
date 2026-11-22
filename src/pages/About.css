@@ -62,10 +62,12 @@ html:has(.about-page),html:has(.about-page) body{background:var(--color-white-de
 .ab-flow.flowing .ab-me-group{position:absolute;left:0;top:0;float:none;margin:0}
 .ab-flow.flowing .ab-intro{position:absolute;top:var(--intro-top, 35px);left:var(--intro-left);right:0;padding:0}
 .ab-flow.flowing .ab-paras{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-.ab-lines{position:absolute;inset:0}
+/* the lines layer lies over her photo too: only the lines themselves take the pointer, so the water gets it */
+.ab-lines{position:absolute;inset:0;pointer-events:none}
+.ab-line{pointer-events:auto}
 .ab-line{position:absolute;left:0;top:0;white-space:pre;will-change:transform}
 /* a letter the ripple nudges (ripple.js): relative offsets, so her wavy underlines go with it */
-.ab-flow .rl{position:relative}
+.about-page .rl{position:relative}
 .ab-line[hidden]{display:none}
 .ab-probe{visibility:hidden}
 .ab-flow:not(.flowing) .ab-lines{display:none}
@@ -155,7 +157,9 @@ html:has(.about-page),html:has(.about-page) body{background:var(--color-white-de
 }
 /* phones and narrow windows: each group's photos two to a row, the groups one under another (Rachel Chen's layout) */
 @media (max-width:840px){
-  .ab-row{flex-direction:column;row-gap:var(--group-gap, 56px)}
+  .ab-gallery{gap:var(--group-gap-narrow, 78px)}
+  .ab-gallery > .ab-label + *{margin-top:calc(var(--throw-gap-narrow, 28px) - var(--group-gap-narrow, 78px))}
+  .ab-row{flex-direction:column;row-gap:var(--group-gap-narrow, 78px)}
   .ab-group{flex-basis:auto;width:100%}
   .ab-photos{flex-wrap:wrap;gap:16px}
   .ab-print{width:calc(50% - 8px) !important}
@@ -166,7 +170,7 @@ html:has(.about-page),html:has(.about-page) body{background:var(--color-white-de
 @media (max-width:600px){
   .about-page{--side:20px;padding-top:56px}
   .ab-wrap{margin-bottom:160px}
-  .ab-flow{--me-size:var(--me-size-phone, 114px);--intro-left:calc(var(--me-size) + 28px)}
+  .ab-flow{--me-size:var(--me-size-phone, 102px);--me-zoom:var(--me-zoom-phone, 1.46);--intro-left:calc(var(--me-size) + 28px)}
   .ab-me-group{margin-right:12px}
   .ab-flow.flowing .ab-intro,.ab-intro{top:12px;padding-top:0}
   .ab-flow:not(.flowing) .ab-intro{padding-top:12px}

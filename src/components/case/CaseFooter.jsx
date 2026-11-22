@@ -3,7 +3,7 @@ import { Link } from '../footer/sayHi'
 
 /**
  * The footer under every case study: the same words for all of them, so nothing in it names one
- * (hers, 2026-11-20). The garden stays, as on Work.
+ * (hers, 2026-11-20); the About page uses it too (2026-11-22). The garden stays, as on Work.
  */
 function CaseFooter() {
   return (

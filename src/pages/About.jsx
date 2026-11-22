@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { ArrowUpRight } from 'lucide-react'
 import '@fontsource-variable/dm-sans/opsz-italic.css'
 import NavBar from '../components/nav/NavBar'
-import PageFooter from '../components/footer/PageFooter'
+import CaseFooter from '../components/case/CaseFooter'
 import { mountCaseMotion } from '../components/case/caseMotion'
 import { mountPhotoCaptions, mountCaptionPanel } from '../components/about/photoCaption'
 import { applyLayout, mountLayoutPanel } from '../components/about/aboutLayout'
@@ -30,6 +30,8 @@ const DESIGN_W = 1252       // her column, the frame sizes in aboutContent.js ar
 
 /** a run list as spans: plain words, wavy-underlined, or italic; with split, each letter gets its own span for the ripple */
 const Letters = ({ text }) => [...text].map((c, i) => (c === ' ' ? ' ' : <span key={i} className="rl">{c}</span>))
+// text split into letters for the ripple, read whole by screen readers
+const Rip = ({ text }) => <><span className="sr-only">{text}</span><span aria-hidden="true"><Letters text={text} /></span></>
 function Runs({ runs, split }) {
   return runs.map((r, i) => {
     const t = typeof r === 'string' ? r : r.t
@@ -64,6 +66,7 @@ const ROWS = GALLERY.map((row) => ({
 
 function About() {
   const page = useRef(null)
+  const top = useRef(null)
   const flow = useRef(null)
   const box = useRef(null)
   const gallery = useRef(null)
@@ -74,8 +77,8 @@ function About() {
     applyLayout(page.current)
     const stopMotion = mountCaseMotion(page.current)
     const stopCaptions = mountPhotoCaptions(gallery.current)
-    // the letters ripple away from the pointer (her hello page), the intro's and the painted lines'
-    const ripple = mountRipple(flow.current)
+    // the letters ripple away from the pointer (her hello page): the intro's, the painted lines', the Experience box's
+    const ripple = mountRipple(top.current)
     const stopFlow = mountTextFlow(flow.current, box.current, PARAGRAPHS, ripple.refresh)
     // once the rise-in has settled, measure the letters where they rest
     const settle = setTimeout(ripple.refresh, 900)
@@ -90,7 +93,7 @@ function About() {
     <main className="about-page" ref={page}>
       <div className="ab-wrap">
 
-        <div className="ab-top">
+        <div className="ab-top" ref={top}>
           {/* the words flow round her photo and the box (textFlow.js); until the fonts are in, and for screen
               readers, the paragraphs below are the real text */}
           <div className="ab-flow" ref={flow} data-rise>
@@ -112,18 +115,18 @@ function About() {
 
           <aside className="ab-resume-box" ref={box} aria-labelledby="ab-exp">
             <Corner at="tl" seed={11} /><Corner at="tr" seed={13} /><Corner at="bl" seed={17} /><Corner at="br" seed={19} />
-            <h2 id="ab-exp">Experience</h2>
+            <h2 id="ab-exp"><Rip text="Experience" /></h2>
             <ol className="ab-jobs">
               {EXPERIENCE.map(j => (
                 <li key={j.role + j.dates}>
-                  <h3>{j.role}{j.at && <> @{j.at}</>}</h3>
-                  <p>{j.dates}</p>
+                  <h3><Rip text={j.at ? `${j.role} @${j.at}` : j.role} /></h3>
+                  <p><Rip text={j.dates} /></p>
                 </li>
               ))}
             </ol>
             {/* her Google Drive file, in a new tab (RESUME_URL in aboutContent.js) */}
             <a className="ab-resume" href={RESUME_URL || undefined} target="_blank" rel="noreferrer">
-              my resume<ArrowUpRight className="ab-resume-icon" aria-hidden="true" strokeWidth={1.5} />
+              <Rip text="my resume" /><ArrowUpRight className="ab-resume-icon" aria-hidden="true" strokeWidth={1.5} />
               <span className="sr-only"> (opens in a new tab)</span>
             </a>
           </aside>
@@ -147,7 +150,8 @@ function About() {
         </section>
 
       </div>
-      <PageFooter />
+      {/* the case studies' words (hers, 2026-11-22); a teal scene in place of the purple garden is to come */}
+      <CaseFooter />
     </main>
     </>
   )

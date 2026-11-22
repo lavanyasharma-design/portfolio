@@ -10,18 +10,21 @@
 export const LAYOUT = {
   meSize: 174,        // px, her photo's width on desktop (height keeps her frame's 164 : 176)
   meSizePhone: 102,   // px, on phones
-  meZoom: 1.46,       // how far the photo is zoomed in (1 = the whole picture)
+  meZoom: 1.36,       // how far the photo is zoomed in on desktop (1 = the whole picture)
+  meZoomPhone: 1.46,  // on phones
   meX: 62,            // % across: the point the zoom centres on (her face)
   meY: 44,            // % down
   introTop: 36,       // px from the top of her photo's brackets to "Hi!"
   wordsGap: 29,       // px from the intro to the first paragraph
   paraGap: 16,        // px between paragraphs (her Figma)
   throwTop: 80,       // px from the words and the Experience box down to {visuals from my journey so far} (hers: 56 looked congested)
-  throwGap: 28,       // px from that title to the first group heading
+  throwGap: 24,       // px from that title to the first group heading
   labelGap: 12,       // px from a group heading to its photos
-  groupGap: 78,       // px between photo groups
-  rippleRadius: 80,   // px, how far from the pointer letters are nudged (her hello page)
-  ripplePush: 7,      // px, how far the nearest letters move
+  groupGap: 90,       // px between photo groups
+  throwGapNarrow: 28, // the same two between 601 and 840 wide, the photos two to a row (hers, 2026-11-22)
+  groupGapNarrow: 78,
+  rippleRadius: 200,  // px, how far from the pointer letters are nudged (her hello page had 80)
+  ripplePush: 6.5,    // px, how far the nearest letters move
 }
 
 // each gallery photo's fit inside the frame she drew: zoom (1 = just fills it) and the point it centres on (%).
@@ -42,7 +45,7 @@ export const PHOTO_FIT = {
 }
 const fit = (id) => (PHOTO_FIT[id] ??= { zoom: 1, x: 50, y: 50 })
 
-const KEY = 'about-layout-v6'
+const KEY = 'about-layout-v7'
 if (new URLSearchParams(location.search).has('about')) {
   try {
     const saved = JSON.parse(localStorage.getItem(KEY)) || {}
@@ -53,13 +56,14 @@ if (new URLSearchParams(location.search).has('about')) {
 
 export function photoFit(id) { return fit(id) }
 
-const px = ['meSize', 'meSizePhone', 'introTop', 'wordsGap', 'paraGap', 'throwTop', 'throwGap', 'labelGap', 'groupGap']
+const px = ['meSize', 'meSizePhone', 'introTop', 'wordsGap', 'paraGap', 'throwTop', 'throwGap', 'labelGap', 'groupGap', 'throwGapNarrow', 'groupGapNarrow']
 const kebab = (k) => k.replace(/[A-Z]/g, c => `-${c.toLowerCase()}`)
 
 export function applyLayout(root) {
   const L = LAYOUT, s = root.style
   px.forEach(k => s.setProperty(`--${kebab(k)}`, `${L[k]}px`))
   s.setProperty('--me-zoom', L.meZoom)
+  s.setProperty('--me-zoom-phone', L.meZoomPhone)
   s.setProperty('--me-x', `${L.meX}%`)
   s.setProperty('--me-y', `${L.meY}%`)
   root.querySelectorAll('.ab-frame[data-id]').forEach((el) => {
@@ -79,6 +83,7 @@ export function mountLayoutPanel(root, onChange) {
     ['meSize', 'my photo width', 100, 240, 2],
     ['meSizePhone', 'my photo (phone)', 72, 180, 2],
     ['meZoom', 'my photo zoom', 1, 2.5, 0.01],
+    ['meZoomPhone', 'my photo zoom (phone)', 1, 2.5, 0.01],
     ['meX', 'zoom on, across %', 0, 100, 1],
     ['meY', 'zoom on, down %', 0, 100, 1],
     ['introTop', '“Hi!” down from top', 0, 80, 1],
@@ -88,6 +93,8 @@ export function mountLayoutPanel(root, onChange) {
     ['throwGap', 'gallery title gap', 8, 64, 1],
     ['labelGap', 'heading to photos', 8, 48, 1],
     ['groupGap', 'between groups', 16, 120, 2],
+    ['throwGapNarrow', 'title gap (601-840)', 8, 64, 1],
+    ['groupGapNarrow', 'groups (601-840)', 16, 120, 2],
     ['rippleRadius', 'letter ripple reach', 20, 200, 2],
     ['ripplePush', 'letter ripple push', 0, 20, 0.5],
   ]
