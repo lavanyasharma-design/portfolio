@@ -58,7 +58,7 @@ export function mountPerfProbe() {
       `long jobs ${recent.length} in 10 s${recent.length ? `, longest ${Math.round(Math.max(...recent.map((l) => l[1])))} ms` : ''}`,
       `scrolled  ${Math.round(scrollY)} of ${scrollEl.scrollHeight - innerHeight}`,
       g ? `garden    ${g.kind}: ${g.cost.toFixed(1)} ms a draw, ${Math.round(g.rate)} draws/s\n          canvas ${g.size} at ${g.dpr}x (screen ${g.screen}x), stepped down ${g.lowered} time${g.lowered === 1 ? "" : "s"}
-          full paint at load ${g.firstPaint.toFixed(1)} ms, rebuilt ${g.rebuilds}x`
+          at load: full paint ${g.firstPaint.toFixed(1)} ms, ${Math.round(g.loadRate)} frames/s, rebuilt ${g.rebuilds}x`
         : 'garden    not on screen yet (scroll down to it)',
     ].join('\n')
   }

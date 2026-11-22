@@ -397,6 +397,12 @@ const MIN_STEP = 0.0095
 // ?perf: the garden reports its numbers for the readout (src/lib/perfProbe.js)
 const PERF = typeof location !== 'undefined' && new URLSearchParams(location.search).has('perf')
 
+// the resolution step a garden had to drop to, kept for the visit (a reload too), so the next garden starts
+// there instead of stuttering its way down again
+const SAVED_RES = 'garden-res'
+function savedRes() { try { return Number(sessionStorage.getItem(SAVED_RES)) || 0 } catch { return 0 } }
+function saveRes(i) { try { sessionStorage.setItem(SAVED_RES, String(i)) } catch { /* storage blocked */ } }
+
 export function mountGarden(canvas, kind = 'sunflowers') {
   const G = kind === 'meadow' ? MEADOW : GARDEN
   const main = canvas.getContext('2d')
@@ -446,7 +452,7 @@ export function mountGarden(canvas, kind = 'sunflowers') {
      A machine that keeps up stays at its screen's resolution (at most 2x). ?perf shows the step it's on. */
   const RES = [2, 1.5, 1, 0.75]
   const SLOW_COST = 6, SLOW_FRAME = 0.028   // ms a draw, s between frames (under about 35 a second)
-  let res = 0, slowFor = 0, steppedAt = -9, rebuilds = 0, lowered = 0, firstPaint = 0
+  let res = savedRes(), slowFor = 0, steppedAt = -9, rebuilds = 0, lowered = 0, firstPaint = 0, loadRate = 0, rateRaf = 0
   // a full paint (every layer at once) costing more than this at load starts the garden a step lower
   const FIRST_PAINT = 12
   const resAt = (i) => Math.min(RES[i], devicePixelRatio || 1)
@@ -463,6 +469,7 @@ export function mountGarden(canvas, kind = 'sunflowers') {
     while (next < RES.length - 1 && resAt(next) >= dpr) next++
     if (resAt(next) >= dpr) return false   // already as low as it goes
     res = next; steppedAt = T; slowFor = 0; lowered++
+    saveRes(res)
     sizeCanvases()
     return true
   }
@@ -480,6 +487,29 @@ export function mountGarden(canvas, kind = 'sunflowers') {
       firstPaint = performance.now() - t0
       if (firstPaint <= FIRST_PAINT || !lowerResolution()) break
     }
+    measureRate()
+  }
+
+  /* A page running under SLOW_SCREEN frames a second at load starts the garden a step lower, never below 1x
+     (2026-11-23, the friend's second readout: his laptop ran at 40 to 48 a second, on battery or a quiet power
+     mode; the full paint cost only 2.2 ms, yet the garden stuttered at 1.5x until the pace watch dropped it, and
+     both times it ran smoothly at 1x. The slow part was the graphics chip's work after the drawing, which no
+     timer here can see, so the frame rate is the sign to go by). Measured over 40 frames while the garden is
+     still off screen; a screen at 60 or more keeps its full resolution. */
+  const SLOW_SCREEN = 55
+  function measureRate() {
+    const gaps = []
+    let prev = 0
+    const tick = (t) => {
+      if (prev) gaps.push(t - prev)
+      prev = t
+      if (gaps.length < 40) { rateRaf = requestAnimationFrame(tick); return }
+      rateRaf = 0
+      gaps.sort((a, b) => a - b)
+      loadRate = 1000 / gaps[gaps.length >> 1]
+      if (loadRate < SLOW_SCREEN && res === 0 && dpr > 1) lowerResolution()
+    }
+    rateRaf = requestAnimationFrame(tick)
   }
 
   function watchPace(gap) {
@@ -1172,7 +1202,7 @@ export function mountGarden(canvas, kind = 'sunflowers') {
       update(dt); draw(false)
       cost = cost * 0.95 + (performance.now() - t0) * 0.05   // smoothed, shown in the ?garden panel
       if (dt) { rate = rate * 0.95 + (1 / dt) * 0.05; watchPace(gap) }
-      if (PERF) window.__garden = { kind, cost, rate, dpr, screen: devicePixelRatio, lowered, firstPaint, rebuilds, size: `${canvas.width}x${canvas.height}` }
+      if (PERF) window.__garden = { kind, cost, rate, dpr, screen: devicePixelRatio, lowered, firstPaint, loadRate, rebuilds, size: `${canvas.width}x${canvas.height}` }
     }
     if (visible && !reduce.matches) raf = requestAnimationFrame(frame)
   }
@@ -1198,7 +1228,7 @@ export function mountGarden(canvas, kind = 'sunflowers') {
 
   return {
     destroy() {
-      stop(); ro.disconnect(); io.disconnect()
+      stop(); cancelAnimationFrame(rateRaf); ro.disconnect(); io.disconnect()
       canvas.removeEventListener('pointermove', onMove)
       canvas.removeEventListener('pointerleave', onLeave)
       canvas.removeEventListener('pointerdown', onDown)
