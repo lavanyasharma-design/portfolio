@@ -66,7 +66,7 @@ const ROWS = GALLERY.map((row) => ({
 
 function About() {
   const page = useRef(null)
-  const top = useRef(null)
+  const wrap = useRef(null)
   const flow = useRef(null)
   const box = useRef(null)
   const gallery = useRef(null)
@@ -77,8 +77,8 @@ function About() {
     applyLayout(page.current)
     const stopMotion = mountCaseMotion(page.current)
     const stopCaptions = mountPhotoCaptions(gallery.current)
-    // the letters ripple away from the pointer (her hello page): the intro's, the painted lines', the Experience box's
-    const ripple = mountRipple(top.current)
+    // the letters ripple away from the pointer (her hello page): every text on the page but the footer's (hers)
+    const ripple = mountRipple(wrap.current)
     const stopFlow = mountTextFlow(flow.current, box.current, PARAGRAPHS, ripple.refresh)
     // once the rise-in has settled, measure the letters where they rest
     const settle = setTimeout(ripple.refresh, 900)
@@ -91,9 +91,9 @@ function About() {
     <>
     <NavBar active="about" hidden={navHidden} />
     <main className="about-page" ref={page}>
-      <div className="ab-wrap">
+      <div className="ab-wrap" ref={wrap}>
 
-        <div className="ab-top" ref={top}>
+        <div className="ab-top">
           {/* the words flow round her photo and the box (textFlow.js); until the fonts are in, and for screen
               readers, the paragraphs below are the real text */}
           <div className="ab-flow" ref={flow} data-rise>
@@ -133,12 +133,12 @@ function About() {
         </div>
 
         <section className="ab-gallery" ref={gallery} aria-labelledby="ab-throwback">
-          <h2 id="ab-throwback" className="ab-label" data-rise>{GALLERY_TITLE}</h2>
+          <h2 id="ab-throwback" className="ab-label" data-rise><Rip text={GALLERY_TITLE} /></h2>
           {ROWS.map(row => (
             <div key={row.id} className="ab-row" data-rise style={{ '--row-gap': `${((row.rowGap ?? 0) / DESIGN_W) * 100}%` }}>
               {row.groups.map(g => (
                 <div key={g.label} className="ab-group" style={{ '--group-w': `${(g.w / DESIGN_W) * 100}%` }}>
-                  <h3 className="ab-group-label">{g.label}</h3>
+                  <h3 className="ab-group-label"><Rip text={g.label} /></h3>
                   <ul className="ab-photos" style={{ '--gap': `${(g.gap / g.w) * 100}%` }}>
                     {g.photos.map(p => <Photo key={p.id} p={p} groupW={g.w} />)}
                   </ul>

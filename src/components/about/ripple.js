@@ -4,10 +4,10 @@ import { LAYOUT } from './aboutLayout'
  * The letter ripple from her hello page (D:\hello-page, src/ripple/rippleEngine.js, the X intro page, 2026-11-22:
  * "the text flares"): every letter within `rippleRadius` of the pointer is nudged straight away from it,
  * up to `ripplePush` px, the nearest most, and settles back as the pointer moves on.
- * Ported for the About page: the letters are the `.rl` spans the intro and the flowing lines are split into;
- * they move by relative offsets (not transforms), so her wavy underlines travel with their letters.
- * Positions are kept in page px, so scrolling needs no re-measuring. Desktop only (a mouse or trackpad),
- * off with reduced motion.
+ * Ported for the About page: the letters are the `.rl` spans every text above the footer is split into (hers:
+ * "everywhere except the footer"); they move by relative offsets (not transforms), so her wavy underlines
+ * travel with their letters. Positions are kept in page px and measured again once scrolling settles (blocks
+ * rise in on the way) and after a resize. Desktop only (a mouse or trackpad), off with reduced motion.
  */
 const HOVER = '(hover: hover) and (pointer: fine)'
 
@@ -71,11 +71,15 @@ export function mountRipple(scope) {
 
   const onMove = (e) => { if (e.pointerType !== 'mouse' && e.pointerType !== 'pen') return; px = e.clientX; py = e.clientY; have = true; run() }
   const onLeave = () => { have = false; run() }
-  const onScroll = () => { if (have) run() }
+  // blocks rise in as they reach the screen (caseMotion.js), so measure again once scrolling settles
+  let settle = 0
+  const onScroll = () => { if (have) run(); clearTimeout(settle); settle = setTimeout(refresh, 500) }
+  const onResize = () => { clearTimeout(settle); settle = setTimeout(refresh, 200) }
 
   addEventListener('pointermove', onMove, { passive: true })
   document.documentElement.addEventListener('pointerleave', onLeave)
   addEventListener('scroll', onScroll, { passive: true })
+  addEventListener('resize', onResize, { passive: true })
 
   return {
     refresh,
@@ -84,6 +88,8 @@ export function mountRipple(scope) {
       removeEventListener('pointermove', onMove)
       document.documentElement.removeEventListener('pointerleave', onLeave)
       removeEventListener('scroll', onScroll)
+      removeEventListener('resize', onResize)
+      clearTimeout(settle)
       active.forEach(reset)
     },
   }
