@@ -394,6 +394,9 @@ const BODY = 0.496   // where the body is across the cropped image (the flyer's 
 // 100Hz frames that arrive a touch early still count
 const MIN_STEP = 0.0095
 
+// ?perf: the garden reports its numbers for the readout (src/lib/perfProbe.js)
+const PERF = typeof location !== 'undefined' && new URLSearchParams(location.search).has('perf')
+
 export function mountGarden(canvas, kind = 'sunflowers') {
   const G = kind === 'meadow' ? MEADOW : GARDEN
   const main = canvas.getContext('2d')
@@ -436,14 +439,48 @@ export function mountGarden(canvas, kind = 'sunflowers') {
   img.src = '/assets/butterfly.png'
   img.decode().then(() => { bfly = prepare(img, G.bVivid); vividFor = G.bVivid; draw() }).catch(() => {})
 
+  /* The canvas resolution steps down if this machine can't keep up (2026-11-23: a friend's gaming laptop still
+     stuttered after the frame cap; on some laptops with two graphics chips Chrome paints canvases on the
+     processor, at full resolution). If frames keep coming late or a frame's drawing keeps costing more than
+     SLOW_COST for about two seconds, the garden drops to the next step: a little softer, never stuttering.
+     A machine that keeps up stays at its screen's resolution (at most 2x). ?perf shows the step it's on. */
+  const RES = [2, 1.5, 1, 0.75]
+  const SLOW_COST = 6, SLOW_FRAME = 0.028   // ms a draw, s between frames (under about 35 a second)
+  let res = 0, slowFor = 0, steppedAt = -9, rebuilds = 0
+  const resAt = (i) => Math.min(RES[i], devicePixelRatio || 1)
+
+  function sizeCanvases() {
+    dpr = resAt(res)
+    const W = canvas.clientWidth, H = canvas.clientHeight
+    for (const c of [canvas, nearCanvas, backCanvas, flowerCanvas]) { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr) }
+    redrawAll()
+  }
+
+  function lowerResolution() {
+    let next = res
+    while (next < RES.length - 1 && resAt(next) >= dpr) next++
+    if (resAt(next) >= dpr) return   // already as low as it goes
+    res = next; steppedAt = T; slowFor = 0
+    sizeCanvases()
+  }
+
+  function watchPace(gap) {
+    const slow = cost > SLOW_COST || gap > SLOW_FRAME
+    const step = Math.min(gap, 0.05)
+    slowFor = slow ? slowFor + step : Math.max(0, slowFor - step)
+    if (slowFor > 2 && T - steppedAt > 3) lowerResolution()
+  }
+
   function resize() {
     const W = canvas.clientWidth, H = canvas.clientHeight
     if (!W || !H) return
-    dpr = Math.min(2, devicePixelRatio || 1)
-    for (const c of [canvas, nearCanvas, backCanvas, flowerCanvas]) { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr) }
+    sizeCanvases()
     tooth ??= paperTooth()
     toothMain = main.createPattern(tooth, 'repeat')
     toothNear = near.createPattern(tooth, 'repeat')
+    // the same size (a zoom, a change of screen scaling): repaint, keep the garden and the butterfly's flight
+    if (scene && scene.W === W && scene.H === H) { draw(); return }
+    rebuilds++
     scene = build(W, H, G, kind)
     fly.cx = null; fly.mode = 'cruise'; fly.w = 0; fly.flower = null; fly.next = T + 2
     draw()
@@ -1107,14 +1144,16 @@ export function mountGarden(canvas, kind = 'sunflowers') {
       if (visible && !reduce.matches) raf = requestAnimationFrame(frame)
       return
     }
-    const dt = last ? Math.min(0.05, t - last) : 0
+    const gap = last ? t - last : 0
+    const dt = Math.min(0.05, gap)
     last = t
     T += dt
     if (scene) {
       const t0 = performance.now()
       update(dt); draw(false)
       cost = cost * 0.95 + (performance.now() - t0) * 0.05   // smoothed, shown in the ?garden panel
-      if (dt) rate = rate * 0.95 + (1 / dt) * 0.05
+      if (dt) { rate = rate * 0.95 + (1 / dt) * 0.05; watchPace(gap) }
+      if (PERF) window.__garden = { kind, cost, rate, dpr, screen: devicePixelRatio, steps: res, rebuilds, size: `${canvas.width}x${canvas.height}` }
     }
     if (visible && !reduce.matches) raf = requestAnimationFrame(frame)
   }

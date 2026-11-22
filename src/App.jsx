@@ -12,6 +12,13 @@ function App() {
   // sound wakes on the first click, tap or key (dragging the window open counts) and loads then.
   // The Coming Soon face has nothing to play, so it never downloads the samples.
   useEffect(() => { if (!SOON) { armUnlockOnFirstGesture(); preloadPagesWhenIdle() } }, [])
+  // ?perf: how the page runs on this machine (lib/perfProbe.js), fetched only when asked for
+  useEffect(() => {
+    if (!new URLSearchParams(location.search).has('perf')) return
+    let stop = null, gone = false
+    import('./lib/perfProbe').then(({ mountPerfProbe }) => { if (!gone) stop = mountPerfProbe() })
+    return () => { gone = true; stop?.() }
+  }, [])
   // smooth scrolling on every page but home (one screen, and the intro's scroll lock): smoothScroll.js
   const home = SOON || !['/work', '/work/bolt', '/about'].includes(path)
   useEffect(() => {
