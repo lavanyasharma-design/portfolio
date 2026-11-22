@@ -81,16 +81,18 @@ export const GARDEN = {
    page tunes this one, colours included. */
 export const MEADOW = {
   ...GARDEN,
-  // her values from ?garden on /about (2026-11-22, second round); the same on phones, but for the far
-  // grass's height, which is desktop only (phones keep phoneTall)
+  // her values from ?garden on /about (2026-11-22, second round; the meadow's own 2026-11-23); the same on
+  // phones, but for the far grass's height, which is desktop only (phones keep phoneTall)
+  seed: 15,              // which garden (hers for the meadow; the sunflowers keep 32)
   density: 1.25,         // how much grass
   farTall: 0.84,         // the far grass shorter on desktop
   light: 0.17,           // washes the greens lighter
-  grain: 0.4,            // pencil grain
+  grain: 0.42,           // pencil grain
   reach: 128, brush: 1.4, spring: 4.5, tipBend: 1.3, softness: 0.35,   // the grass and the cursor
   flowerTouch: 0.4,      // how much the flowers move with the cursor
   flowerTwitch: 0.8,     // the twitch when the cursor passes over a head
-  petalSpeed: 0.6,       // breezes a second through the petals
+  petalBreeze: 0.45,     // petals stirring in the breeze
+  petalSpeed: 0.7,       // breezes a second through the petals
   dart: 155,             // px the butterfly darts from the cursor or a tap
   petal: '#85b4db',      // petals: the body (the tulips' blues, hers)
   petalShade: '#5b86ae', // the petals behind, turned away
@@ -105,12 +107,12 @@ export const MEADOW = {
   grassFar: '#94ac80',   // far grass
   grassMid: '#9bb087',   // middle grass
   grassNear: '#5f7c4b',  // near grass and the ground
-  flowers: 3.4,          // how many flowers (the sunflowers are 1.4)
-  flowerSize: 1,         // their size (a petal 17-23 long on medium ones, about the tulips' size, 10-14 on small ones)
+  flowers: 3.2,          // how many flowers (the sunflowers are 1.4)
+  flowerSize: 1.28,      // their size (a petal 17-23 long on medium ones, about the tulips' size, 10-14 on small ones)
   small: 0.6,            // the share that are small
-  buds: 0.25,            // the share that are still buds
-  sprigs: 1,             // how many fine sprigs of tiny pale blossoms
-  nod: 0.1,              // how far the heads tip over (0: following their stems)
+  buds: 0.2,             // the share that are still buds
+  sprigs: 1.1,           // how many fine sprigs of tiny pale blossoms
+  nod: 0,                // how far the heads tip over (0: following their stems)
   // phones (600 and narrower) have their own say over how the flowers stand (hers, 2026-11-22, for the
   // tulips: they tilted on her phone, unasked); ?meadow opens a short panel for these
   leanPhone: 0.25,       // how far the stems lean (1 as on desktop)
