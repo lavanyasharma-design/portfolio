@@ -34,7 +34,7 @@ const Wing = ({ side, wingRef }) => (
   </div>
 )
 
-function Butterfly({ bflyRef, onTwitch }) {
+function Butterfly({ bflyRef, onTwitch, className = '', style }) {
   const bodyRef = useRef(null), leftRef = useRef(null), rightRef = useRef(null)
   const busy = useRef(false)
 
@@ -85,7 +85,7 @@ function Butterfly({ bflyRef, onTwitch }) {
   }, [bflyRef])
 
   return (
-    <div ref={bflyRef} className="bfly" data-no-motif="" onPointerEnter={twitch} onPointerDown={twitch}>
+    <div ref={bflyRef} className={`bfly ${className}`.trim()} style={style} data-no-motif="" onPointerEnter={twitch} onPointerDown={twitch}>
       <div ref={bodyRef} className="bfly-body">
         <Wing side="l" wingRef={leftRef} />
         <Wing side="r" wingRef={rightRef} />

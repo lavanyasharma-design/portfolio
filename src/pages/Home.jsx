@@ -26,7 +26,7 @@ function Home() {
   return (
     <>
       {!skipIntro && <WindowIntro heroRef={heroRef} heroBflyRef={bflyRef} onReveal={() => setRevealed(true)} />}
-      <Hero revealed={revealed} heroRef={heroRef} bflyRef={bflyRef} />
+      <Hero revealed={revealed} heroRef={heroRef} bflyRef={bflyRef} riseBfly={skipIntro} />
     </>
   )
 }

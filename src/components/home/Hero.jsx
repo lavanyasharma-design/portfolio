@@ -29,7 +29,11 @@ function SoundSwitch() {
  * heroRef / bflyRef are the flight target for WindowIntro.
  * On lavanyaaa.com (or ?soon) it shows the "coming soon" face instead: one line, butterfly beside it.
  */
-function Hero({ revealed, heroRef, bflyRef }) {
+// coming back home (no intro, nothing lands on it), the butterfly rises in with the words beside it
+// rather than sitting there already (hers, 2026-11-23: "abrupt"); after the intro the flyer lands on it instead
+const bflyRise = (on, delay) => (on ? { className: 'rise', style: { animationDelay: `${delay}s` } } : {})
+
+function Hero({ revealed, heroRef, bflyRef, riseBfly }) {
   const notes = useNotesPlayed()
   const siteRef = useRef(null)
   useEffect(() => {
@@ -55,13 +59,13 @@ function Hero({ revealed, heroRef, bflyRef }) {
         {SOON ? (
           <section ref={heroRef} className="hero-soon">
             <h1 className="serif rise" style={{ animationDelay: '.1s' }}>Coming Soon</h1>
-            <Bfly bflyRef={bflyRef} />
+            <Bfly bflyRef={bflyRef} {...bflyRise(riseBfly, .1)} />
           </section>
         ) : <>
         <section ref={heroRef} className="hero">
           <p className="hi sans rise" data-no-motif="" style={{ animationDelay: '.1s' }}>Hello, I’m Lavanya</p>
           <h1 className="serif rise" style={{ animationDelay: '.2s' }}><span className="l1" data-no-motif="">Product</span> <span className="l2" data-no-motif="">Designer</span></h1>
-          <Bfly bflyRef={bflyRef} onTwitch={playButterflySound} />
+          <Bfly bflyRef={bflyRef} onTwitch={playButterflySound} {...bflyRise(riseBfly, .2)} />
           <p className="tag sans rise" data-no-motif="" style={{ animationDelay: '.3s' }}>systems thinker, backend literate &amp; stubborn about clarity</p>
         </section>
         <nav className="links sans rise" style={{ animationDelay: '.45s' }} aria-label="Sections">
