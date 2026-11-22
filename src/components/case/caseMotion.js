@@ -1,4 +1,5 @@
 import { animate, inView, scroll } from 'motion'
+import { EASE } from '../../lib/motion'   // the site's ease out (--ease-out)
 
 /**
  * Motion on a case study page, set up once per page (imperative, like the rest of the site):
@@ -19,7 +20,6 @@ export const CASE_MOTION = {
   riseAt: 0.05,     // how far up from the bottom of the screen a block starts rising (fraction)
 }
 
-const EASE = [0.2, 0, 0, 1] // --ease-out
 
 // with ?parallax open, the panel's values persist on this device so a reload shows the rise again
 const KEY = 'case-motion-v1'

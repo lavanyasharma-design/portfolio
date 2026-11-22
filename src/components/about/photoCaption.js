@@ -1,4 +1,5 @@
 import { animate } from 'motion'
+import { DUR, EASE } from '../../lib/motion'
 
 /**
  * The About photos' captions, after Rachel Chen's about page (her reference, 2026-11-21): on desktop the
@@ -85,12 +86,12 @@ export function mountPhotoCaptions(root) {
     x = tx; y = ty
     label.style.translate = `${x}px ${y}px`
     animate(label, { opacity: 1, scale: reduce ? 1 : [CAPTION.pop, 1] },
-      reduce ? { duration: 0.1 } : { type: 'spring', stiffness: CAPTION.stiffness, damping: CAPTION.damping, opacity: { duration: 0.15 } })
+      reduce ? { duration: 0.1 } : { type: 'spring', stiffness: CAPTION.stiffness, damping: CAPTION.damping, opacity: { duration: DUR.quick, ease: EASE } })
   }
   const hide = () => {
     if (!current) return
     current = null
-    animate(label, { opacity: 0, scale: reduce ? 1 : 0.96 }, { duration: 0.15, ease: [0.2, 0, 0, 1] })
+    animate(label, { opacity: 0, scale: reduce ? 1 : 0.96 }, { duration: DUR.quick, ease: EASE })
   }
 
   const check = () => {

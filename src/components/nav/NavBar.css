@@ -4,12 +4,13 @@
    side padding as the page), so the bar's right edge sits on the content's right edge as in Figma.
    left/right 0 rather than 100vw, so the scrollbar is never counted */
 .nav-dock{
-  --side:clamp(20px, 8.6vw, 130px);
+  --side:clamp(20px, 8.6vw, 128px);
   position:fixed;z-index:20;top:60px;left:0;right:0;
   max-width:calc(1252px + 2 * var(--side));margin-inline:auto;padding-inline:var(--side);
   display:flex;justify-content:flex-end;
   pointer-events:none;
-  transition:transform .4s var(--ease-out), opacity .4s var(--ease-out);
+  view-transition-name:nav;   /* its own layer in the page change (index.css) */
+  transition:transform var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out);
 }
 /* stepping aside for the footer (Work.jsx): desktop lifts and fades, phones slide down */
 .nav-dock.hidden{transform:translateY(-16px);opacity:0}
@@ -31,7 +32,7 @@
   --glow:color-mix(in srgb, var(--deep) var(--glowa), transparent);
   pointer-events:auto;position:relative;
   /* moving between pages the outline and float fade to the new section's colours (NavBar.jsx) */
-  transition:border-color .6s cubic-bezier(.22,1,.36,1), box-shadow .6s cubic-bezier(.22,1,.36,1);
+  transition:border-color var(--dur-slow) var(--ease-out), box-shadow var(--dur-slow) var(--ease-out);
   display:flex;align-items:center;gap:20px;padding:calc(4px - var(--sw)) calc(8px - var(--sw));
   background:var(--color-white-default);border:var(--sw) solid var(--line);border-radius:8px;
   box-shadow:var(--nav-shadow, 0 2px 4px 0) var(--drop), var(--nav-glow, 0 8px 24px 0) var(--glow);
@@ -86,7 +87,7 @@
   .nav-dock{
     top:auto;bottom:0;max-width:none;margin:0;
     justify-content:center;
-    padding:10px 20px calc(11px + env(safe-area-inset-bottom));
+    padding:12px 20px calc(12px + env(safe-area-inset-bottom));
     background:var(--color-white-default);pointer-events:auto;
   }
   .nav-dock.hidden{transform:translateY(100%);opacity:0;pointer-events:none}
@@ -98,6 +99,6 @@
 
 @media (prefers-reduced-motion:reduce){
   .navbar{transition:none}
-  .nav-dock{transition:opacity .2s linear}
+  .nav-dock{transition:opacity var(--dur-quick) linear}
   .nav-dock.hidden{transform:none}
 }

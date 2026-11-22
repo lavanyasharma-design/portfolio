@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { animate } from 'motion'
+import { DUR, EASE } from '../../lib/motion'
 import { applyNavLook, mountNavPanel } from './navLook'
 import SectionLink from '../home/SectionLink'
 import Butterfly from '../home/Butterfly'
@@ -23,8 +24,8 @@ import './NavBar.css'
  * fades over to the new section's colours. Reduced motion: it's simply there.
  */
 const SLIDE = {
-  duration: 0.6,                 // s, the glide
-  ease: [0.22, 1, 0.36, 1],      // eased out: quick away, settling softly
+  duration: DUR.slow,            // s, the glide (the site's slow timing)
+  ease: EASE,                    // the site's ease out
 }
 
 // the section the bar shows (or showed), and when it went away (null while it's still up), so the next

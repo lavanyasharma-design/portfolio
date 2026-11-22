@@ -44,7 +44,7 @@ export const GALLERY = [
       photo('roadcast-1', 'product & business team', 294, 180),
       photo('roadcast-2', 'launched a campaign with this team', 295, 197),
     ] },
-    { label: 'People I learnt ample from', gap: 25, photos: [
+    { label: 'People I learnt ample from', gap: 24, photos: [
       photo('bharatpe-1', 'the design team', 275, 225),
       photo('bharatpe-2', 'PMs I worked with', 275, 215),
     ] },

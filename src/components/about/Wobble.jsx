@@ -1,14 +1,13 @@
 import { useMemo } from 'react'
 
 /**
- * Hand-drawn strokes, after Figma's "Dynamic" stroke she used on the About page (2026-11-22): the photo
- * frames (frequency 0.17, wiggle 0.3, smoothen 0.7) and the corner brackets (frequency 0.75, wiggle 0.3,
- * smoothen 0.5), 2px teal/pressed. The line wanders a little either side of the true edge, smoothly, as
+ * Hand-drawn strokes, after Figma's "Dynamic" stroke she used on the About page (2026-11-22): the corner
+ * brackets (frequency 0.75, wiggle 0.3, smoothen 0.5), 2px teal/pressed. (The photos' wobbly frames went the
+ * same day: two corners on every photo instead.) The line wanders a little either side of the true edge, smoothly, as
  * a pen would. Seeded, so every photo keeps the same wobble on every visit.
  * WOBBLE holds the look (bump spacing and height, in design px); measured against her Figma at 4x.
  */
 const WOBBLE = {
-  frame: { period: 4.5, amp: 0.6 },    // the photo frames
   corner: { period: 3.2, amp: 0.55 },  // the brackets
 }
 
@@ -45,16 +44,6 @@ function wobblePath(pts, closed, seed, { period, amp }, step = 1.25) {
     s += len
   }
   return `M${out.join('L')}${closed ? 'Z' : ''}`
-}
-
-/** a hand-drawn rectangle over its parent, drawn at the design size (w x h) and scaled with it */
-export function WobblyFrame({ w, h, seed }) {
-  const d = useMemo(() => wobblePath([[0, 0], [w, 0], [w, h], [0, h]], true, seed, WOBBLE.frame), [w, h, seed])
-  return (
-    <svg className="ab-wobble" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" aria-hidden="true">
-      <path d={d} vectorEffect="non-scaling-stroke" />
-    </svg>
-  )
 }
 
 /** an 18 x 18 corner bracket (her viewfinder marks); `at` is tl, tr, bl or br */

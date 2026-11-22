@@ -1,6 +1,6 @@
 /* ---------- page footer: Figma 346:205 (desktop, 1512 wide), 346:9493 (phone, 402 wide) ---------- */
 .page-foot{
-  --side:clamp(20px, 8.6vw, 130px);
+  --side:clamp(20px, 8.6vw, 128px);
   /* text to garden 40, 24 on phones, so the grass pokes up just under the text when you reach the
      bottom (Lavanya, 2026-11-14; Figma 70 / 40) */
   display:flex;flex-direction:column;gap:40px;
@@ -16,7 +16,7 @@
    56px Cormorant line, 6px in the 20px DM Sans line), so both first lines share a cap height */
 .pf-note{
   display:grid;grid-template-columns:minmax(0, 613fr) minmax(0, 508fr);align-items:start;
-  column-gap:clamp(40px, 8.6vw, 130px);
+  column-gap:clamp(40px, 8.6vw, 128px);
   width:100%;max-width:calc(1252px + 2 * var(--side));margin-inline:auto;padding-inline:var(--side);
   box-sizing:border-box;
 }

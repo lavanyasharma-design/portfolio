@@ -1,21 +1,20 @@
 /* ---------- About: her rough layout (Figma Portfolio-Design 419:14, desktop 1512, 2026-11-22) ----------
-   Content 1252 wide with 130 each side (as Work). Her photo 164 x 176 inside two viewfinder brackets (180 x 188
-   with them), "Hi!" and the intro (Desktop/H8 36) 13 right of the brackets and 35 down; the words (Desktop/Body
-   18, 23 a line) flow from the intro's left edge beside the photo, then across, and stop 24 short of the
-   Experience box (305 wide, its four brackets, padding 18, no border), whose heading lines up with the second
-   paragraph. Then {visuals from my journey so far} and the photo groups in the frame sizes she drew, each photo
-   in a hand-drawn 2px teal frame with her card shadow.
-   The values she tunes come in as CSS variables from aboutLayout.js (?about).
-   Top padding 131 / 56 (the rule for pages after work; her frame has 137 to the brackets). */
+   Content 1252 wide with 128 each side. Her photo inside two viewfinder brackets 8 off it, "Hi!" and the intro
+   (Desktop/H8 36) 12 right of the brackets; the words (Desktop/Body 18 on 24) flow from the intro's left edge
+   beside the photo, then across, and stop 24 short of the Experience box (304 wide, its four brackets, padding
+   16, no border), whose heading lines up with the second paragraph. Then {visuals from my journey so far} and
+   the photo groups in the frame sizes she drew, each photo between two corner brackets 2 off its edges.
+   Every space on the 4px grid (hers, 2026-11-22). The values she tunes come in as CSS variables from
+   aboutLayout.js (?about). Top padding 132 / 56. */
 html:has(.about-page),html:has(.about-page) body{background:var(--color-white-default)}
 
 .about-page{
-  --side:clamp(20px, 8.6vw, 130px);
-  --box-w:305px;
+  --side:clamp(20px, 8.6vw, 128px);
+  --box-w:304px;
   min-height:100%;
   background:var(--color-white-default);
   color:var(--color-black-default);
-  padding-top:131px;
+  padding-top:132px;
   font-family:var(--font-sans);font-variation-settings:"opsz" 14;line-height:normal;
 }
 .ab-wrap :is(p,h1,h2,h3,figure,ul,ol){margin:0}
@@ -38,36 +37,34 @@ html:has(.about-page),html:has(.about-page) body{background:var(--color-white-de
 .ab-top{position:relative}
 .ab-flow{
   --me-h:calc(var(--me-size, 164px) * 176 / 164);
-  --intro-left:calc(var(--me-size, 164px) + 29px);   /* 16 of brackets + 13 to the intro (her 193) */
+  --intro-left:calc(var(--me-size, 164px) + 28px);   /* 16 of brackets + 12 to the intro */
   position:relative;
 }
 .ab-flow::after{content:"";display:block;clear:both}
 /* the photo with brackets on its top right and bottom left corners (hers, in place of the tape) */
-.ab-me-group{position:relative;width:calc(var(--me-size, 164px) + 16px);padding:6px 8px;float:left;margin:0 13px 8px 0}
+.ab-me-group{position:relative;width:calc(var(--me-size, 164px) + 16px);padding:8px;float:left;margin:0 12px 8px 0}
+/* her photo; it takes the gallery's caption ("That's me!") on hover, a tap or tabbing to it */
 .ab-me{position:relative;width:100%;height:var(--me-h);overflow:hidden}
-/* the photo, and the water over it once drawn (WaterPhoto.jsx, her hello page) */
-.ab-me :is(img,canvas){
+.ab-me img{
   position:absolute;inset:0;
   display:block;width:100%;height:100%;object-fit:cover;
   transform:scale(var(--me-zoom, 1.25));transform-origin:var(--me-x, 52%) var(--me-y, 38%);
 }
 /* Desktop/H8 */
-.ab-intro{font-family:var(--font-serif);font-weight:500;font-size:36px;line-height:normal;padding-top:var(--intro-top, 35px)}
-/* Desktop/Body, 23 a line (her Figma) */
+.ab-intro{font-family:var(--font-serif);font-weight:500;font-size:36px;line-height:normal;padding-top:var(--intro-top, 36px)}
+/* Desktop/Body, 24 a line (on the 4px grid; Figma's auto was 23) */
 .ab-paras{display:flex;flex-direction:column;gap:var(--para-gap, 16px);padding-top:var(--words-gap, 24px)}
-.ab-paras p,.ab-line{font-size:18px;line-height:23px}
+.ab-paras p,.ab-line{font-size:18px;line-height:24px}
 
 /* the flow (textFlow.js): the photo and intro placed, the real paragraphs kept for screen readers, every
    line painted where Pretext put it */
 .ab-flow.flowing .ab-me-group{position:absolute;left:0;top:0;float:none;margin:0}
-.ab-flow.flowing .ab-intro{position:absolute;top:var(--intro-top, 35px);left:var(--intro-left);right:0;padding:0}
+.ab-flow.flowing .ab-intro{position:absolute;top:var(--intro-top, 36px);left:var(--intro-left);right:0;padding:0}
 .ab-flow.flowing .ab-paras{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-/* the lines layer lies over her photo too: only the lines themselves take the pointer, so the water gets it */
+/* the lines layer lies over her photo too: only the lines themselves take the pointer, so her photo gets it */
 .ab-lines{position:absolute;inset:0;pointer-events:none}
 .ab-line{pointer-events:auto}
 .ab-line{position:absolute;left:0;top:0;white-space:pre;will-change:transform}
-/* a letter the ripple nudges (ripple.js): relative offsets, so her wavy underlines go with it */
-.about-page .rl{position:relative}
 .ab-line[hidden]{display:none}
 .ab-probe{visibility:hidden}
 .ab-flow:not(.flowing) .ab-lines{display:none}
@@ -78,28 +75,32 @@ html:has(.about-page),html:has(.about-page) body{background:var(--color-white-de
 .ab-corner.tr{right:0;top:0}
 .ab-corner.bl{left:0;bottom:0}
 .ab-corner.br{right:0;bottom:0}
+/* on a gallery photo: just outside two corners, the line 4 off its edges (hers, 2026-11-22: 2 read off; her photo's sit 8 off) */
+.ab-frame .ab-corner.tr{top:-5px;right:-5px}
+.ab-frame .ab-corner.bl{bottom:-5px;left:-5px}
 
 /* ---------- Experience: four brackets, no border; beside the words on desktop, from the second paragraph ---------- */
 .ab-resume-box{
   position:relative;box-sizing:border-box;width:var(--box-w);
-  display:flex;flex-direction:column;align-items:flex-start;padding:18px;margin-top:32px;
+  display:flex;flex-direction:column;align-items:flex-start;padding:16px;margin-top:32px;
   color:var(--color-black-highlight);
 }
 .ab-flow.flowing + .ab-resume-box{position:absolute;right:0;top:0;margin:0}
-/* Cormorant Medium 24, grey */
-.ab-resume-box h2{font-family:var(--font-serif);font-weight:500;font-size:24px}
+/* Desktop/H7 (Cormorant SemiBold 24, 2%) in grey; was Medium, not one of her styles */
+.ab-resume-box h2{font-family:var(--font-serif);font-weight:600;font-size:24px;letter-spacing:.02em}
 /* 12 under the heading and 12 above "my resume" (hers, 2026-11-22: the heading sat on the jobs; the box keeps its height) */
 .ab-resume-box .ab-jobs{display:flex;flex-direction:column;gap:12px;margin-top:12px}
 .ab-jobs li{display:flex;flex-direction:column;gap:4px}
 /* Desktop/H5 in black, then Desktop/Caption in grey */
 .ab-jobs h3{font-family:var(--font-serif);font-weight:600;font-size:20px;color:var(--color-black-default);white-space:nowrap}
 .ab-jobs p{font-size:16px}
-/* DM Sans Light 16, grey, underlined, at the box's right (her Figma); opens her resume on Google Drive */
+/* Desktop/Caption (DM Sans 16; her Figma had Light, not one of her styles), grey, underlined, at the box's
+   right; opens her resume on Google Drive */
 .ab-resume{
   align-self:flex-end;margin-top:12px;
   display:inline-flex;align-items:center;gap:1px;padding-bottom:1px;
-  font-size:16px;font-weight:300;line-height:1.2;color:var(--color-black-highlight);text-decoration:none;border-bottom:1px solid currentColor;
-  -webkit-tap-highlight-color:transparent;transition:color .2s var(--ease-out);
+  font-size:16px;font-weight:400;line-height:1.2;color:var(--color-black-highlight);text-decoration:none;border-bottom:1px solid currentColor;
+  -webkit-tap-highlight-color:transparent;transition:color var(--dur-quick) var(--ease-out);
 }
 /* no ripple and no hover: only the colour, turning teal as it's clicked (hers, 2026-11-22) */
 .ab-resume:active{color:var(--color-teal-pressed)}
@@ -120,30 +121,29 @@ html:has(.about-page),html:has(.about-page) body{background:var(--color-white-de
 .ab-photos{display:flex;align-items:flex-start;column-gap:var(--gap)}
 .ab-print{flex:none}
 .ab-photo{outline:none;-webkit-tap-highlight-color:transparent}
-/* the frame she drew: her card shadow, the photo filling it (zoom and centre per photo, ?about), the
-   hand-drawn teal line over its edge */
-.ab-frame{position:relative;box-shadow:0 2px 4px rgb(0 0 0 / .12)}
+/* the frame she drew, the photo filling it (zoom and centre per photo, ?about), no shadow, as her photo
+   (the wobbly frame and card shadow went, 2026-11-22); the corner brackets sit just outside it */
+.ab-frame{position:relative}
 .ab-pic{position:absolute;inset:0;overflow:hidden;background:var(--color-tile-border)}
 .ab-pic img{
   display:block;width:100%;height:100%;object-fit:cover;object-position:var(--fx, 50%) var(--fy, 50%);
   transform:scale(var(--zoom, 1));transform-origin:var(--fx, 50%) var(--fy, 50%);
 }
-.ab-wobble{position:absolute;inset:0;width:100%;height:100%;overflow:visible;fill:none;stroke:var(--color-teal-pressed);stroke-width:2;pointer-events:none}
-.ab-photo:focus-visible .ab-frame{outline:2px solid var(--color-teal-default);outline-offset:4px}
+.ab-photo:focus-visible .ab-frame,.ab-me.ab-photo:focus-visible{outline:2px solid var(--color-teal-default);outline-offset:4px}
 .ab-frame.picked{outline:2px dashed var(--color-pink-default);outline-offset:6px}   /* ?about: the photo being fitted */
 
 /* the caption (her hover style): beside the pointer on desktop (.ab-cursor, photoCaption.js), on the photo
-   after a tap on phones or when tabbed to (.ab-chip). Cormorant SemiBold 20 in deep teal on teal/highlight,
-   padding 2, radius 2 */
+   after a tap on phones or when tabbed to (.ab-chip). Desktop/H5 (Cormorant SemiBold 20) in deep teal on
+   teal/highlight, radius 2, padding 4 (her Figma's 2, onto the grid) */
 .ab-cursor,.ab-chip{
-  padding:2px;border-radius:2px;
+  padding:4px;border-radius:2px;
   background:var(--color-teal-highlight);color:#33778f;
   font-family:var(--font-serif);font-weight:600;font-size:20px;line-height:normal;white-space:nowrap;
 }
 .ab-cursor{position:fixed;left:0;top:0;z-index:60;pointer-events:none;opacity:0;transform-origin:0 0;will-change:translate}
 .ab-chip{
   position:absolute;z-index:1;left:8px;bottom:8px;max-width:calc(100% - 16px);white-space:normal;
-  opacity:0;translate:0 4px;transition:opacity .2s var(--ease-out),translate .2s var(--ease-out);pointer-events:none;
+  opacity:0;translate:0 4px;transition:opacity var(--dur-quick) var(--ease-out),translate var(--dur-quick) var(--ease-out);pointer-events:none;
 }
 .ab-photo.shown .ab-chip,.ab-photo:focus-visible .ab-chip{opacity:1;translate:0 0}
 
@@ -157,9 +157,9 @@ html:has(.about-page),html:has(.about-page) body{background:var(--color-white-de
 }
 /* phones and narrow windows: each group's photos two to a row, the groups one under another (Rachel Chen's layout) */
 @media (max-width:840px){
-  .ab-gallery{gap:var(--group-gap-narrow, 78px)}
-  .ab-gallery > .ab-label + *{margin-top:calc(var(--throw-gap-narrow, 28px) - var(--group-gap-narrow, 78px))}
-  .ab-row{flex-direction:column;row-gap:var(--group-gap-narrow, 78px)}
+  .ab-gallery{gap:var(--group-gap-narrow, 80px)}
+  .ab-gallery > .ab-label + *{margin-top:calc(var(--throw-gap-narrow, 28px) - var(--group-gap-narrow, 80px))}
+  .ab-row{flex-direction:column;row-gap:var(--group-gap-narrow, 80px)}
   .ab-group{flex-basis:auto;width:100%}
   .ab-photos{flex-wrap:wrap;gap:16px}
   .ab-print{width:calc(50% - 8px) !important}
@@ -173,33 +173,32 @@ html:has(.about-page),html:has(.about-page) body{background:var(--color-white-de
   .ab-flow{--me-size:var(--me-size-phone, 122px);--me-zoom:var(--me-zoom-phone, 1.46);--intro-left:calc(var(--me-size) + 28px)}
   .ab-me-group{margin-right:12px}
   /* the intro 4 lower and the words 4 closer, so the paragraph stays put (hers, 2026-11-22: the gap under the intro looked odd) */
-  .ab-flow{--words-gap:25px}
+  .ab-flow{--words-gap:24px}
   .ab-flow.flowing .ab-intro,.ab-intro{top:16px;padding-top:0}
   .ab-flow:not(.flowing) .ab-intro{padding-top:16px}
-  .ab-intro{font-size:24px;font-weight:600}          /* Desktop/H7, as the case studies' phone headings */
-  .ab-paras p,.ab-line{font-size:16px;line-height:21px}   /* Mobile/Body */
+  .ab-intro{font-size:24px;font-weight:600}          /* Desktop/H7 without its spacing, as the case studies' phone headings */
+  .ab-paras p,.ab-line{font-size:16px;line-height:24px}   /* Mobile/Body, 24 a line (on the grid; was 21) */
   .ab-flow.flowing + .ab-resume-box{width:100%;margin-top:32px}
   .ab-resume-box{width:100%}
-  .ab-resume-box h2{font-size:22px}
-  .ab-jobs h3{font-size:18px}
+  .ab-resume-box h2{font-size:24px;letter-spacing:0}  /* as the intro on phones (was 22, not a style) */
+  .ab-jobs h3{font-size:20px}                       /* Mobile/h5 (was 18, not a style) */
   .ab-jobs p,.ab-resume{font-size:14px}              /* Mobile/Caption */
   .about-page .ab-gallery{margin-top:56px;gap:32px}
   .ab-gallery > .ab-label + *{margin-top:-8px}      /* 24 under the title */
   .ab-row{row-gap:32px}
   .ab-group{gap:16px}
   .ab-label{font-size:16px}
-  .ab-group-label{font-size:20px}                   /* Mobile/h5 */
-  .ab-chip{font-size:16px;left:6px;bottom:6px;max-width:calc(100% - 12px)}
+  .ab-group-label{font-size:20px;letter-spacing:0}  /* Mobile/h5 */
+  .ab-chip{font-size:16px;letter-spacing:.01em;left:8px;bottom:8px;max-width:calc(100% - 16px)}   /* Mobile/caption 2 */
 }
 
-/* the line under the pointer turns the teal of her wriggles, one line at a time (after Pretext's dynamic-layout demo: 120ms) */
-.ab-line{transition:color .12s}
+/* the line under the pointer turns the teal of her wriggles, one line at a time (after Pretext's dynamic-layout
+   demo); the page's one hover on its words (the ripple went, 2026-11-22) */
+.ab-line{transition:color var(--dur-quick) var(--ease-out)}
 .ab-line.lit{color:var(--color-teal-pressed)}
 /* on the lit line her teal wriggles turn grey, the inverse (hers) */
-.ab-line .u{transition:text-decoration-color .12s}
+.ab-line .u{transition:text-decoration-color var(--dur-quick) var(--ease-out)}
 .ab-line.lit .u{text-decoration-color:var(--color-black-highlight)}
-.ab-water{opacity:0;transition:opacity .3s}
-.ab-water.ready{opacity:1}
 
 /* the footer's links in her teal on this page, not [work]'s purple (hers, 2026-11-22) */
 .about-page .pf-hi a{color:var(--color-teal-pressed)}

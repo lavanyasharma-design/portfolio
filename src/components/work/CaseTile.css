@@ -4,7 +4,7 @@
   position: relative;
   display: block;
   aspect-ratio: 606 / 396;
-  transition: box-shadow var(--fx-zoom-time, .3s) var(--ease-out);
+  transition: box-shadow var(--fx-zoom-time, var(--dur-base)) var(--ease-out);
   /* the ratio is for the inside, so the 1px border doesn't squash the 606x396 design */
   box-sizing: content-box;
   /* background, border and shadow come from LOOK in tiles.js, set as variables by Work.jsx */
@@ -21,7 +21,7 @@
   /* one design pixel of the 606px tile */
   --u: calc(100cqw / 606);
   background: var(--tile-bg, #f7f2ff);
-  transition: transform var(--fx-zoom-time, .3s) var(--ease-out);
+  transition: transform var(--fx-zoom-time, var(--dur-base)) var(--ease-out);
 }
 
 /* motif mode: the home page's background motif, at its Figma spacing in tile units */
@@ -35,7 +35,7 @@
   top: calc(var(--y) * var(--u));
   width: calc(var(--w) * var(--u));
   transform: rotate(calc(var(--rot) * 1deg));
-  transition: transform .7s var(--ease-out);
+  transition: transform var(--dur-slow) var(--ease-out);
 }
 
 /* the mockups are finished images: shown as they are, no shadow or overlay */

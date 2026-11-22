@@ -15,16 +15,14 @@ export const LAYOUT = {
   meX: 62,            // % across: the point the zoom centres on (her face)
   meY: 44,            // % down
   introTop: 36,       // px from the top of her photo's brackets to "Hi!"
-  wordsGap: 29,       // px from the intro to the first paragraph
+  wordsGap: 28,       // px from the intro to the first paragraph (hers 29, onto the grid)
   paraGap: 16,        // px between paragraphs (her Figma)
   throwTop: 80,       // px from the words and the Experience box down to {visuals from my journey so far} (hers: 56 looked congested)
   throwGap: 24,       // px from that title to the first group heading
   labelGap: 12,       // px from a group heading to its photos
-  groupGap: 90,       // px between photo groups
+  groupGap: 88,       // px between photo groups (hers 90, onto the grid)
   throwGapNarrow: 28, // the same two between 601 and 840 wide, the photos two to a row (hers, 2026-11-22)
-  groupGapNarrow: 78,
-  rippleRadius: 200,  // px, how far from the pointer letters are nudged (her hello page had 80)
-  ripplePush: 6.5,    // px, how far the nearest letters move
+  groupGapNarrow: 80,  // (hers 78, onto the grid)
 }
 
 // each gallery photo's fit inside the frame she drew: zoom (1 = just fills it) and the point it centres on (%).
@@ -45,7 +43,7 @@ export const PHOTO_FIT = {
 }
 const fit = (id) => (PHOTO_FIT[id] ??= { zoom: 1, x: 50, y: 50 })
 
-const KEY = 'about-layout-v7'
+const KEY = 'about-layout-v8'
 if (new URLSearchParams(location.search).has('about')) {
   try {
     const saved = JSON.parse(localStorage.getItem(KEY)) || {}
@@ -95,8 +93,6 @@ export function mountLayoutPanel(root, onChange) {
     ['groupGap', 'between groups', 16, 120, 2],
     ['throwGapNarrow', 'title gap (601-840)', 8, 64, 1],
     ['groupGapNarrow', 'groups (601-840)', 16, 120, 2],
-    ['rippleRadius', 'letter ripple reach', 20, 200, 2],
-    ['ripplePush', 'letter ripple push', 0, 20, 0.5],
   ]
   const ids = [...root.querySelectorAll('.ab-frame[data-id]')].map(f => f.dataset.id)
   el.innerHTML = `<b>about layout</b>${rows.map(([k, text, min, max, step]) =>

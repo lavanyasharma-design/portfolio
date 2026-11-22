@@ -28,8 +28,27 @@
   --ink: #181c1a;
   --ink-2: #66716b;
   --ease-out: cubic-bezier(.2, 0, 0, 1);
+  /* the site's three timings (hers, 2026-11-22: one rhythm for motion), with --ease-out everywhere:
+     quick for colour and hover, base for rises, presses and reveals, slow for glides and the page change.
+     JS reads the same from src/lib/motion.js. Springs (the butterfly, the garden, the caption's pop) and the
+     window intro's choreography keep their own */
+  --dur-quick: .2s;
+  --dur-base: .4s;
+  --dur-slow: .6s;
   --ease-push: cubic-bezier(.65, 0, .15, 1);
 }
+
+/* the page change (router.js): the old page fades out quickly, the new one fades in with a small rise, on the
+   site's timings. The nav bar is its own layer (NavBar.css), so it holds still while its highlight glides; to
+   or from home, where there's no bar, it fades with the page */
+@keyframes page-out { to { opacity: 0; transform: translateY(-8px) } }
+@keyframes page-in { from { opacity: 0; transform: translateY(8px) } }
+::view-transition-old(root) { animation: page-out var(--dur-quick) var(--ease-out) both }
+::view-transition-new(root) { animation: page-in var(--dur-base) var(--ease-out) both }
+::view-transition-group(nav), ::view-transition-old(nav), ::view-transition-new(nav) { animation: none }
+::view-transition-old(nav):only-child { animation: page-out var(--dur-quick) var(--ease-out) both }
+::view-transition-new(nav):only-child { animation: page-in var(--dur-base) var(--ease-out) both }
+::view-transition-old(nav):not(:only-child) { display: none }
 
 @theme static {
   --font-serif: "Cormorant Infant", serif;

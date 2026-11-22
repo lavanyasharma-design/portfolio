@@ -13,6 +13,8 @@ Current direction: a **window intro** (a pencil-drawn sash window you drag open;
 - **React 19** + **Vite**, **Tailwind CSS v4** (via `@tailwindcss/vite`)
 - **motion** (motion.dev, v12) for springs and tweens, imported from `motion` (not `motion/react`)
 - Fonts self-hosted via **@fontsource**: Cormorant Infant 600 (serif) and DM Sans variable with the `opsz` axis (sans, also the body default used by the intro hint and skip link)
+- **Lenis** (pinned 1.3.27) for smooth scrolling on every page but home (`src/lib/smoothScroll.js`); touch keeps native scroll; tune panels scroll natively
+- Page changes go through the View Transitions API in `router.js` (old page out quick, new page in with an 8px rise; the nav bar is its own `nav` layer so its pill glides through it); browsers without it and reduced motion switch instantly
 - **oxlint** for linting
 - Deployed on **Vercel**
 
@@ -90,7 +92,7 @@ public/motif.svg                   tiled page background
 
 ## About page (`/about`, first draft 2026-11-21, branch `about`)
 
-- Figma "About" (Portfolio-Design `sTVMEoN8NWkzAaEgBFy2xM`, page 1:6, frame 414:7014, desktop 1512), her draft layout with notes beside it: her photo (220 square), "I'm Lavanya and I'm a product designer." (Desktop/H7), three paragraphs 676 wide and 36 apart, the middle one set in by 106; the Experience box on the right (2px teal/highlight border, radius 5, padding 24, as long as its content: her notes), then {a visual throwback}: photo groups (Roadcast and BharatPe side by side, BharatPe 149 lower; Design Grad and Adventures in rows of four), a running number under each photo (Desktop/Caption 2); her frame drew them 295 x 214, now a loose layout (below). Top padding 131 / 56 (her frame has 141). Phones (her note): photo, words, Experience box, photos two to a row (Rachel Chen's layout), on the case studies' phone spacing.
+- Figma "About" (Portfolio-Design `sTVMEoN8NWkzAaEgBFy2xM`, page 1:6, frame 414:7014, desktop 1512), her draft layout with notes beside it: her photo (220 square), "I'm Lavanya and I'm a product designer." (Desktop/H7), three paragraphs 676 wide and 36 apart, the middle one set in by 106; the Experience box on the right (2px teal/highlight border, radius 5, padding 24, as long as its content: her notes), then {a visual throwback}: photo groups (Roadcast and BharatPe side by side, BharatPe 149 lower; Design Grad and Adventures in rows of four), a running number under each photo (Desktop/Caption 2); her frame drew them 295 x 214, now a loose layout (below). Top padding 132 / 56 (her frame has 141). Phones (her note): photo, words, Experience box, photos two to a row (Rachel Chen's layout), on the case studies' phone spacing.
 - **Her rough layout (2026-11-22, Figma 419:14) is now the design**, replacing the first and second looks (the taped, tilted print and the bordered Experience box are gone):
   - Her photo 164 x 176 (zoom / focus in `?about`) inside two hand-drawn teal viewfinder brackets (top right, bottom left), "Hi!" over "I'm ~Lavanya~ and I'm a product designer." (Desktop/H8 36) 13 right of the brackets and 35 down.
   - **The words flow** (`textFlow.js`, Pretext `@chenglou/pretext` pinned 1.0.0, the rich-inline API): from the intro's left edge beside the photo, then across, stopping 24 short of the Experience box, whose heading lines up with the second paragraph (the box sits 20 above it). Pretext breaks the lines and the page paints each one, so on desktop **the line under the pointer turns teal/pressed, one line at a time** (120ms, after Pretext's dynamic-layout demo), and her teal wriggles on that line turn grey, the inverse (hers, 2026-11-22). A round space opening round the pointer ("the cursor moulded effect") was built and dropped the same day: it made the words hard to read. Pretext measures on a canvas, which can't take the site's opsz 14, so widths are corrected by a DOM / canvas ratio plus a 1% margin; the real paragraphs stay in the DOM (sr-only) for screen readers and as the float-based fallback until fonts load. The box drops below the words at 960 and under.
@@ -105,6 +107,7 @@ public/motif.svg                   tiled page background
 - Experience entries from her resume ("Role @ Company / dates", as Rachel's). "my resume" opens her Google Drive file in a new tab, with an arrow-out icon (hers); `RESUME_URL` in aboutContent.js (empty until she sends the Drive link; no pink marker, hers).
 - Photos: her originals in `public/about page photos/` (not committed, the resume PDF too); the page uses WebP copies in `public/about/` (800 wide, quality 80, ffmpeg-static). Re-make them the same way if she swaps a photo.
 - [about] in the nav bar and on the home page now opens /about.
+- **Polish pass (2026-11-22, branch `polish`):** the letter ripple and the water photo are gone from About (they clashed with its line-minimal look; `ripple.js`, `WaterPhoto.jsx` deleted); the words' only hover is the teal line. Gallery photos lost the wobbly frame and card shadow and got two corner brackets (top right, bottom left) 4px off their edges, as her photo has; her photo takes the gallery caption "That’s me!". Spacing on the grid (sides 128, intro 12 off the brackets, brackets 8 off her photo, Experience box 304 wide with padding 16, words 28 under the intro, groups 88 / 80 / 32, body text on 24 lines); text styles locked (Experience heading Desktop/H7, the resume link Desktop/Caption Regular, phone box heading 24 and job titles Mobile/h5 20, caption chip padding 4).
 
 ## Coming soon (lavanyaaa.com)
 
@@ -138,9 +141,12 @@ public/motif.svg                   tiled page background
 - Micro-animations throughout
 - Mobile-first, fully responsive
 - Every design decision should be deliberate and distinctive, no generic templates
+- **Spacing on the 4px grid only** (hers, 2026-11-22): every margin, padding, gap and offset is a multiple of 4. Round Figma's measurements as they come in (131 → 132, 70 → 72, 30 → 32, 18 → 16, 13 → 12). Exceptions are optical, not spacing, and are commented where they sit: the case study index 10 lower so its capitals align with the title, the footer paragraph's 11 cap-height drop, the nav logo's geometry, the gallery corners 5 out (their line 4 off the photos).
+- **Three timings, one ease** (hers, 2026-11-22): `--dur-quick` .2s (colour, hover), `--dur-base` .4s (rises, presses, reveals, the nav stepping aside, tile hover), `--dur-slow` .6s (glides, the page change), all on `--ease-out`; JS reads `DUR` / `EASE` from `src/lib/motion.js`. Springs (butterfly, garden, caption pop) and the window intro's choreography keep their own.
+- **Text styles locked to Figma's** (Portfolio-Design local styles: Desktop/H1–H8, Body, Caption, Caption 2, Button 2/3; Mobile/h1–h7, Body, Caption, caption 2, Button). A size or weight that isn't one of them gets mapped to the nearest and noted.
 - British English throughout
 - No em dashes
-- **Top padding on every page after work** (case studies, about, play; Lavanya, 2026-11-15): use the work page's, not Figma's: **131** from the top of the page on desktop (clears the nav bar, which ends at 111), **56** on phones (Figma: 70). Where her Figma frame for a page shows a different top padding, build with 131 / 56 and flag the difference to her, in case she wants the Figma one.
+- **Top padding on every page after work** (case studies, about, play; Lavanya, 2026-11-15): use the work page's, not Figma's: **132** from the top of the page on desktop (was 131, onto the 4px grid 2026-11-22; clears the nav bar, which ends at 111), **56** on phones (Figma: 70). Where her Figma frame for a page shows a different top padding, build with 132 / 56 and flag the difference to her, in case she wants the Figma one.
 
 ## Credit / licence
 

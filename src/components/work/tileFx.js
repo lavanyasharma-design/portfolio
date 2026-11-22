@@ -8,7 +8,7 @@
  */
 export const FX = {
   zoom: 1.035,           // the picture's scale inside the card on hover / tap (the card doesn't move)
-  zoomTime: 0.55,        // s, zooming in and settling back
+  zoomTime: 0.4,         // s, zooming in and settling back (the site's base timing, 2026-11-22; was 0.55)
   shadow: '#dac2ff',     // hover shadow colour
   shadowY: 4,            // px down
   shadowBlur: 16,        // px

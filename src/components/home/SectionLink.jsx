@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import { animate } from 'motion'
 import { play } from '../../lib/sound/notes'
 import { navigate } from '../../router'
+import { DUR } from '../../lib/motion'
 
 /**
  * [work] / [about] / [play]. Pressing one (never hovering) plays the section's motif and eases the
@@ -11,7 +12,7 @@ import { navigate } from '../../router'
  */
 const BRACKETS = {
   spread: 0.25,     // em each bracket moves out (6px at the desktop 24px)
-  duration: 0.45,   // s, out and back in
+  duration: DUR.base,   // s, out and back in (the site's base timing; was 0.45)
 }
 
 function SectionLink({ name, to, current = false }) {
@@ -24,7 +25,7 @@ function SectionLink({ name, to, current = false }) {
     if (busy.current) return busy.current
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
     const d = reduce ? 0 : BRACKETS.spread
-    const opts = { duration: reduce ? 0.15 : BRACKETS.duration, times: [0, 0.4, 1], ease: ['easeOut', 'easeInOut'] }
+    const opts = { duration: reduce ? DUR.quick : BRACKETS.duration, times: [0, 0.4, 1], ease: ['easeOut', 'easeInOut'] }
     busy.current = Promise.all([
       animate(left.current, { x: ['0em', `${-d}em`, '0em'] }, opts),
       animate(right.current, { x: ['0em', `${d}em`, '0em'] }, opts),
