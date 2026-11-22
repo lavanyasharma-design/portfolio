@@ -1,107 +1,120 @@
 /**
- * The About page's tunable layout (hers to set by eye, 2026-11-21): her photo's size and zoom, where the
- * intro sits beside it, and the gaps she asked to tighten. Written as CSS variables on .about-page
- * (About.css reads them). `?about` opens a live panel; "copy values" gives the numbers to paste here.
+ * The About page's tunable layout (hers to set by eye). Written as CSS variables on .about-page (About.css
+ * reads them); the photo fits read these values live. `?about` opens a live
+ * panel; "copy values" gives the numbers to paste here.
+ * From her rough layout (Figma 419:14, 2026-11-22): her photo 164 x 176 with two viewfinder brackets (no tape
+ * or tilt any more), "Hi!" and the intro beside it, the words flowing round the photo and the Experience box,
+ * the gallery in the frame sizes she drew. Spacing on her 24 / 32 (hers: "24px mostly, 32px in some cases").
  */
+// her values from ?about (2026-11-22)
 export const LAYOUT = {
-  meSize: 180,        // px, her photo on desktop (was 220, her frame's)
-  meSizePhone: 120,   // px, on phones
-  meZoom: 1.25,       // how far the photo is zoomed in (1 = the whole square)
-  meX: 52,            // % across: the point the zoom centres on (her face)
-  meY: 38,            // % down
-  meTilt: 2,          // degrees her photo leans to the right (hers, 2026-11-21: a print stuck onto the page)
-  tapeAlpha: 0.92,    // the teal tape on its top left corner: how solid it is (1 = fully, 0 = gone); matte paper tape, her reference
-  tapeAngle: -38,     // degrees the tape lies at
-  tapeSize: 0.5,      // the tape's length, as a share of the photo's width
-  expSize: 24,        // px, "Experience" (was 36: it overpowered the page; Desktop/H7)
-  jobSize: 20,        // px, the job titles (was 24)
-  dateSize: 16,       // px, the dates and "my resume" (was 18 / 20; Desktop/Caption)
-  jobGap: 12,         // px between the jobs (was 24)
-  headGap: 32,        // px between the photo and the intro beside it
-  headAlign: 'end',   // the intro beside the photo: 'start' (top), 'center' or 'end' (bottom)
-  wordsGap: 32,       // px from the photo and intro to the first paragraph
-  paraGap: 16,        // px between paragraphs (hers, 2026-11-21; was 36)
-  throwTop: 120,      // px from the words and Experience box down to {a visual throwback}
-  throwGap: 24,       // px from {a visual throwback} to the first photos (was 40)
-  groupGap: 56,       // px between photo groups
-  paper: 8,           // px of white edge round her photo (0 = a bare photo)
-  shadow: 1,          // strength of her photo's shadow (0 = none, 1 = a soft pasted-on shadow)
+  meSize: 174,        // px, her photo's width on desktop (height keeps her frame's 164 : 176)
+  meSizePhone: 114,   // px, on phones
+  meZoom: 1.36,       // how far the photo is zoomed in (1 = the whole picture)
+  meX: 62,            // % across: the point the zoom centres on (her face)
+  meY: 44,            // % down
+  introTop: 36,       // px from the top of her photo's brackets to "Hi!"
+  wordsGap: 29,       // px from the intro to the first paragraph
+  paraGap: 16,        // px between paragraphs (her Figma)
+  throwTop: 80,       // px from the words and the Experience box down to {visuals from my journey so far} (hers: 56 looked congested)
+  throwGap: 24,       // px from that title to the first group heading
+  labelGap: 12,       // px from a group heading to its photos
+  groupGap: 90,       // px between photo groups
 }
 
-const KEY = 'about-layout-v4'
-if (new URLSearchParams(location.search).has('about')) {
-  try { Object.assign(LAYOUT, JSON.parse(localStorage.getItem(KEY)) || {}) } catch { /* private mode */ }
+// each gallery photo's fit inside the frame she drew: zoom (1 = just fills it) and the point it centres on (%).
+// Hers from ?about (2026-11-22); the frames keep their shape on phones, so the same crop shows there.
+export const PHOTO_FIT = {
+  'roadcast-1': { zoom: 1, x: 37, y: 50 },
+  'roadcast-2': { zoom: 1.1, x: 50, y: 11 },
+  'bharatpe-1': { zoom: 1.61, x: 49, y: 38 },
+  'bharatpe-2': { zoom: 1, x: 50, y: 50 },
+  'design-grad-1': { zoom: 1.36, x: 95, y: 37 },
+  'design-grad-2': { zoom: 1.21, x: 75, y: 24 },
+  'design-grad-3': { zoom: 1.24, x: 38, y: 37 },
+  'design-grad-4': { zoom: 1.07, x: 50, y: 50 },
+  'adventure-1': { zoom: 1.8, x: 75, y: 32 },
+  'adventure-2': { zoom: 1.28, x: 32, y: 63 },
+  'adventure-4': { zoom: 1.13, x: 96, y: 50 },
+  'adventure-5': { zoom: 1.16, x: 43, y: 46 },
 }
+const fit = (id) => (PHOTO_FIT[id] ??= { zoom: 1, x: 50, y: 50 })
+
+const KEY = 'about-layout-v6'
+if (new URLSearchParams(location.search).has('about')) {
+  try {
+    const saved = JSON.parse(localStorage.getItem(KEY)) || {}
+    Object.assign(LAYOUT, saved.layout || {})
+    Object.assign(PHOTO_FIT, saved.fit || {})
+  } catch { /* private mode */ }
+}
+
+export function photoFit(id) { return fit(id) }
+
+const px = ['meSize', 'meSizePhone', 'introTop', 'wordsGap', 'paraGap', 'throwTop', 'throwGap', 'labelGap', 'groupGap']
+const kebab = (k) => k.replace(/[A-Z]/g, c => `-${c.toLowerCase()}`)
 
 export function applyLayout(root) {
   const L = LAYOUT, s = root.style
-  s.setProperty('--me-size', `${L.meSize}px`)
-  s.setProperty('--me-size-phone', `${L.meSizePhone}px`)
+  px.forEach(k => s.setProperty(`--${kebab(k)}`, `${L[k]}px`))
   s.setProperty('--me-zoom', L.meZoom)
   s.setProperty('--me-x', `${L.meX}%`)
   s.setProperty('--me-y', `${L.meY}%`)
-  s.setProperty('--me-tilt', `${L.meTilt}deg`)
-  s.setProperty('--tape-alpha', L.tapeAlpha)
-  s.setProperty('--tape-angle', `${L.tapeAngle}deg`)
-  s.setProperty('--tape-size', L.tapeSize)
-  s.setProperty('--exp-size', `${L.expSize}px`)
-  s.setProperty('--job-size', `${L.jobSize}px`)
-  s.setProperty('--date-size', `${L.dateSize}px`)
-  s.setProperty('--job-gap', `${L.jobGap}px`)
-  s.setProperty('--head-gap', `${L.headGap}px`)
-  s.setProperty('--head-align', L.headAlign)
-  s.setProperty('--words-gap', `${L.wordsGap}px`)
-  s.setProperty('--para-gap', `${L.paraGap}px`)
-  s.setProperty('--throw-top', `${L.throwTop}px`)
-  s.setProperty('--throw-gap', `${L.throwGap}px`)
-  s.setProperty('--group-gap', `${L.groupGap}px`)
-  s.setProperty('--paper', `${L.paper}px`)
-  s.setProperty('--shadow-k', L.shadow)
+  root.querySelectorAll('.ab-frame[data-id]').forEach((el) => {
+    const f = fit(el.dataset.id)
+    el.style.setProperty('--zoom', f.zoom)
+    el.style.setProperty('--fx', `${f.x}%`)
+    el.style.setProperty('--fy', `${f.y}%`)
+  })
 }
 
 /* ?about: sliders in plain words */
-export function mountLayoutPanel(root) {
+export function mountLayoutPanel(root, onChange) {
   const el = document.createElement('div')
   el.className = 'tune-panel'
   el.style.cssText = 'left:auto;right:12px;top:12px;max-height:calc(100vh - 24px);overflow:auto'
   const rows = [
-    ['meSize', 'photo size', 100, 260, 2],
-    ['meSizePhone', 'photo (phone)', 72, 200, 2],
-    ['meZoom', 'photo zoom', 1, 2.5, 0.01],
+    ['meSize', 'my photo width', 100, 240, 2],
+    ['meSizePhone', 'my photo (phone)', 72, 180, 2],
+    ['meZoom', 'my photo zoom', 1, 2.5, 0.01],
     ['meX', 'zoom on, across %', 0, 100, 1],
     ['meY', 'zoom on, down %', 0, 100, 1],
-    ['meTilt', 'photo tilt (deg)', -6, 6, 0.25],
-    ['tapeAlpha', 'tape opacity', 0, 1, 0.01],
-    ['tapeAngle', 'tape angle', -80, 0, 1],
-    ['tapeSize', 'tape length', 0.2, 0.7, 0.01],
-    ['expSize', 'Experience size', 16, 36, 1],
-    ['jobSize', 'job title size', 14, 24, 1],
-    ['dateSize', 'dates size', 12, 18, 1],
-    ['jobGap', 'gap between jobs', 4, 32, 1],
-    ['headGap', 'photo to intro', 8, 80, 1],
-    ['headAlign', 'intro beside photo'],
-    ['wordsGap', 'to paragraphs', 8, 80, 1],
+    ['introTop', '“Hi!” down from top', 0, 80, 1],
+    ['wordsGap', 'intro to words', 8, 64, 1],
     ['paraGap', 'paragraph gap', 4, 48, 1],
-    ['throwTop', 'gap above gallery', 40, 200, 2],
+    ['throwTop', 'words to gallery', 24, 160, 2],
     ['throwGap', 'gallery title gap', 8, 64, 1],
+    ['labelGap', 'heading to photos', 8, 48, 1],
     ['groupGap', 'between groups', 16, 120, 2],
-    ['paper', 'photo white edge', 0, 16, 1],
-    ['shadow', 'photo shadow', 0, 2, 0.05],
   ]
-  el.innerHTML = `<b>about layout</b>${rows.map(([k, text, min, max, step]) => min === undefined
-    ? `<label><span>${text}</span><select data-k="${k}">${['start', 'center', 'end'].map(v => `<option${v === LAYOUT[k] ? ' selected' : ''} value="${v}">${{ start: 'top', center: 'middle', end: 'bottom' }[v]}</option>`).join('')}</select><output></output></label>`
-    : `<label><span>${text}</span><input type="range" data-k="${k}" min="${min}" max="${max}" step="${step}" value="${LAYOUT[k]}"><output>${LAYOUT[k]}</output></label>`).join('')}<button type="button" class="copy">copy values</button>`
-  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(LAYOUT)) } catch { /* private mode */ } }
-  const change = (e) => {
-    const k = e.target.dataset.k; if (!k) return
-    LAYOUT[k] = e.target.tagName === 'SELECT' ? e.target.value : +e.target.value
-    if (e.target.tagName !== 'SELECT') e.target.nextElementSibling.textContent = e.target.value
-    applyLayout(root); save()
+  const ids = [...root.querySelectorAll('.ab-frame[data-id]')].map(f => f.dataset.id)
+  el.innerHTML = `<b>about layout</b>${rows.map(([k, text, min, max, step]) =>
+    `<label><span>${text}</span><input type="range" data-k="${k}" min="${min}" max="${max}" step="${step}" value="${LAYOUT[k]}"><output>${LAYOUT[k]}</output></label>`).join('')}
+    <b>photo fit</b>
+    <label><span>photo</span><select data-photo>${ids.map(id => `<option>${id}</option>`).join('')}</select><output></output></label>
+    <label><span>zoom</span><input type="range" data-f="zoom" min="1" max="2.5" step="0.01"><output></output></label>
+    <label><span>centre, across %</span><input type="range" data-f="x" min="0" max="100" step="1"><output></output></label>
+    <label><span>centre, down %</span><input type="range" data-f="y" min="0" max="100" step="1"><output></output></label>
+    <button type="button" class="copy">copy values</button>`
+  const pick = el.querySelector('[data-photo]')
+  const showFit = () => {
+    const f = fit(pick.value)
+    el.querySelectorAll('[data-f]').forEach(i => { i.value = f[i.dataset.f]; i.nextElementSibling.textContent = f[i.dataset.f] })
+    root.querySelectorAll('.ab-frame.picked').forEach(x => x.classList.remove('picked'))
+    root.querySelector(`.ab-frame[data-id="${pick.value}"]`)?.classList.add('picked')
   }
-  el.addEventListener('input', change)
-  el.addEventListener('change', change)
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify({ layout: LAYOUT, fit: PHOTO_FIT })) } catch { /* private mode */ } }
+  el.addEventListener('input', (e) => {
+    const t = e.target
+    if (t.dataset.k) { LAYOUT[t.dataset.k] = +t.value; t.nextElementSibling.textContent = t.value }
+    else if (t.dataset.f) { fit(pick.value)[t.dataset.f] = +t.value; t.nextElementSibling.textContent = t.value }
+    else return
+    applyLayout(root); save(); onChange?.()
+  })
+  pick.addEventListener('change', showFit)
+  showFit()
   el.querySelector('.copy').addEventListener('click', (e) => {
-    navigator.clipboard?.writeText(JSON.stringify(LAYOUT, null, 2)); e.target.textContent = 'copied'
+    navigator.clipboard?.writeText(JSON.stringify({ LAYOUT, PHOTO_FIT }, null, 2)); e.target.textContent = 'copied'
   })
   document.body.append(el)
   return el
