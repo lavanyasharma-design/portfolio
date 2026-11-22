@@ -1,4 +1,3 @@
-import Lenis from 'lenis'
 import 'lenis/dist/lenis.css'
 
 /**
@@ -10,18 +9,25 @@ import 'lenis/dist/lenis.css'
  * Everything that listens for `scroll` (the nav bar stepping aside, the rise-ins, the garden) keeps working:
  * Lenis moves the real window scroll.
  */
-let lenis = null
+let lenis = null, wanted = false
 
+// Lenis is fetched the first time a page needs it, so the home page (which never smooth-scrolls) doesn't
+// download it (2026-11-23, the performance pass). Until it arrives the page scrolls natively.
 export function startSmoothScroll() {
+  wanted = true
   if (lenis) return
-  lenis = new Lenis({
-    autoRaf: true,
-    lerp: 0.1,                                  // how much of the way it catches up each frame: soft, not floaty
-    prevent: (node) => !!node.closest?.('.tune-panel'),
+  import('lenis').then(({ default: Lenis }) => {
+    if (!wanted || lenis) return
+    lenis = new Lenis({
+      autoRaf: true,
+      lerp: 0.1,                                  // how much of the way it catches up each frame: soft, not floaty
+      prevent: (node) => !!node.closest?.('.tune-panel'),
+    })
   })
 }
 
 export function stopSmoothScroll() {
+  wanted = false
   lenis?.destroy()
   lenis = null
 }

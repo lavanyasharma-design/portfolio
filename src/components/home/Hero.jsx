@@ -5,7 +5,6 @@ import Butterfly from './Butterfly'
 import SectionLink from './SectionLink'
 import { Volume2, VolumeX } from 'lucide-react'
 import { useNotesPlayed, useMuted, toggleMute, pressSound, playButterflySound } from '../../lib/sound/notes'
-import { mountSoundPanel } from '../../lib/sound/soundPanel'
 import { SOON } from '../../site'
 
 const Dot = ({ className }) => <img className={className} src="/assets/dot.svg" alt="" />
@@ -41,8 +40,10 @@ function Hero({ revealed, heroRef, bflyRef, riseBfly }) {
     if (SOON) return
     const panels = []
     if (q.has('spacing')) panels.push(mountSpacingPanel(siteRef.current))
-    if (q.has('sound')) panels.push(mountSoundPanel())
-    return () => panels.forEach((p) => p.remove())
+    // the sound panel is the biggest of the tune panels: fetched only when ?sound asks for it
+    let gone = false
+    if (q.has('sound')) import('../../lib/sound/soundPanel').then(({ mountSoundPanel }) => { if (!gone) panels.push(mountSoundPanel()) })
+    return () => { gone = true; panels.forEach((p) => p.remove()) }
   }, [])
   return (
     <main ref={siteRef} className={`site${revealed ? ' in' : ''}${SOON ? ' soon' : ''}`}>

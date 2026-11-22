@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react'
 import { flushSync } from 'react-dom'
 import { jumpToTop } from './lib/smoothScroll'
+import { preloadPage } from './pages/routes'
 
 // A minimal client-side router: no library, two pages. Moving between pages without a reload
 // keeps the AudioContext alive and means returning home doesn't replay the window intro.
@@ -25,7 +26,12 @@ export let navigatedInSite = false
 export function navigate(path) {
   if (getPath() === path) return
   navigatedInSite = true
-  const swap = () => {
+  // pages load as their own files (pages/routes.js). Usually already fetched in the background; if not,
+  // the old page stays up until the new one has arrived, then the change plays. If it can't be fetched
+  // (a dropped connection, or a new deploy replaced the file), load the page the ordinary way.
+  const ready = preloadPage(path)
+  const swap = async () => {
+    try { await ready } catch { location.assign(path); return }
     history.pushState(null, '', path)
     flushSync(() => dispatchEvent(new PopStateEvent('popstate')))
     jumpToTop()

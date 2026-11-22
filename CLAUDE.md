@@ -16,6 +16,7 @@ Current direction: a **window intro** (a pencil-drawn sash window you drag open;
 - **Lenis** (pinned 1.3.27) for smooth scrolling on every page but home (`src/lib/smoothScroll.js`); touch keeps native scroll; tune panels scroll natively
 - Page changes go through the View Transitions API in `router.js` (old page out quick, new page in with an 8px rise; the nav bar is its own `nav` layer so its pill glides through it); browsers without it and reduced motion switch instantly
 - **oxlint** for linting
+- **Loading** (performance pass, 2026-11-23): home is the only page in the main bundle; Work, Bolt and About load as their own files (`src/pages/routes.js`), fetched in the background once the page is idle, and `navigate()` waits for a page that hasn't arrived yet before the page change plays (falling back to a full load if it can't be fetched). Lenis and the ?sound panel are fetched only when needed. `index.html` preloads the butterfly and, on a load of the home page or lavanyaaa.com, the window images; `vite.config.js` adds preloads for the first screen's fonts (Cormorant 600, DM Sans). `vercel.json` caches hashed .js / .css / font files for a year (`immutable`); the rule matches only names ending in an 8-character hash, because `public/assets/` (unhashed window and butterfly images) shares the `/assets/` path with Vite's output. Keep new public images out of that pattern, or rename them when they change.
 - Deployed on **Vercel**
 
 ## Commands

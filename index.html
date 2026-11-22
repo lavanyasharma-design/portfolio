@@ -5,6 +5,19 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Lavanya, product designer</title>
+    <link rel="preload" href="/assets/butterfly.png" as="image" />
+    <script>
+      // The window intro's pictures, fetched while the code downloads rather than after it has run. Only on
+      // a load of the home page (or anywhere on lavanyaaa.com, which always opens on the intro): other pages
+      // don't show the window. (2026-11-23, the performance pass)
+      if (location.pathname === '/' || /(^|\.)lavanyaaa\.com$/.test(location.hostname)) {
+        for (const [href, priority] of [['/assets/window-back-clean.webp', 'high'], ['/assets/window-sash-clean.webp', 'auto']]) {
+          const link = Object.assign(document.createElement('link'), { rel: 'preload', as: 'image', href })
+          link.fetchPriority = priority
+          document.head.append(link)
+        }
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
