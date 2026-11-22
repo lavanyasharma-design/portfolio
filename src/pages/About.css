@@ -170,7 +170,7 @@ html:has(.about-page),html:has(.about-page) body{background:var(--color-white-de
 @media (max-width:600px){
   .about-page{--side:20px;padding-top:56px}
   .ab-wrap{margin-bottom:160px}
-  .ab-flow{--me-size:var(--me-size-phone, 102px);--me-zoom:var(--me-zoom-phone, 1.46);--intro-left:calc(var(--me-size) + 28px)}
+  .ab-flow{--me-size:var(--me-size-phone, 122px);--me-zoom:var(--me-zoom-phone, 1.46);--intro-left:calc(var(--me-size) + 28px)}
   .ab-me-group{margin-right:12px}
   .ab-flow.flowing .ab-intro,.ab-intro{top:12px;padding-top:0}
   .ab-flow:not(.flowing) .ab-intro{padding-top:12px}

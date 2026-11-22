@@ -9,7 +9,7 @@
 // her values from ?about (2026-11-22)
 export const LAYOUT = {
   meSize: 174,        // px, her photo's width on desktop (height keeps her frame's 164 : 176)
-  meSizePhone: 102,   // px, on phones
+  meSizePhone: 122,   // px, on phones
   meZoom: 1.36,       // how far the photo is zoomed in on desktop (1 = the whole picture)
   meZoomPhone: 1.46,  // on phones
   meX: 62,            // % across: the point the zoom centres on (her face)
