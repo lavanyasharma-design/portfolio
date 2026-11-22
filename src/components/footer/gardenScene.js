@@ -78,20 +78,26 @@ export const GARDEN = {
    tuning one garden never moves the other; ?garden on the About page tunes this one, colours included. */
 export const TULIPS = {
   ...GARDEN,
+  // her values from ?garden on /about (2026-11-22)
+  density: 1.7,          // more grass than the purple garden (1.05)
   flowers: 1.9,          // how many tulips (the sunflowers are 1.4)
   light: 0.12,           // washes the greens lighter
+  reach: 128, brush: 1.4, spring: 4.5, tipBend: 1.3, softness: 0.25,   // the grass and the cursor
+  flowerTouch: 0.3,      // how much the tulips move with the cursor
+  flowerTwitch: 0.6,     // the twitch when the cursor passes over a head
+  petalSpeed: 0.6,       // breezes a second through the petals
   tulip: '#86b0d3',      // petals: the body
   tulipShade: '#4f80ad', // the shade between petals and inside the cup
   tulipLight: '#c9def0', // the light down the front petals
   tulipEdge: '#3f6f9c',  // the pencil line round each petal
-  stem: '#a9ad66',       // stems, yellow-green as in her reference
+  stem: '#8b8e52',       // stems
   leaf: '#5f8448',       // the broad leaves at the foot of each tulip
   leafDark: '#3e5c30',   // their shaded side
-  grassFar: '#d9e5cf',   // far grass, palest
-  grassMid: '#a3bd8a',   // middle grass
-  grassNear: '#6a8f52',  // near grass and the ground
-  nod: 0.8,              // how far the heads nod over (0 upright)
-  tulipSize: 1,          // the cups' size against the sunflowers' (1 the same)
+  grassFar: '#94ac80',   // far grass
+  grassMid: '#9bb087',   // middle grass
+  grassNear: '#66874f',  // near grass and the ground
+  nod: 0,                // how far the heads nod over (0: upright, following their stems)
+  tulipSize: 1.1,        // the cups' size against the sunflowers' (1 the same)
 }
 
 /* Lavanya's values from her phone, 2026-11-14, second round (calm on the phone); the bigger
