@@ -20,6 +20,8 @@ export const LAYOUT = {
   throwGap: 24,       // px from that title to the first group heading
   labelGap: 12,       // px from a group heading to its photos
   groupGap: 90,       // px between photo groups
+  rippleRadius: 80,   // px, how far from the pointer letters are nudged (her hello page)
+  ripplePush: 7,      // px, how far the nearest letters move
 }
 
 // each gallery photo's fit inside the frame she drew: zoom (1 = just fills it) and the point it centres on (%).
@@ -86,6 +88,8 @@ export function mountLayoutPanel(root, onChange) {
     ['throwGap', 'gallery title gap', 8, 64, 1],
     ['labelGap', 'heading to photos', 8, 48, 1],
     ['groupGap', 'between groups', 16, 120, 2],
+    ['rippleRadius', 'letter ripple reach', 20, 200, 2],
+    ['ripplePush', 'letter ripple push', 0, 20, 0.5],
   ]
   const ids = [...root.querySelectorAll('.ab-frame[data-id]')].map(f => f.dataset.id)
   el.innerHTML = `<b>about layout</b>${rows.map(([k, text, min, max, step]) =>

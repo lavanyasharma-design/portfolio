@@ -23,6 +23,8 @@ const BOX_SIDE = 24   // px between the words and the box (her Figma: 923 + 24 +
 const PHOTO_BELOW = 6 // px under her photo's brackets before a line may run under it
 
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+// a fragment's words as one span per letter (.rl), so the ripple (ripple.js) can nudge each one
+const letters = (t) => [...t].map(c => (c === ' ' ? ' ' : `<span class="rl">${esc(c)}</span>`)).join('')
 const cls = (r) => (typeof r === 'string' ? '' : [r.u && 'u', r.i && 'i'].filter(Boolean).join(' '))
 
 /** subtract [a, b] from a list of free [x0, x1] spans */
@@ -38,9 +40,9 @@ function cut(spans, a, b) {
 
 /**
  * root: .ab-flow (photo group, intro, the real paragraphs, the lines layer); box: the Experience box.
- * paragraphs: run lists (aboutContent.js). Returns a cleanup.
+ * paragraphs: run lists (aboutContent.js); onPaint: called after the lines are (re)painted. Returns a cleanup.
  */
-export function mountTextFlow(root, box, paragraphs) {
+export function mountTextFlow(root, box, paragraphs, onPaint) {
   const group = root.querySelector('.ab-me-group')
   const intro = root.querySelector('.ab-intro')
   const firstP = root.querySelector('.ab-paras p')
@@ -132,7 +134,7 @@ export function mountTextFlow(root, box, paragraphs) {
         const line = materializeRichInlineLineRange(prep, row.range)
         el.innerHTML = line.fragments.map(f =>
           (f.gapBefore > 0 ? `<span class="${cls(runs[f.gapItemIndex] ?? '')}"> </span>` : '')
-          + `<span class="${cls(runs[f.itemIndex])}">${esc(f.text)}</span>`).join('')
+          + `<span class="${cls(runs[f.itemIndex])}">${letters(f.text)}</span>`).join('')
         el._key = row.key
         row.el = el
       }
@@ -182,6 +184,7 @@ export function mountTextFlow(root, box, paragraphs) {
     rows = keyRows(end.rows)
     paint(rows)
     light()
+    onPaint?.()
   }
 
   // ---------- the line under the pointer ----------

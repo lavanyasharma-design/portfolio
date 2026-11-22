@@ -7,6 +7,8 @@ import { mountCaseMotion } from '../components/case/caseMotion'
 import { mountPhotoCaptions, mountCaptionPanel } from '../components/about/photoCaption'
 import { applyLayout, mountLayoutPanel } from '../components/about/aboutLayout'
 import { mountTextFlow } from '../components/about/textFlow'
+import { mountRipple } from '../components/about/ripple'
+import WaterPhoto from '../components/about/WaterPhoto'
 import { WobblyFrame, Corner } from '../components/about/Wobble'
 import { HELLO, INTRO, PARAGRAPHS, plain, EXPERIENCE, RESUME_URL, GALLERY_TITLE, GALLERY } from '../components/about/aboutContent'
 import { useNavHidden } from '../lib/useNavHidden'
@@ -15,18 +17,25 @@ import './About.css'
 /**
  * The About page, from her rough layout (Figma Portfolio-Design 419:14, 2026-11-22): her photo in two
  * viewfinder brackets with "Hi!" and the intro beside it; the words flowing round the photo and the
- * Experience box, opening round the pointer (textFlow.js, with Pretext); the gallery in the frame sizes she
+ * Experience box (textFlow.js, with Pretext); the gallery in the frame sizes she
  * drew, each photo in a hand-drawn teal frame (Wobble.jsx), its caption beside the pointer (photoCaption.js).
- * `?about` tunes the photo, gaps, the pointer's space and each photo's fit; `?caption` the caption.
+ * From her hello page (D:\hello-page): her photo ripples like water under the pointer (WaterPhoto.jsx) and the
+ * letters of the intro and the words ripple away from it (ripple.js); the line under the pointer turns teal.
+ * `?about` tunes the photo, gaps, the ripple and each photo's fit; `?caption` the caption.
  * Phones (her note): her photo and the intro, the words, the Experience box, the photos two to a row.
  */
 
 const NAV_HIDE_AFTER = 50   // px below the last photos, where the phone nav bar steps aside (as on Work)
 const DESIGN_W = 1252       // her column, the frame sizes in aboutContent.js are on its scale
 
-/** a run list as spans: plain words, wavy-underlined, or italic */
-function Runs({ runs }) {
-  return runs.map((r, i) => (typeof r === 'string' ? r : <span key={i} className={[r.u && 'u', r.i && 'i'].filter(Boolean).join(' ')}>{r.t}</span>))
+/** a run list as spans: plain words, wavy-underlined, or italic; with split, each letter gets its own span for the ripple */
+const Letters = ({ text }) => [...text].map((c, i) => (c === ' ' ? ' ' : <span key={i} className="rl">{c}</span>))
+function Runs({ runs, split }) {
+  return runs.map((r, i) => {
+    const t = typeof r === 'string' ? r : r.t
+    const inner = split ? <Letters text={t} /> : t
+    return typeof r === 'string' ? <span key={i}>{inner}</span> : <span key={i} className={[r.u && 'u', r.i && 'i'].filter(Boolean).join(' ')}>{inner}</span>
+  })
 }
 
 let seed = 1
@@ -65,10 +74,14 @@ function About() {
     applyLayout(page.current)
     const stopMotion = mountCaseMotion(page.current)
     const stopCaptions = mountPhotoCaptions(gallery.current)
-    const stopFlow = mountTextFlow(flow.current, box.current, PARAGRAPHS)
+    // the letters ripple away from the pointer (her hello page), the intro's and the painted lines'
+    const ripple = mountRipple(flow.current)
+    const stopFlow = mountTextFlow(flow.current, box.current, PARAGRAPHS, ripple.refresh)
+    // once the rise-in has settled, measure the letters where they rest
+    const settle = setTimeout(ripple.refresh, 900)
     const q = new URLSearchParams(location.search)
     const panels = [q.has('caption') && mountCaptionPanel(), q.has('about') && mountLayoutPanel(page.current, stopFlow.relayout)]
-    return () => { stopMotion(); stopCaptions(); stopFlow(); panels.forEach(p => p && p.remove()) }
+    return () => { stopMotion(); stopCaptions(); stopFlow(); ripple.stop(); clearTimeout(settle); panels.forEach(p => p && p.remove()) }
   }, [])
 
   return (
@@ -82,11 +95,15 @@ function About() {
               readers, the paragraphs below are the real text */}
           <div className="ab-flow" ref={flow} data-rise>
             <div className="ab-me-group">
-              <div className="ab-me"><img src="/about/me.webp" alt="Lavanya Sharma" /></div>
+              {/* water on hover, as on her hello page (WaterPhoto.jsx) */}
+              <div className="ab-me"><WaterPhoto src="/about/me.webp" alt="Lavanya Sharma" /></div>
               <Corner at="tr" seed={3} />
               <Corner at="bl" seed={5} />
             </div>
-            <h1 className="ab-intro">{HELLO}<br /><Runs runs={INTRO} /></h1>
+            <h1 className="ab-intro">
+              <span className="sr-only">{HELLO} {plain(INTRO)}</span>
+              <span aria-hidden="true"><Letters text={HELLO} /><br /><Runs runs={INTRO} split /></span>
+            </h1>
             <div className="ab-paras">
               {PARAGRAPHS.map((runs, i) => <p key={i} data-text={plain(runs)}><Runs runs={runs} /></p>)}
             </div>
