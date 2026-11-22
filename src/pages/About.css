@@ -172,8 +172,10 @@ html:has(.about-page),html:has(.about-page) body{background:var(--color-white-de
   .ab-wrap{margin-bottom:160px}
   .ab-flow{--me-size:var(--me-size-phone, 122px);--me-zoom:var(--me-zoom-phone, 1.46);--intro-left:calc(var(--me-size) + 28px)}
   .ab-me-group{margin-right:12px}
-  .ab-flow.flowing .ab-intro,.ab-intro{top:12px;padding-top:0}
-  .ab-flow:not(.flowing) .ab-intro{padding-top:12px}
+  /* the intro 4 lower and the words 4 closer, so the paragraph stays put (hers, 2026-11-22: the gap under the intro looked odd) */
+  .ab-flow{--words-gap:25px}
+  .ab-flow.flowing .ab-intro,.ab-intro{top:16px;padding-top:0}
+  .ab-flow:not(.flowing) .ab-intro{padding-top:16px}
   .ab-intro{font-size:24px;font-weight:600}          /* Desktop/H7, as the case studies' phone headings */
   .ab-paras p,.ab-line{font-size:16px;line-height:21px}   /* Mobile/Body */
   .ab-flow.flowing + .ab-resume-box{width:100%;margin-top:32px}
@@ -198,3 +200,6 @@ html:has(.about-page),html:has(.about-page) body{background:var(--color-white-de
 .ab-line.lit .u{text-decoration-color:var(--color-black-highlight)}
 .ab-water{opacity:0;transition:opacity .3s}
 .ab-water.ready{opacity:1}
+
+/* the footer's links in her teal on this page, not [work]'s purple (hers, 2026-11-22) */
+.about-page .pf-hi a{color:var(--color-teal-pressed)}

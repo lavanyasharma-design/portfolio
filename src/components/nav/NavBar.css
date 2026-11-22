@@ -29,7 +29,9 @@
     var(--nav-stroke-to, #fff) var(--nav-stroke-bright, 0%));
   --drop:color-mix(in srgb, color-mix(in oklab, #000, var(--deep) var(--nav-shadow-tint, 0%)) var(--nav-shadow-a, 10%), transparent);
   --glow:color-mix(in srgb, var(--deep) var(--glowa), transparent);
-  pointer-events:auto;
+  pointer-events:auto;position:relative;
+  /* moving between pages the outline and float fade to the new section's colours (NavBar.jsx) */
+  transition:border-color .6s cubic-bezier(.22,1,.36,1), box-shadow .6s cubic-bezier(.22,1,.36,1);
   display:flex;align-items:center;gap:20px;padding:calc(4px - var(--sw)) calc(8px - var(--sw));
   background:var(--color-white-default);border:var(--sw) solid var(--line);border-radius:8px;
   box-shadow:var(--nav-shadow, 0 2px 4px 0) var(--drop), var(--nav-glow, 0 8px 24px 0) var(--glow);
@@ -70,9 +72,11 @@
 .navbar .work{color:var(--color-purple-default)}
 .navbar .about{color:var(--color-teal-default)}
 .navbar .play{color:var(--color-pink-default)}
-.navbar .work.current{background:var(--color-purple-highlight)}
-.navbar .about.current{background:var(--color-teal-highlight)}
-.navbar .play.current{background:var(--color-pink-highlight)}
+/* the current page's highlight: one pill behind the items, gliding from the page you came from (NavBar.jsx) */
+.nav-pill{position:absolute;left:0;top:0;z-index:0;border-radius:4px;pointer-events:none;transform-origin:0 50%;will-change:transform}
+/* the old section's colour, fading away during the glide */
+.nav-pill-from{position:absolute;inset:0;border-radius:inherit;opacity:0}
+.navbar > :not(.nav-pill){position:relative;z-index:1}
 .navbar .sec:focus-visible{outline:1px solid currentColor;outline-offset:2px}
 
 /* ---------- phones: "Work - port view" (346:8986). The bar sits at the bottom, centred on a
@@ -93,6 +97,7 @@
 }
 
 @media (prefers-reduced-motion:reduce){
+  .navbar{transition:none}
   .nav-dock{transition:opacity .2s linear}
   .nav-dock.hidden{transform:none}
 }
