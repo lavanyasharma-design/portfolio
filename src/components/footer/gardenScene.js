@@ -35,7 +35,7 @@ export const GARDEN = {
   grain: 0.47,     // pencil grain: how much paper shows through the colour
   edge: 0.4,       // pencil edge along each blade
   sway: 0,         // how far the grass moves in the wind, desktop (Lavanya 2026-11-14: still)
-  swayPhone: 0.65, // the same on phones (600px and narrower), as before
+  swayPhone: 0.9, // the same on phones (600px and narrower), as before
   wind: 0.75,      // how fast the wind moves
   haze: 0.51,      // how much the far grass fades into the page
   bSize: 52,       // butterfly width on desktop, px on the 324-tall band; scales with the band
@@ -105,10 +105,10 @@ export const TULIPS = {
   tulipSize: 1.1,        // the cups' size against the sunflowers' (1 the same)
   // phones (600 and narrower) have their own say over how the tulips stand (hers, 2026-11-22: they
   // tilted on her phone, unasked); ?tulips opens a short panel for these
-  leanPhone: 0.3,        // how far the stems lean (1 as on desktop)
-  followPhone: 0.6,      // how far a head turns with its stem (desktop 1.2)
-  nodPhone: 0,           // the heads' own nod over
-  swayPhone: 0.65,       // the wind's sway (hers; the heads swing with it)
+  leanPhone: 0.25,       // how far the stems lean (1 as on desktop)
+  followPhone: 0.55,     // how far a head turns with its stem (desktop 1.2)
+  nodPhone: 0.12,          // the heads' own nod over
+  swayPhone: 0.9,       // the wind's sway (hers; the heads swing with it)
 }
 
 /* Lavanya's values from her phone, 2026-11-14, second round (calm on the phone); the bigger
