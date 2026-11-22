@@ -7,7 +7,7 @@ import './PageFooter.css'
  * A heading and a short paragraph with the ways to say hi, then the footer visual: the garden.
  * The links stay silent (Lavanya, 2026-11-14: sound here felt like too much).
  * Each page can bring its own words (`heading`, `children` for the paragraph); the garden stays, as sunflowers,
- * or tulips with `garden="tulips"` (the About page).
+ * or a meadow of small blue flowers with `garden="meadow"` (the About page).
  */
 const WORK_NOTE = <>
   For me, context comes before canvas. I think through how every decision lands, build in systems,
