@@ -442,11 +442,13 @@ export function mountGarden(canvas, kind = 'sunflowers') {
   /* The canvas resolution steps down if this machine can't keep up (2026-11-23: a friend's gaming laptop still
      stuttered after the frame cap; on some laptops with two graphics chips Chrome paints canvases on the
      processor, at full resolution). If frames keep coming late or a frame's drawing keeps costing more than
-     SLOW_COST for about two seconds, the garden drops to the next step: a little softer, never stuttering.
+     SLOW_COST for about a second, the garden drops to the next step: a little softer, never stuttering.
      A machine that keeps up stays at its screen's resolution (at most 2x). ?perf shows the step it's on. */
   const RES = [2, 1.5, 1, 0.75]
   const SLOW_COST = 6, SLOW_FRAME = 0.028   // ms a draw, s between frames (under about 35 a second)
-  let res = 0, slowFor = 0, steppedAt = -9, rebuilds = 0
+  let res = 0, slowFor = 0, steppedAt = -9, rebuilds = 0, lowered = 0, firstPaint = 0
+  // a full paint (every layer at once) costing more than this at load starts the garden a step lower
+  const FIRST_PAINT = 12
   const resAt = (i) => Math.min(RES[i], devicePixelRatio || 1)
 
   function sizeCanvases() {
@@ -459,16 +461,32 @@ export function mountGarden(canvas, kind = 'sunflowers') {
   function lowerResolution() {
     let next = res
     while (next < RES.length - 1 && resAt(next) >= dpr) next++
-    if (resAt(next) >= dpr) return   // already as low as it goes
-    res = next; steppedAt = T; slowFor = 0
+    if (resAt(next) >= dpr) return false   // already as low as it goes
+    res = next; steppedAt = T; slowFor = 0; lowered++
     sizeCanvases()
+    return true
+  }
+
+  /* Before anyone sees it (2026-11-23: on the friend's laptop it stuttered for the two seconds the pace
+     watch took to step down): once the page has settled, time a full paint while the garden is still off
+     screen, warm (the first paint runs cold and would misjudge a fast machine), and step down straight away
+     while it costs more than FIRST_PAINT. The pace watch below stays as the backup. */
+  function calibrate() {
+    if (reduce.matches || !scene) return
+    draw()   // warm up
+    for (let i = 0; i < RES.length; i++) {
+      const t0 = performance.now()
+      draw()
+      firstPaint = performance.now() - t0
+      if (firstPaint <= FIRST_PAINT || !lowerResolution()) break
+    }
   }
 
   function watchPace(gap) {
     const slow = cost > SLOW_COST || gap > SLOW_FRAME
     const step = Math.min(gap, 0.05)
     slowFor = slow ? slowFor + step : Math.max(0, slowFor - step)
-    if (slowFor > 2 && T - steppedAt > 3) lowerResolution()
+    if (slowFor > 1 && T - steppedAt > 2) lowerResolution()
   }
 
   function resize() {
@@ -484,6 +502,7 @@ export function mountGarden(canvas, kind = 'sunflowers') {
     scene = build(W, H, G, kind)
     fly.cx = null; fly.mode = 'cruise'; fly.w = 0; fly.flower = null; fly.next = T + 2
     draw()
+    if (rebuilds === 1) (window.requestIdleCallback ?? ((fn) => setTimeout(fn, 500)))(calibrate, { timeout: 1500 })
   }
 
   const swayNow = () => (scene.W <= 600 ? G.swayPhone : G.sway)
@@ -1153,7 +1172,7 @@ export function mountGarden(canvas, kind = 'sunflowers') {
       update(dt); draw(false)
       cost = cost * 0.95 + (performance.now() - t0) * 0.05   // smoothed, shown in the ?garden panel
       if (dt) { rate = rate * 0.95 + (1 / dt) * 0.05; watchPace(gap) }
-      if (PERF) window.__garden = { kind, cost, rate, dpr, screen: devicePixelRatio, steps: res, rebuilds, size: `${canvas.width}x${canvas.height}` }
+      if (PERF) window.__garden = { kind, cost, rate, dpr, screen: devicePixelRatio, lowered, firstPaint, rebuilds, size: `${canvas.width}x${canvas.height}` }
     }
     if (visible && !reduce.matches) raf = requestAnimationFrame(frame)
   }
