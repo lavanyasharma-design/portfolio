@@ -26,7 +26,7 @@ export const LAYOUT = {
   groupGapNarrow: 80,  // (hers 78, onto the grid)
   // photos two to a row (840 and under): wider apart across than down, so each group reads as two upright
   // stacks rather than a tight grid (hers, 2026-11-23: "congested"), and the groups further apart on phones
-  photoColGap: 32,    // px between the two columns (was 16)
+  photoColGap: 24,    // px between the two columns (was 16, then 32; 24 for a little more photo, hers 2026-11-23: about 162 wide on a 390 phone)
   photoRowGap: 16,    // px between a photo and the one under it
   groupGapPhone: 56,  // px from one group's photos to the next group's heading on phones (was 32)
 }

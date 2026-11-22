@@ -162,8 +162,8 @@ html:has(.about-page),html:has(.about-page) body{background:var(--color-white-de
   .ab-row{flex-direction:column;row-gap:var(--group-gap-narrow, 80px)}
   .ab-group{flex-basis:auto;width:100%}
   /* wider apart across than down, so a group reads as two upright stacks (hers, 2026-11-23: "congested") */
-  .ab-photos{flex-wrap:wrap;column-gap:var(--photo-col-gap, 32px);row-gap:var(--photo-row-gap, 16px)}
-  .ab-print{width:calc(50% - var(--photo-col-gap, 32px) / 2) !important}
+  .ab-photos{flex-wrap:wrap;column-gap:var(--photo-col-gap, 24px);row-gap:var(--photo-row-gap, 16px)}
+  .ab-print{width:calc(50% - var(--photo-col-gap, 24px) / 2) !important}
 }
 
 /* ---------- phones: her photo and the intro, the words, the Experience box, the photos (her note), on the
@@ -191,6 +191,9 @@ html:has(.about-page),html:has(.about-page) body{background:var(--color-white-de
   .ab-label{font-size:16px}
   .ab-group-label{font-size:20px;letter-spacing:0}  /* Mobile/h5 */
   .ab-chip{font-size:16px;letter-spacing:.01em;left:8px;bottom:8px;max-width:calc(100% - 16px)}   /* Mobile/caption 2 */
+  /* the gallery corners closer on phones, the line 2 off the photos (hers, 2026-11-23; 4 on desktop) */
+  .ab-frame .ab-corner.tr{top:-3px;right:-3px}
+  .ab-frame .ab-corner.bl{bottom:-3px;left:-3px}
 }
 
 /* the line under the pointer turns the teal of her wriggles, one line at a time (after Pretext's dynamic-layout
