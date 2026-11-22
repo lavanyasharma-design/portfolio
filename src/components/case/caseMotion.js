@@ -40,12 +40,24 @@ export function mountCaseMotion(root) {
           { duration: M.riseTime, ease: EASE })
       }, { margin: `0px 0px -${M.riseAt * 100}% 0px` }))
     })
+    // each panel's height, measured when it changes rather than on every scroll frame: reading it there
+    // made the browser recalculate styles once per panel per frame (2026-11-23, the performance pass)
+    const heights = new Map()
+    const ro = new ResizeObserver((entries) => entries.forEach((e) => heights.set(e.target, e.borderBoxSize?.[0]?.blockSize ?? e.target.offsetHeight)))
+    stops.push(() => ro.disconnect())
     root.querySelectorAll('[data-parallax]').forEach((el) => {
+      const panel = el.parentElement
+      heights.set(panel, panel.offsetHeight)   // once now, so a panel already on screen drifts from the start
+      ro.observe(panel)
+      let last = null
       // progress 0 as the panel enters at the bottom, 1 as it leaves at the top
       stops.push(scroll((p) => {
-        const drift = Math.min(M.drift, el.parentElement.offsetHeight * M.driftMax)
-        el.style.transform = `translate3d(0, ${((0.5 - p) * 2 * drift).toFixed(2)}px, 0)`
-      }, { target: el.parentElement, offset: ['start end', 'end start'] }))
+        const drift = Math.min(M.drift, (heights.get(panel) ?? 0) * M.driftMax)
+        const y = ((0.5 - p) * 2 * drift).toFixed(2)
+        if (y === last) return   // off screen the progress sits at 0 or 1: nothing to write
+        last = y
+        el.style.transform = `translate3d(0, ${y}px, 0)`
+      }, { target: panel, offset: ['start end', 'end start'] }))
     })
   }
 

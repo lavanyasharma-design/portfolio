@@ -72,3 +72,11 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* a tap on a link or button acts at once: without this, iOS still waits on some elements to see whether a
+   second tap (a zoom) follows. Pinch zoom is untouched. (2026-11-23, the performance pass) */
+a,
+button,
+[role="button"] {
+  touch-action: manipulation;
+}
