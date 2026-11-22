@@ -49,6 +49,7 @@ export const GARDEN = {
   visit: 9,        // seconds of flying between visits to a sunflower
   stay: 2.4,       // seconds it rests on a sunflower
   phoneTall: 1.3,  // grass height on phones (600px and narrower): the tallest blades reach the band's top
+  farTall: 1,      // the far grass's height on desktop (wider than 600px), against the rest
 
   // grass and cursor (desktop only): Lavanya's values from ?garden, 2026-11-14/15
   reach: 117,      // px around the cursor the grass feels, on the desktop band
@@ -80,6 +81,7 @@ export const TULIPS = {
   ...GARDEN,
   // her values from ?garden on /about (2026-11-22)
   density: 1.7,          // more grass than the purple garden (1.05)
+  farTall: 0.75,         // the far grass shorter on desktop (hers, 2026-11-22; phones as they were)
   flowers: 1.9,          // how many tulips (the sunflowers are 1.4)
   light: 0.12,           // washes the greens lighter
   reach: 128, brush: 1.4, spring: 4.5, tipBend: 1.3, softness: 0.25,   // the grass and the cursor
@@ -212,7 +214,7 @@ function build(W, H, G, kind) {
     { colors: P.front, every: 46, blades: [5, 10], h: [0.12, 0.46], w: [10, 16], base: 1.03, lean: 0.55 },
   ]
   const layers = LAYERS.map((L, li) => {
-    const grow = li < 2 ? k : kNear
+    const grow = (li < 2 ? k : kNear) * (li === 0 && W > 600 ? G.farTall : 1)
     const blades = []
     const n = Math.max(3, Math.round((W / (L.every * s)) * G.density))
     for (let i = 0; i < n; i++) {
@@ -1034,6 +1036,7 @@ function mountPanel({ G, kind, rebuild, redraw, cost }) {
     ['visit', 'flying between flowers (s)', 1, 15, 0.5],
     ['stay', 'rest on a flower (s)', 0.5, 8, 0.1],
     ['phoneTall', 'grass height on phones', 1, 1.6, 0.05, true],
+    ['farTall', 'far grass height, desktop', 0.3, 1.2, 0.01, true],
     'grass and cursor (desktop)',
     ['softness', 'softness (s)', 0.05, 1.5, 0.05],
     ['reach', 'cursor reach (px)', 10, 200, 1],
