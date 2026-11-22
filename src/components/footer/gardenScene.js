@@ -103,6 +103,12 @@ export const TULIPS = {
   grassNear: '#5f7c4b',  // near grass and the ground
   nod: 0.1,              // how far the heads nod over (0: upright, following their stems)
   tulipSize: 1.1,        // the cups' size against the sunflowers' (1 the same)
+  // phones (600 and narrower) have their own say over how the tulips stand (hers, 2026-11-22: they
+  // tilted on her phone, unasked); ?tulips opens a short panel for these
+  leanPhone: 0.3,        // how far the stems lean (1 as on desktop)
+  followPhone: 0.6,      // how far a head turns with its stem (desktop 1.2)
+  nodPhone: 0,           // the heads' own nod over
+  swayPhone: 0.65,       // the wind's sway (hers; the heads swing with it)
 }
 
 /* Lavanya's values from her phone, 2026-11-14, second round (calm on the phone); the bigger
@@ -467,8 +473,10 @@ export function mountGarden(canvas, kind = 'sunflowers') {
     ctx.fillRect(0, H * 0.55, W, H * 0.45)
   }
 
+  // on phones a tulip's stem leans by leanPhone of its own lean
+  const leanOf = (f) => (kind === 'tulips' && scene.W <= 600 ? f.lean * G.leanPhone : f.lean)
   function flowerHead(f) {
-    const a = f.lean + wind(f.x) * 0.7 + Math.sin(T * 1.6 * G.wind + f.phase) * 0.02 * swayNow() + (f.pa || 0) * G.flowerTouch + (f.tw || 0)
+    const a = leanOf(f) + wind(f.x) * 0.7 + Math.sin(T * 1.6 * G.wind + f.phase) * 0.02 * swayNow() + (f.pa || 0) * G.flowerTouch + (f.tw || 0)
     return { a, hx: f.x + Math.sin(a) * f.h, hy: f.y - Math.cos(a) * f.h + f.dip }
   }
 
@@ -553,7 +561,7 @@ export function mountGarden(canvas, kind = 'sunflowers') {
     return TC
   }
   // the nod: the head's angle, the stem's lean carried on and bowed over by `nod`
-  const nodOf = (f, a) => a * 1.2 + f.tilt * G.nod
+  const nodOf = (f, a) => (scene.W <= 600 ? a * G.followPhone + f.tilt * G.nodPhone : a * 1.2 + f.tilt * G.nod)
   // the cup is egg-shaped, as in her watercolour: full and round, the petals overlapping with soft,
   // rounded tips. Each petal rises from the base, bellies out and closes over at the top
   function tulipHead(f, C, stir) {
@@ -993,9 +1001,10 @@ export function mountGarden(canvas, kind = 'sunflowers') {
   const onMotion = () => { stop(); draw(); start() }
   reduce.addEventListener('change', onMotion)
 
-  const panel = new URLSearchParams(location.search).has('garden')
-    ? mountPanel({ G, kind, rebuild: resize, redraw: () => { if (!raf) draw() }, cost: () => cost })
-    : null
+  const q = new URLSearchParams(location.search)
+  const redraw = () => { if (!raf) draw() }
+  const panel = q.has('garden') ? mountPanel({ G, kind, rebuild: resize, redraw, cost: () => cost })
+    : q.has('tulips') && kind === 'tulips' ? mountTulipPanel(G, redraw) : null
 
   return {
     destroy() {
@@ -1007,6 +1016,32 @@ export function mountGarden(canvas, kind = 'sunflowers') {
       panel?.remove()
     },
   }
+}
+
+/* ?tulips: a short panel for how the tulips stand on phones, kept to the top of the screen so the garden
+   stays in view below it */
+function mountTulipPanel(G, redraw) {
+  const el = document.createElement('div')
+  el.className = 'tune-panel'
+  el.style.cssText = 'left:auto;right:12px;top:12px;max-height:40vh;overflow:hidden auto'
+  const rows = [
+    ['leanPhone', 'stems lean', 0, 1, 0.05],
+    ['followPhone', 'heads turn with stems', 0, 1.5, 0.05],
+    ['nodPhone', 'heads nod over', 0, 1.5, 0.02],
+    ['swayPhone', 'wind sway', 0, 1.5, 0.05],
+  ]
+  el.innerHTML = '<b>tulips on phones</b>' + rows.map(([k, label, min, max, step]) =>
+    `<label><span>${label}</span><input type="range" data-k="${k}" min="${min}" max="${max}" step="${step}" value="${G[k]}"><output>${G[k]}</output></label>`).join('')
+    + '<button type="button" class="copy">copy values</button>'
+  el.addEventListener('input', (e) => {
+    const k = e.target.dataset.k; if (!k) return
+    G[k] = +e.target.value; e.target.nextElementSibling.textContent = e.target.value; redraw()
+  })
+  el.querySelector('.copy').addEventListener('click', (e) => {
+    navigator.clipboard?.writeText(JSON.stringify(Object.fromEntries(rows.map(([k]) => [k, G[k]])), null, 2)); e.target.textContent = 'copied'
+  })
+  document.body.append(el)
+  return el
 }
 
 /* ?garden: sliders in plain words; "copy values" gives the GARDEN numbers */
