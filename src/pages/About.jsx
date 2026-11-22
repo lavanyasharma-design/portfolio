@@ -126,7 +126,7 @@ function About() {
             </ol>
             {/* her Google Drive file, in a new tab (RESUME_URL in aboutContent.js) */}
             <a className="ab-resume" href={RESUME_URL || undefined} target="_blank" rel="noreferrer">
-              <Rip text="my resume" /><ArrowUpRight className="ab-resume-icon" aria-hidden="true" strokeWidth={1.5} />
+              my resume<ArrowUpRight className="ab-resume-icon" aria-hidden="true" strokeWidth={1.5} />
               <span className="sr-only"> (opens in a new tab)</span>
             </a>
           </aside>

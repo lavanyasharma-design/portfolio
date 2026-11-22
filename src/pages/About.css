@@ -101,10 +101,10 @@ html:has(.about-page),html:has(.about-page) body{background:var(--color-white-de
   font-size:16px;font-weight:300;line-height:1.2;color:var(--color-black-highlight);text-decoration:none;border-bottom:1px solid currentColor;
   -webkit-tap-highlight-color:transparent;transition:color .2s var(--ease-out);
 }
-.ab-resume:hover{color:var(--color-teal-pressed)}
+/* no ripple and no hover: only the colour, turning teal as it's clicked (hers, 2026-11-22) */
+.ab-resume:active{color:var(--color-teal-pressed)}
 .ab-resume:focus-visible{outline:1px solid currentColor;outline-offset:3px;border-radius:2px}
-.ab-resume-icon{width:.95em;height:.95em;flex:none;transition:translate .2s var(--ease-out)}
-.ab-resume:hover .ab-resume-icon{translate:2px -2px}
+.ab-resume-icon{width:.95em;height:.95em;flex:none}
 
 /* ---------- {visuals from my journey so far} ---------- */
 .ab-gallery{position:relative;margin-top:var(--throw-top, 56px);display:flex;flex-direction:column;gap:var(--group-gap, 56px)}
