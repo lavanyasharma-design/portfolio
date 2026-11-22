@@ -9,17 +9,17 @@
 // her values from ?about (2026-11-22)
 export const LAYOUT = {
   meSize: 174,        // px, her photo's width on desktop (height keeps her frame's 164 : 176)
-  meSizePhone: 114,   // px, on phones
-  meZoom: 1.36,       // how far the photo is zoomed in (1 = the whole picture)
+  meSizePhone: 102,   // px, on phones
+  meZoom: 1.46,       // how far the photo is zoomed in (1 = the whole picture)
   meX: 62,            // % across: the point the zoom centres on (her face)
   meY: 44,            // % down
   introTop: 36,       // px from the top of her photo's brackets to "Hi!"
   wordsGap: 29,       // px from the intro to the first paragraph
   paraGap: 16,        // px between paragraphs (her Figma)
   throwTop: 80,       // px from the words and the Experience box down to {visuals from my journey so far} (hers: 56 looked congested)
-  throwGap: 24,       // px from that title to the first group heading
+  throwGap: 28,       // px from that title to the first group heading
   labelGap: 12,       // px from a group heading to its photos
-  groupGap: 90,       // px between photo groups
+  groupGap: 78,       // px between photo groups
   rippleRadius: 80,   // px, how far from the pointer letters are nudged (her hello page)
   ripplePush: 7,      // px, how far the nearest letters move
 }
