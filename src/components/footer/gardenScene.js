@@ -71,6 +71,7 @@ export const GARDEN = {
   // the sunflowers (2026-11-14; her values 2026-11-15)
   petalBreeze: 0.4, // petals stirring in the breeze, desktop and phones (0 still)
   petalSpeed: 0.35, // breezes a second through the petals
+  calmFps: 30,      // times a second the slow, steady motion (breeze, wind) is redrawn; the butterfly and anything the cursor moves keep every frame (2026-11-23, performance)
   flowerTwitch: 0.85, // desktop: the little twitch when the cursor passes over a flower head
 }
 /* The About page's garden: the same scene, butterfly and pencil, with green grass and leaves instead of
@@ -93,6 +94,7 @@ export const MEADOW = {
   flowerTwitch: 0.8,     // the twitch when the cursor passes over a head
   petalBreeze: 0.45,     // petals stirring in the breeze
   petalSpeed: 0.7,       // breezes a second through the petals
+  calmFps: 30,           // times a second the breeze and the wind are redrawn (the butterfly and the cursor keep every frame)
   dart: 155,             // px the butterfly darts from the cursor or a tap
   petal: '#85b4db',      // petals: the body (the tulips' blues, hers)
   petalShade: '#5b86ae', // the petals behind, turned away
@@ -397,6 +399,21 @@ export function mountGarden(canvas, kind = 'sunflowers') {
   const main = canvas.getContext('2d')
   const nearCanvas = document.createElement('canvas')    // ground and near grass, grained apart
   const near = nearCanvas.getContext('2d')                // so the butterfly between stays crisp
+  /* The garden is three pictures stacked (2026-11-23, the performance pass): the back (far and middle grass,
+     haze, undergrowth), the flowers, and the near grass. Each is kept until something in it moves, and
+     every frame only lays them together, rubs the grain out and draws the butterfly between. Redrawing all
+     of it every frame (about a thousand blades and every petal) made the footer heavy, though on a desktop
+     the grass stands still unless the cursor is in it. A layer redraws every frame while the cursor, a
+     twitch or a landing is moving it; for slow, steady motion (petals in the breeze, the wind on phones)
+     about `calmFps` times a second, the back and near on one frame and the flowers on the next. */
+  const backCanvas = document.createElement('canvas'), flowerCanvas = document.createElement('canvas')
+  const LAYERS = {
+    back: { c: backCanvas.getContext('2d'), at: 0 },
+    flowers: { c: flowerCanvas.getContext('2d'), at: -1 / 60 },   // half a step behind, so they take turns
+    near: { c: near, at: 0 },
+  }
+  for (const L of Object.values(LAYERS)) Object.assign(L, { dirty: true, active: false, was: false })
+  const moving = [false, false, false]   // grass layers the cursor is moving this frame (touchGrass)
   let ctx = main
   const reduce = matchMedia('(prefers-reduced-motion: reduce)')
   let scene = null, bfly = null, dpr = 1, tooth = null, toothMain = null, toothNear = null
@@ -423,7 +440,7 @@ export function mountGarden(canvas, kind = 'sunflowers') {
     const W = canvas.clientWidth, H = canvas.clientHeight
     if (!W || !H) return
     dpr = Math.min(2, devicePixelRatio || 1)
-    for (const c of [canvas, nearCanvas]) { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr) }
+    for (const c of [canvas, nearCanvas, backCanvas, flowerCanvas]) { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr) }
     tooth ??= paperTooth()
     toothMain = main.createPattern(tooth, 'repeat')
     toothNear = near.createPattern(tooth, 'repeat')
@@ -789,31 +806,40 @@ export function mountGarden(canvas, kind = 'sunflowers') {
     ctx.restore()
   }
 
-  function draw() {
+  // what each layer holds
+  const PAINT = {
+    back() { grass(scene.layers[0]); haze(G.haze); underlay(); grass(scene.layers[1]); haze(G.haze * 0.35) },
+    flowers() { if (kind === 'meadow') meadow(); else sunflowers() },
+    // ground and the closest grass, pencilled on their own, so they can be laid over the butterfly
+    near() { groundAndBushes(); grass(scene.layers[2]); pencil(near, toothNear) },
+  }
+  const redrawAll = () => { for (const L of Object.values(LAYERS)) L.dirty = true }
+
+  // all: every layer afresh (a resize, a panel change, the still garden); otherwise only those that moved
+  function draw(all = true) {
     if (!scene) return
     const { W, H } = scene
-    // far and middle: grass, haze, undergrowth, sunflowers, then pencilled
+    const windy = swayNow() > 0
+    const calm = { back: windy, flowers: windy || G.petalBreeze > 0, near: windy }
+    const step = 0.72 / Math.max(1, G.calmFps)   // a little under 1 / calmFps, so a frame early still counts
+    for (const [name, L] of Object.entries(LAYERS)) {
+      if (!(all || L.dirty || L.active || L.was || (calm[name] && T - L.at >= step))) continue
+      ctx = L.c
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      ctx.clearRect(0, 0, W, H)
+      PAINT[name]()
+      L.at = T; L.dirty = false
+    }
+    for (const L of Object.values(LAYERS)) L.was = L.active   // once more after it settles, at rest
+    // far and middle, then the flowers, pencilled together; the butterfly, crisp; then the near grass over it
     ctx = main
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-    ctx.clearRect(0, 0, W, H)
-    grass(scene.layers[0])
-    haze(G.haze)
-    underlay()
-    grass(scene.layers[1])
-    haze(G.haze * 0.35)
-    if (kind === 'meadow') meadow()
-    else sunflowers()
+    main.setTransform(1, 0, 0, 1, 0, 0)
+    main.clearRect(0, 0, main.canvas.width, main.canvas.height)
+    main.drawImage(backCanvas, 0, 0)
+    main.drawImage(flowerCanvas, 0, 0)
+    main.setTransform(dpr, 0, 0, dpr, 0, 0)
     pencil(main, toothMain)
-    // the butterfly, crisp
     butterfly()
-    // near: ground and the closest grass, pencilled on their own, then laid over the butterfly
-    ctx = near
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-    ctx.clearRect(0, 0, W, H)
-    groundAndBushes()
-    grass(scene.layers[2])
-    pencil(near, toothNear)
-    ctx = main
     main.save()
     main.setTransform(1, 0, 0, 1, 0, 0)
     main.drawImage(nearCanvas, 0, 0)
@@ -886,11 +912,13 @@ export function mountGarden(canvas, kind = 'sunflowers') {
     // blade the cursor rests on doesn't flick from side to side
     const away = (x) => Math.max(-1, Math.min(1, (x - ptr.x) / (R * 0.5)))
     scene.layers.forEach((layer, li) => {
+      moving[li] = false
       for (const g of layer) for (const b of g.blades) {
         const near = ptr.in ? nearness(b.x, b.y, b.h, b.lean, R) : 0
         if (!near && !b.pa && !b.pv && !b.pt) continue
         spring(b, near, away(b.x), weights[li])
         if (!near && Math.abs(b.pa) < 1e-4 && Math.abs(b.pv) < 1e-3 && Math.abs(b.pt) < 1e-4) { b.pa = 0; b.pv = 0; b.pt = 0 }
+        else moving[li] = true
       }
     })
     for (const f of scene.flowers) {
@@ -964,6 +992,12 @@ export function mountGarden(canvas, kind = 'sunflowers') {
     for (const f of scene.flowers) { f.dipV += (-f.dip * 70 - f.dipV * 9) * dt; f.dip += f.dipV * dt }
     touchGrass(dt)
     settleFlowers(dt)
+    // which layers are moving now (draw redraws those every frame): grass the cursor is in, and flowers
+    // bending to it, twitching, dipping under the butterfly or ruffled
+    LAYERS.back.active = moving[0] || moving[1]
+    LAYERS.near.active = moving[2]
+    LAYERS.flowers.active = scene.flowers.some((f) => f.ruffle > 0 || Math.abs(f.dip) > 0.01 || Math.abs(f.dipV) > 0.05
+      || Math.abs(f.pa || 0) > 1e-4 || Math.abs(f.pv || 0) > 1e-3 || Math.abs(f.tw || 0) > 1e-4 || Math.abs(f.tv || 0) > 1e-3)
 
     // the drift; it pauses while it's on (or headed for) a flower. The speed eases, and it starts
     // turning early enough to come about right at the edge, so it never reverses with a jolt
@@ -1078,7 +1112,7 @@ export function mountGarden(canvas, kind = 'sunflowers') {
     T += dt
     if (scene) {
       const t0 = performance.now()
-      update(dt); draw()
+      update(dt); draw(false)
       cost = cost * 0.95 + (performance.now() - t0) * 0.05   // smoothed, shown in the ?garden panel
       if (dt) rate = rate * 0.95 + (1 / dt) * 0.05
     }
@@ -1100,7 +1134,7 @@ export function mountGarden(canvas, kind = 'sunflowers') {
   reduce.addEventListener('change', onMotion)
 
   const q = new URLSearchParams(location.search)
-  const redraw = () => { if (!raf) draw() }
+  const redraw = () => { redrawAll(); if (!raf) draw() }   // a panel change repaints every layer
   const panel = q.has('garden') ? mountPanel({ G, kind, rebuild: resize, redraw, cost: () => cost, rate: () => rate })
     : q.has('meadow') && kind === 'meadow' ? mountMeadowPanel(G, redraw) : null
 
@@ -1191,6 +1225,7 @@ function mountPanel({ G, kind, rebuild, redraw, cost, rate }) {
     'petals (desktop and phones)',
     ['petalBreeze', 'petal breeze', 0, 2, 0.05],
     ['petalSpeed', 'breezes/s', 0.05, 2, 0.05],
+    ['calmFps', 'breeze redraws/s', 10, 60, 5],
     ...(meadowKind ? [
       'meadow',
       ['flowerSize', 'flower size', 0.6, 1.6, 0.02, true],
