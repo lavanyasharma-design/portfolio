@@ -85,7 +85,7 @@ export const TULIPS = {
   farTall: 0.84,         // the far grass shorter on desktop
   flowers: 1.9,          // how many tulips (the sunflowers are 1.4)
   light: 0.17,           // washes the greens lighter
-  grain: 0.32,           // pencil grain
+  grain: 0.4,            // pencil grain
   reach: 128, brush: 1.4, spring: 4.5, tipBend: 1.3, softness: 0.35,   // the grass and the cursor
   flowerTouch: 0.4,      // how much the tulips move with the cursor
   flowerTwitch: 0.8,     // the twitch when the cursor passes over a head
