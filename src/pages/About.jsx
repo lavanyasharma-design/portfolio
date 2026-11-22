@@ -150,8 +150,8 @@ function About() {
         </section>
 
       </div>
-      {/* the case studies' words (hers, 2026-11-22); a teal scene in place of the purple garden is to come */}
-      <CaseFooter />
+      {/* the case studies' words, over a garden of tulips in place of the purple one (hers, 2026-11-22) */}
+      <CaseFooter garden="tulips" />
     </main>
     </>
   )

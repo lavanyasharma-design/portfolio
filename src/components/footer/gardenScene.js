@@ -72,6 +72,28 @@ export const GARDEN = {
   petalSpeed: 0.35, // breezes a second through the petals
   flowerTwitch: 0.85, // desktop: the little twitch when the cursor passes over a flower head
 }
+/* The About page's garden (hers, 2026-11-22, after a watercolour of blue tulips she sent): the same scene,
+   butterfly and pencil, with nodding tulips in place of the sunflowers, a few more of them, the same size,
+   and green grass and leaves instead of purple (purple is [work]'s; About is teal). Its own values, so
+   tuning one garden never moves the other; ?garden on the About page tunes this one, colours included. */
+export const TULIPS = {
+  ...GARDEN,
+  flowers: 1.9,          // how many tulips (the sunflowers are 1.4)
+  light: 0.12,           // washes the greens lighter
+  tulip: '#86b0d3',      // petals: the body
+  tulipShade: '#4f80ad', // the shade between petals and inside the cup
+  tulipLight: '#c9def0', // the light down the front petals
+  tulipEdge: '#3f6f9c',  // the pencil line round each petal
+  stem: '#a9ad66',       // stems, yellow-green as in her reference
+  leaf: '#5f8448',       // the broad leaves at the foot of each tulip
+  leafDark: '#3e5c30',   // their shaded side
+  grassFar: '#d9e5cf',   // far grass, palest
+  grassMid: '#a3bd8a',   // middle grass
+  grassNear: '#6a8f52',  // near grass and the ground
+  nod: 0.8,              // how far the heads nod over (0 upright)
+  tulipSize: 1,          // the cups' size against the sunflowers' (1 the same)
+}
+
 /* Lavanya's values from her phone, 2026-11-14, second round (calm on the phone); the bigger
    butterfly is phones only, desktop keeps 52. Third round (desktop): no wind sway on desktop, and
    her grass and cursor values */
@@ -121,6 +143,20 @@ function palette(light) {
   return P
 }
 
+// the tulip garden's greens: each tier a few close shades of its colour, all washed by `light`
+function greens(G) {
+  const W = [255, 255, 255], K = [20, 30, 15]
+  const shades = (h) => { const c = rgb(h); return [c, mixRGB(c, W, 0.08), mixRGB(c, K, 0.06), mixRGB(c, W, 0.15)] }
+  const lift = (c) => mixRGB(c, W, G.light)
+  const near = shades(G.grassNear)
+  return {
+    back: shades(G.grassFar).map(lift), mid: shades(G.grassMid).map(lift), front: near.map(lift),
+    ground: lift(mixRGB(rgb(G.grassNear), K, 0.12)),
+    bush: [...near, mixRGB(rgb(G.grassNear), K, 0.15)].map(lift),
+    stem: [lift(rgb(G.stem))], leaf: near.map(lift), page: rgb(PAL.page),
+  }
+}
+
 /* ---------- the paper ---------- */
 
 // a tile of paper tooth: fine specks, with streaks stretched upwards so it reads as pencil strokes
@@ -153,10 +189,10 @@ function paperTooth(size = 256) {
 /* ---------- the scene ---------- */
 
 // W x H in CSS px. s: one desktop design px (the band is 324 tall on desktop)
-function build(W, H, G) {
+function build(W, H, G, kind) {
   const r = rng(G.seed)
   const s = H / 324
-  const P = palette(G.light)
+  const P = kind === 'tulips' ? greens(G) : palette(G.light)
   const between = (a, b) => a + r() * (b - a)
   const pick = (arr) => arr[(r() * arr.length) | 0]
   // phones: the grass looked unfinished in the short band (Lavanya, 2026-11-14), so the far and
@@ -208,10 +244,29 @@ function build(W, H, G) {
     })
   })
 
-  // sunflowers, all one kind: two rings of pointed rose-pink petals around a dark brown heart
+  // sunflowers, all one kind: two rings of pointed rose-pink petals around a dark brown heart.
+  // Or, in the tulip garden: nodding cups on curved stems, each with two broad leaves at its foot
   const flowers = []
   const nFlowers = Math.max(2, Math.round((W / (230 * s)) * G.flowers))
-  for (let i = 0; i < nFlowers; i++) {
+  if (kind === 'tulips') for (let i = 0; i < nFlowers; i++) {
+    const lean = (r() - 0.5) * 0.5
+    const side = lean === 0 ? 1 : Math.sign(lean)
+    flowers.push({
+      x: ((i + 0.15 + r() * 0.7) / nFlowers) * W,
+      y: H,
+      h: between(0.34, 0.62) * kNear * H,
+      lean, phase: r() * TAU,
+      rad: between(19, 26) * s * G.tulipSize,
+      tilt: side * between(0.6, 1.2),                    // which way and how far this head nods
+      cup: between(0.92, 1.08), open: between(0, 1),     // its shape: a touch taller or wider, more or less open
+      leaves: [-1, 1].map((sd) => ({
+        side: sd, len: between(0.42, 0.62) * H * kNear, wid: between(0.2, 0.3), lean: sd * between(0.25, 0.55),
+        dark: r() < 0.5,
+      })),
+      dip: 0, dipV: 0,
+    })
+  }
+  else for (let i = 0; i < nFlowers; i++) {
     const rad = between(19, 26) * s
     const n = Math.round(between(16, 20))
     const ring = (shades, len, wid, off) => Array.from({ length: n }, (_, p) => ({
@@ -254,7 +309,7 @@ function build(W, H, G) {
   }
 
   return {
-    W, H, s, layers, flowers, ground, bushes,
+    W, H, s, layers, flowers, ground, bushes, kind,
     colors: { ground: css(P.ground), page: P.page, back: P.back[2], mid: P.mid[1], front: css(P.front[1]) },
   }
 }
@@ -282,8 +337,8 @@ const BODY = 0.496   // where the body is across the cropped image (the flyer's 
 
 /* ---------- mounting ---------- */
 
-export function mountGarden(canvas) {
-  const G = GARDEN
+export function mountGarden(canvas, kind = 'sunflowers') {
+  const G = kind === 'tulips' ? TULIPS : GARDEN
   const main = canvas.getContext('2d')
   const nearCanvas = document.createElement('canvas')    // ground and near grass, grained apart
   const near = nearCanvas.getContext('2d')                // so the butterfly between stays crisp
@@ -317,7 +372,7 @@ export function mountGarden(canvas) {
     tooth ??= paperTooth()
     toothMain = main.createPattern(tooth, 'repeat')
     toothNear = near.createPattern(tooth, 'repeat')
-    scene = build(W, H, G)
+    scene = build(W, H, G, kind)
     fly.cx = null; fly.mode = 'cruise'; fly.w = 0; fly.flower = null; fly.next = T + 2
     draw()
   }
@@ -470,6 +525,100 @@ export function mountGarden(canvas) {
     }
   }
 
+  /* a tulip: its leaves, its stem, then the cup nodding at the top. The cup is drawn upright from the stem
+     (its opening up, -y) and turned: two back petals in shade, the side petals, then the front one with a
+     light streak down it, every petal with a pencil line round it */
+  const TC = {}   // the tulip colours, kept as css strings until the panel changes one
+  function tulipColours() {
+    const key = [G.tulip, G.tulipShade, G.tulipLight, G.tulipEdge, G.leaf, G.leafDark, G.stem].join()
+    if (TC.key === key) return TC
+    const c = rgb(G.tulip), sh = rgb(G.tulipShade), li = rgb(G.tulipLight)
+    Object.assign(TC, {
+      key, body: css(c), side: css(mixRGB(c, sh, 0.3)), back: css(mixRGB(c, sh, 0.65)), deep: css(sh),
+      light: css(li, 0.55), front: css(mixRGB(c, li, 0.25)), edge: css(rgb(G.tulipEdge), 0.55),
+      vein: css(sh, 0.35), leaf: css(rgb(G.leaf)), leafDark: css(rgb(G.leafDark)), rib: css(rgb(G.leafDark), 0.6),
+      stem: css(rgb(G.stem)),
+    })
+    return TC
+  }
+  // the nod: the head's angle, the stem's lean carried on and bowed over by `nod`
+  const nodOf = (f, a) => a * 1.2 + f.tilt * G.nod
+  // the cup is egg-shaped, as in her watercolour: full and round, the petals overlapping with soft,
+  // rounded tips. Each petal rises from the base, bellies out and closes over at the top
+  function tulipHead(f, C, stir) {
+    const w = f.rad * 1.75 * f.cup, h = f.rad * 2 / f.cup, o = f.open * 0.08
+    const lw = 0.7 * scene.s
+    const b = stir * 0.03
+    // a petal centred on cx, `pw` wide and `ph` tall, leaning out by `lean` (radians), its tip rounded
+    const petal = (cx, pw, ph, lean, fill, light) => {
+      ctx.save()
+      ctx.translate(cx * 0.4, 0); ctx.rotate(lean); ctx.translate(cx * 0.6, 0)
+      const x = pw / 2
+      ctx.beginPath()
+      ctx.moveTo(-x * 0.22, 0)
+      ctx.bezierCurveTo(-x * 1.05, -ph * 0.12, -x * 1.08, -ph * 0.7, -x * 0.62, -ph * 0.93)
+      ctx.bezierCurveTo(-x * 0.32, -ph * 1.05, x * 0.32, -ph * 1.05, x * 0.62, -ph * 0.93)
+      ctx.bezierCurveTo(x * 1.08, -ph * 0.7, x * 1.05, -ph * 0.12, x * 0.22, 0)
+      ctx.closePath()
+      ctx.fillStyle = fill; ctx.fill()
+      ctx.lineWidth = lw; ctx.strokeStyle = C.edge; ctx.stroke()
+      // the watercolour's light down the middle of a petal, then a vein of shade beside it
+      if (light) {
+        ctx.beginPath()
+        ctx.moveTo(-x * 0.1, -ph * 0.12)
+        ctx.bezierCurveTo(-x * 0.42, -ph * 0.4, -x * 0.4, -ph * 0.7, -x * 0.12, -ph * 0.88)
+        ctx.lineWidth = pw * 0.09; ctx.lineCap = 'round'; ctx.strokeStyle = C.light; ctx.stroke()
+      }
+      ctx.beginPath()
+      ctx.moveTo(x * 0.12, -ph * 0.08)
+      ctx.bezierCurveTo(x * 0.42, -ph * 0.38, x * 0.44, -ph * 0.7, x * 0.2, -ph * 0.9)
+      ctx.lineWidth = lw; ctx.lineCap = 'butt'; ctx.strokeStyle = C.vein; ctx.stroke()
+      ctx.restore()
+    }
+    // the back petals, in shade, their tops showing over the front ones
+    petal(-w * 0.2, w * 0.58, h * 1.0, -0.16 - o - b, C.back)
+    petal(w * 0.2, w * 0.58, h * 1.0, 0.16 + o - b, C.back)
+    // the side petals wrapping round, then the front one, overlapping them, with the light on it
+    petal(-w * 0.24, w * 0.6, h * 0.93, -0.08 - o, C.side, true)
+    petal(w * 0.24, w * 0.6, h * 0.93, 0.08 + o, C.body, true)
+    petal(-w * 0.03, w * 0.64, h * 0.9, b, C.front, true)
+  }
+  function tulips() {
+    const { s } = scene
+    const C = tulipColours()
+    const tb = T * G.petalSpeed * TAU
+    // leaves first, all of them, so every head sits in front of the foliage
+    for (const f of scene.flowers) {
+      const { a } = flowerHead(f)
+      for (const l of f.leaves) {
+        const la = l.lean + a * 0.4, half = l.len * 0.5
+        const mx = f.x + Math.sin(la * 0.5) * half, my = f.y - Math.cos(la * 0.5) * half
+        const tx = f.x + Math.sin(la) * l.len, ty = f.y - Math.cos(la) * l.len
+        const wd = l.len * l.wid * 0.5, nx = Math.cos(la) * wd, ny = Math.sin(la) * wd
+        ctx.beginPath()
+        ctx.moveTo(f.x - nx * 0.3, f.y)
+        ctx.quadraticCurveTo(mx - nx, my - ny, tx, ty)
+        ctx.quadraticCurveTo(mx + nx, my + ny, f.x + nx * 0.3, f.y)
+        ctx.fillStyle = l.dark ? C.leafDark : C.leaf; ctx.fill()
+        ctx.lineWidth = 0.7 * s; ctx.strokeStyle = C.rib
+        ctx.beginPath(); ctx.moveTo(f.x, f.y); ctx.quadraticCurveTo(mx, my, tx, ty); ctx.stroke()
+      }
+    }
+    for (const f of scene.flowers) {
+      const { a, hx, hy } = flowerHead(f)
+      const mx = f.x + Math.sin(a * 0.4) * f.h * 0.55, my = f.y - Math.cos(a * 0.4) * f.h * 0.55
+      ctx.strokeStyle = C.stem; ctx.lineWidth = 2.4 * s
+      ctx.beginPath(); ctx.moveTo(f.x, f.y); ctx.quadraticCurveTo(mx, my, hx, hy); ctx.stroke()
+      ctx.save()
+      ctx.translate(hx, hy)
+      ctx.rotate(nodOf(f, a))
+      // the petals stir in the breeze, as the sunflowers' do, and ruffle on a twitch
+      const stir = (G.petalBreeze + (f.ruffle || 0) * 2.5) * Math.sin(tb + f.phase)
+      tulipHead(f, C, stir)
+      ctx.restore()
+    }
+  }
+
   function groundAndBushes() {
     const { W, H } = scene
     ctx.fillStyle = scene.colors.ground
@@ -488,7 +637,20 @@ export function mountGarden(canvas) {
   }
 
   // where the butterfly sits on a sunflower: on its heart
-  const perchOn = (f) => { const { a, hx, hy } = flowerHead(f); return { x: hx, y: hy - f.rad * 0.3, tilt: a * 0.6 + f.tilt } }
+  const perchOn = (f) => {
+    const { a, hx, hy } = flowerHead(f)
+    if (kind !== 'tulips') return { x: hx, y: hy - f.rad * 0.3, tilt: a * 0.6 + f.tilt }
+    // on a tulip: on the rim of its cup
+    const n = nodOf(f, a), up = f.rad * 2 / f.cup * 0.95
+    return { x: hx + Math.sin(n) * up, y: hy - Math.cos(n) * up, tilt: n }
+  }
+  // the middle of a flower's head (the twitch's target)
+  const headMid = (f) => {
+    const { a, hx, hy } = flowerHead(f)
+    if (kind !== 'tulips') return { hx, hy }
+    const n = nodOf(f, a), up = f.rad / f.cup
+    return { hx: hx + Math.sin(n) * up, hy: hy - Math.cos(n) * up }
+  }
 
   function butterfly() {
     if (!bfly || !scene) return
@@ -530,7 +692,8 @@ export function mountGarden(canvas) {
     underlay()
     grass(scene.layers[1])
     haze(G.haze * 0.35)
-    sunflowers()
+    if (kind === 'tulips') tulips()
+    else sunflowers()
     pencil(main, toothMain)
     // the butterfly, crisp
     butterfly()
@@ -627,7 +790,7 @@ export function mountGarden(canvas) {
       // a twitch when the cursor passes over the head: a quick, small jolt away from it on a stiff
       // spring of its own, and the petals ruffle
       if (ptr.in && G.flowerTwitch > 0 && T >= (f.twitchReady || 0)) {
-        const { hx, hy } = flowerHead(f)
+        const { hx, hy } = headMid(f)
         if (Math.hypot(ptr.x - hx, ptr.y - hy) < f.rad * 1.3) {
           f.tv = (f.tv || 0) + (ptr.x < hx ? 1 : -1) * 1.6 * G.flowerTwitch
           f.dipV += 12 * s * G.flowerTwitch
@@ -820,7 +983,7 @@ export function mountGarden(canvas) {
   reduce.addEventListener('change', onMotion)
 
   const panel = new URLSearchParams(location.search).has('garden')
-    ? mountPanel({ rebuild: resize, redraw: () => { if (!raf) draw() }, cost: () => cost })
+    ? mountPanel({ G, kind, rebuild: resize, redraw: () => { if (!raf) draw() }, cost: () => cost })
     : null
 
   return {
@@ -836,8 +999,9 @@ export function mountGarden(canvas) {
 }
 
 /* ?garden: sliders in plain words; "copy values" gives the GARDEN numbers */
-function mountPanel({ rebuild, redraw, cost }) {
-  const G = GARDEN
+function mountPanel({ G, kind, rebuild, redraw, cost }) {
+  const tulip = kind === 'tulips'
+  const flower = tulip ? 'tulips' : 'sunflowers'
   const el = document.createElement('div')
   el.className = 'tune-panel'
   el.style.cssText = 'left:auto;right:12px;top:12px;max-height:calc(100vh - 24px);overflow:hidden auto'
@@ -848,7 +1012,7 @@ function mountPanel({ rebuild, redraw, cost }) {
     ['edge', 'pencil edge', 0, 1, 0.01],
     ['round', 'round tips', 0, 1, 0.05],
     ['density', 'grass', 0.3, 2, 0.05, true],
-    ['flowers', 'sunflowers', 0, 2.5, 0.05, true],
+    ['flowers', flower, 0, 3.5, 0.05, true],
     ['haze', 'far fade', 0, 0.8, 0.01],
     ['sway', 'sway, desktop', 0, 3, 0.05],
     ['swayPhone', 'sway, phones', 0, 3, 0.05],
@@ -873,7 +1037,7 @@ function mountPanel({ rebuild, redraw, cost }) {
     ['settle', 'calm down', 0.3, 10, 0.1],
     ['tipBend', 'tip bend', 0.5, 3, 0.05],
     ['depth', 'far grass feels it', 0, 1, 0.05],
-    ['flowerTouch', 'sunflowers move', 0, 1.5, 0.05],
+    ['flowerTouch', `${flower} move`, 0, 1.5, 0.05],
     ['flowerTwitch', 'flower twitch', 0, 3, 0.05],
     'butterfly and cursor (desktop)',
     ['dart', 'dart distance (px)', 0, 250, 5],
@@ -882,17 +1046,29 @@ function mountPanel({ rebuild, redraw, cost }) {
     'petals (desktop and phones)',
     ['petalBreeze', 'petal breeze', 0, 2, 0.05],
     ['petalSpeed', 'breezes/s', 0.05, 2, 0.05],
+    ...(tulip ? [
+      'tulips',
+      ['tulipSize', 'tulip size', 0.6, 1.6, 0.02, true],
+      ['nod', 'heads nod over', 0, 1.5, 0.02],
+      'colours (tulip garden)',
+      ['tulip', 'petals', 'color'], ['tulipShade', 'petal shade', 'color'], ['tulipLight', 'petal light', 'color'],
+      ['tulipEdge', 'pencil line', 'color'], ['stem', 'stems', 'color', true], ['leaf', 'leaves', 'color'],
+      ['leafDark', 'leaves, shade', 'color'], ['grassFar', 'far grass', 'color', true], ['grassMid', 'middle grass', 'color', true],
+      ['grassNear', 'near grass', 'color', true],
+    ] : []),
   ]
   // a string is a section heading
-  el.innerHTML = `<b>garden</b>${rows.map((row) => {
+  el.innerHTML = `<b>${tulip ? 'tulip garden' : 'garden'}</b>${rows.map((row) => {
     if (typeof row === 'string') return `<b style="margin-top:8px">${row}</b>`
     const [k, label, min, max, step] = row
+    if (min === 'color') return `<label><span>${label}</span><input type="color" data-k="${k}" data-color value="${G[k]}"><output>${G[k]}</output></label>`
     return `<label><span>${label}</span><input type="range" data-k="${k}" min="${min}" max="${max}" step="${step}" value="${G[k]}"><output>${G[k]}</output></label>`
   }).join('')}<button type="button" class="copy">copy values</button>`
-  const rebuilds = new Set(rows.filter((r) => Array.isArray(r) && r[5]).map((r) => r[0]))
+  const rebuilds = new Set(rows.filter((r) => Array.isArray(r) && (r[2] === 'color' ? r[3] : r[5])).map((r) => r[0]))
   el.addEventListener('input', (e) => {
     const k = e.target.dataset.k
-    G[k] = +e.target.value
+    if (!k) return
+    G[k] = 'color' in e.target.dataset ? e.target.value : +e.target.value
     e.target.nextElementSibling.textContent = e.target.value
     if (rebuilds.has(k)) rebuild()
     else redraw()

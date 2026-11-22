@@ -34,8 +34,12 @@
   background:#fffffff2;border:1px solid #d9cdf0;border-radius:8px;box-shadow:0 6px 24px #0000001a;
   font:12px/1.3 var(--font-sans);color:#1e1e1e;
 }
-.tune-panel label{display:grid;grid-template-columns:78px 1fr 44px;align-items:center;gap:6px}
-.tune-panel output{color:#616161;font-size:11px;text-align:right}
+/* the slider shrinks to fit, so the value column always shows (it used to be pushed off the panel's edge) */
+.tune-panel{width:300px;max-width:calc(100vw - 24px);box-sizing:border-box;overflow-x:hidden}
+.tune-panel label{display:grid;grid-template-columns:96px minmax(0,1fr) 46px;align-items:center;gap:8px}
+.tune-panel input[type=range]{width:100%;min-width:0;margin:0}
+.tune-panel select{min-width:0;max-width:100%}
+.tune-panel output{color:#1e1e1e;font-size:12px;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tune-panel button{padding:4px 10px;border:1px solid #d9cdf0;border-radius:4px;background:#fff;cursor:pointer;font:inherit}
 .tune-panel .play{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
 .tune-panel .copy{justify-self:start}
