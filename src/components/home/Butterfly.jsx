@@ -11,8 +11,9 @@ import './Butterfly.css'
  * The image is split down the body into two wings, each flexing in 3D about the centre line.
  * bflyRef stays on the outer box, which is what the intro's flying butterfly lands on.
  * data-no-motif keeps the background's hover effect off while the pointer is on it.
- * onTwitch fires each time a twitch starts (hover or tap, not while one is running): the home page
- * plays the butterfly's sound there.
+ * onPress fires on a click or tap (never on hover, even while a hover twitch is still running): the
+ * home page and the nav bar play the butterfly's sound there. Hover twitches it silently (hers,
+ * 2026-11-23: passing over the nav's butterfly, the sound startled her).
  *
  * Add ?tune to the URL for a live panel. Values chosen by Lavanya on 2026-11-05.
  */
@@ -34,14 +35,18 @@ const Wing = ({ side, wingRef }) => (
   </div>
 )
 
-function Butterfly({ bflyRef, onTwitch, className = '', style }) {
+function Butterfly({ bflyRef, onPress, className = '', style }) {
   const bodyRef = useRef(null), leftRef = useRef(null), rightRef = useRef(null)
   const busy = useRef(false)
+
+  const press = (e) => {
+    if (e.button === 0) onPress?.()
+    twitch(e)
+  }
 
   const twitch = (e) => {
     if (busy.current) return
     busy.current = true
-    onTwitch?.()
     const box = bflyRef.current, body = bodyRef.current
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
     const { fold, flutter, scrunch, jolt, duration, glowTime, glow, lift } = TWITCH
@@ -85,7 +90,7 @@ function Butterfly({ bflyRef, onTwitch, className = '', style }) {
   }, [bflyRef])
 
   return (
-    <div ref={bflyRef} className={`bfly ${className}`.trim()} style={style} data-no-motif="" onPointerEnter={twitch} onPointerDown={twitch}>
+    <div ref={bflyRef} className={`bfly ${className}`.trim()} style={style} data-no-motif="" onPointerEnter={twitch} onPointerDown={press}>
       <div ref={bodyRef} className="bfly-body">
         <Wing side="l" wingRef={leftRef} />
         <Wing side="r" wingRef={rightRef} />

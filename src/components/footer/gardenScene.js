@@ -387,6 +387,11 @@ const BODY = 0.496   // where the body is across the cropped image (the flyer's 
 
 /* ---------- mounting ---------- */
 
+// the shortest time between two draws: 120Hz draws every 2nd frame (60 a second), 144Hz every 2nd (72),
+// 165Hz every 2nd (82), 240Hz every 3rd (80); 60, 90 and 100Hz draw every frame. A little under 1/100s so
+// 100Hz frames that arrive a touch early still count
+const MIN_STEP = 0.0095
+
 export function mountGarden(canvas, kind = 'sunflowers') {
   const G = kind === 'meadow' ? MEADOW : GARDEN
   const main = canvas.getContext('2d')
@@ -395,7 +400,7 @@ export function mountGarden(canvas, kind = 'sunflowers') {
   let ctx = main
   const reduce = matchMedia('(prefers-reduced-motion: reduce)')
   let scene = null, bfly = null, dpr = 1, tooth = null, toothMain = null, toothNear = null
-  let raf = 0, visible = false, last = 0, T = 0, cost = 0, vividFor = null
+  let raf = 0, visible = false, last = 0, T = 0, cost = 0, rate = 0, vividFor = null
   // the butterfly's width here: bigger on phones, where the band is short (Lavanya, 2026-11-14)
   const bSize = () => (scene.W <= 600 ? G.bSizePhone : G.bSize) * scene.s
 
@@ -1061,6 +1066,13 @@ export function mountGarden(canvas, kind = 'sunflowers') {
   function frame(now) {
     raf = 0
     const t = now / 1000
+    // fast screens (120 to 240Hz, gaming laptops) skip a frame or two between draws, so the garden draws
+    // 60 to 80 times a second at an even beat. Every frame there left too little time for the page's own
+    // scrolling and it stuttered (a friend's laptop, 2026-11-23). 60 and 90Hz screens draw every frame.
+    if (last && t - last < MIN_STEP) {
+      if (visible && !reduce.matches) raf = requestAnimationFrame(frame)
+      return
+    }
     const dt = last ? Math.min(0.05, t - last) : 0
     last = t
     T += dt
@@ -1068,6 +1080,7 @@ export function mountGarden(canvas, kind = 'sunflowers') {
       const t0 = performance.now()
       update(dt); draw()
       cost = cost * 0.95 + (performance.now() - t0) * 0.05   // smoothed, shown in the ?garden panel
+      if (dt) rate = rate * 0.95 + (1 / dt) * 0.05
     }
     if (visible && !reduce.matches) raf = requestAnimationFrame(frame)
   }
@@ -1088,7 +1101,7 @@ export function mountGarden(canvas, kind = 'sunflowers') {
 
   const q = new URLSearchParams(location.search)
   const redraw = () => { if (!raf) draw() }
-  const panel = q.has('garden') ? mountPanel({ G, kind, rebuild: resize, redraw, cost: () => cost })
+  const panel = q.has('garden') ? mountPanel({ G, kind, rebuild: resize, redraw, cost: () => cost, rate: () => rate })
     : q.has('meadow') && kind === 'meadow' ? mountMeadowPanel(G, redraw) : null
 
   return {
@@ -1130,7 +1143,7 @@ function mountMeadowPanel(G, redraw) {
 }
 
 /* ?garden: sliders in plain words; "copy values" gives the GARDEN numbers */
-function mountPanel({ G, kind, rebuild, redraw, cost }) {
+function mountPanel({ G, kind, rebuild, redraw, cost, rate }) {
   const meadowKind = kind === 'meadow'
   const flower = meadowKind ? 'flowers' : 'sunflowers'
   const el = document.createElement('div')
@@ -1214,7 +1227,7 @@ function mountPanel({ G, kind, rebuild, redraw, cost }) {
   })
   const meter = document.createElement('output')
   el.append(meter)
-  const tick = setInterval(() => { if (!el.isConnected) clearInterval(tick); else meter.textContent = `draw time ${cost().toFixed(1)} ms a frame` }, 500)
+  const tick = setInterval(() => { if (!el.isConnected) clearInterval(tick); else meter.textContent = `draw time ${cost().toFixed(1)} ms a frame, ${Math.round(rate())} frames a second` }, 500)
   document.body.append(el)
   return el
 }

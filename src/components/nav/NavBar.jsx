@@ -113,7 +113,7 @@ function NavBar({ active, hidden = false }) {
         <span ref={pillRef} className="nav-pill" aria-hidden="true"><span className="nav-pill-from" /></span>
         <a className="nav-logo" href="/" onClick={home} aria-label="Home">
           <span className="nav-logo-turn">
-            <Butterfly bflyRef={bflyRef} onTwitch={playButterflySound} />
+            <Butterfly bflyRef={bflyRef} onPress={playButterflySound} />
           </span>
         </a>
         <SectionLink name="work" to="/work" current={active === 'work'} />

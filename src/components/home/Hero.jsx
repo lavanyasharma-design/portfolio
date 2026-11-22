@@ -65,7 +65,7 @@ function Hero({ revealed, heroRef, bflyRef, riseBfly }) {
         <section ref={heroRef} className="hero">
           <p className="hi sans rise" data-no-motif="" style={{ animationDelay: '.1s' }}>Hello, I’m Lavanya</p>
           <h1 className="serif rise" style={{ animationDelay: '.2s' }}><span className="l1" data-no-motif="">Product</span> <span className="l2" data-no-motif="">Designer</span></h1>
-          <Bfly bflyRef={bflyRef} onTwitch={playButterflySound} {...bflyRise(riseBfly, .2)} />
+          <Bfly bflyRef={bflyRef} onPress={playButterflySound} {...bflyRise(riseBfly, .2)} />
           <p className="tag sans rise" data-no-motif="" style={{ animationDelay: '.3s' }}>systems thinker, backend literate &amp; stubborn about clarity</p>
         </section>
         <nav className="links sans rise" style={{ animationDelay: '.45s' }} aria-label="Sections">
