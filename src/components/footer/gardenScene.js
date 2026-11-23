@@ -441,11 +441,13 @@ export function mountGarden(canvas, kind = 'sunflowers') {
 
   /* The canvas resolution steps down if this machine can't keep up (2026-11-23: a friend's gaming laptop still
      stuttered after the frame cap; on some laptops with two graphics chips Chrome paints canvases on the
-     processor, at full resolution). If frames keep coming late or a frame's drawing keeps costing more than
-     SLOW_COST for about a second, the garden drops to the next step: a little softer, never stuttering.
+     processor, at full resolution). If frames keep coming late for about a second, the garden drops to the
+     next step: a little softer, never stuttering. Only late frames count, not drawing time: sweeping the
+     cursor through the grass costs 3 to 9 ms a draw on a good laptop and still keeps up, and a limit on
+     drawing time softened the garden for exactly the people playing with it (removed 2026-11-23).
      A machine that keeps up stays at its screen's resolution (at most 2x). ?perf shows the step it's on. */
   const RES = [2, 1.5, 1, 0.75]
-  const SLOW_COST = 6, SLOW_FRAME = 0.028   // ms a draw, s between frames (under about 35 a second)
+  const SLOW_FRAME = 0.028   // s between frames (under about 35 a second)
   let res = 0, slowFor = 0, steppedAt = -9, rebuilds = 0, lowered = 0, restored = 0, firstPaint = 0
   const resAt = (i) => Math.min(RES[i], devicePixelRatio || 1)
 
@@ -514,7 +516,7 @@ export function mountGarden(canvas, kind = 'sunflowers') {
     // a pause of a quarter second or more is the browser holding the page (a tab or window switch, a throttled
     // background window, the page busy with something else), never the garden drawing slowly: not counted
     if (gap > 0.25) return
-    const slow = cost > SLOW_COST || gap > lateAfter(gap)
+    const slow = gap > lateAfter(gap)
     if (trial) {
       const since = T - trial.at
       if (since > 0.5) { trial.sum += gap; trial.n++ }

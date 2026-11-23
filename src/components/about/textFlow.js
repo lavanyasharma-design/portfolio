@@ -207,17 +207,21 @@ export function mountTextFlow(root, box, paragraphs) {
   const onScroll = () => { if (pointer) run() }
 
   // ---------- start once the fonts are in ----------
+  // Already in (the page waits for them, routes.js), it starts at once, before the first paint: started a
+  // moment later, the stand-in layout painted first and the gallery jumped (2026-11-23).
   const f = fontsFor(parseFloat(getComputedStyle(firstP).fontSize))
   const ro = new ResizeObserver(() => measure())
-  Promise.all([document.fonts.load(f.regular), document.fonts.load(f.italic)]).then(() => document.fonts.ready).then(() => {
-    if (!alive) return
+  const begin = () => {
+    if (!alive || root.classList.contains('flowing')) return
     root.classList.add('flowing')
     measure()
     ro.observe(root); ro.observe(intro); ro.observe(box)
     addEventListener('pointermove', onMove, { passive: true })
     document.documentElement.addEventListener('pointerleave', onLeave)
     addEventListener('scroll', onScroll, { passive: true })
-  })
+  }
+  if (document.fonts.status === 'loaded' && document.fonts.check(f.regular) && document.fonts.check(f.italic)) begin()
+  else Promise.all([document.fonts.load(f.regular), document.fonts.load(f.italic)]).then(() => document.fonts.ready).then(begin)
 
   const stop = () => {
     alive = false

@@ -64,7 +64,9 @@ html:has(.about-page),html:has(.about-page) body{background:var(--color-white-de
 /* the lines layer lies over her photo too: only the lines themselves take the pointer, so her photo gets it */
 .ab-lines{position:absolute;inset:0;pointer-events:none}
 .ab-line{pointer-events:auto}
-.ab-line{position:absolute;left:0;top:0;white-space:pre;will-change:transform}
+/* no will-change: the lines are placed once and never move (the ripple went 2026-11-22); a layer per line
+   only cost memory and could soften the text on Windows (2026-11-23) */
+.ab-line{position:absolute;left:0;top:0;white-space:pre}
 .ab-line[hidden]{display:none}
 .ab-probe{visibility:hidden}
 .ab-flow:not(.flowing) .ab-lines{display:none}

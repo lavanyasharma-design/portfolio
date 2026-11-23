@@ -11,10 +11,22 @@ import { PAGE_IMAGES } from './pageImages'
 
 const WAIT_FOR_IMAGES = 400   // ms at most a click waits on pictures; past that the page shows without them
 
+/* About lays its words out line by line once its fonts are in (textFlow.js); shown before they arrive, it
+   painted a stand-in layout first and then jumped, the gallery 300 px up (a first visit, 2026-11-23: Lighthouse
+   CLS 0.15). So its code waits for those fonts too, at most FONT_WAIT; already loaded (any visit after the
+   first page), this costs nothing. */
+const FONT_WAIT = 1000
+const ABOUT_FONTS = ['400 18px "DM Sans Variable"', 'italic 400 18px "DM Sans Variable"', '500 36px "Cormorant Infant"', '600 24px "Cormorant Infant"']
+const fontsIn = (list) => Promise.race([
+  Promise.all(list.map((f) => document.fonts.load(f))).catch(() => {}),
+  new Promise((r) => setTimeout(r, FONT_WAIT)),
+])
+
 const LOADERS = {
   '/work': () => import('./Work'),
   '/work/bolt': () => import('./cases/Bolt'),
-  '/about': () => import('./About'),
+  // the fonts after the code: the italic is declared in About's own CSS, which comes with it
+  '/about': () => import('./About').then((m) => fontsIn(ABOUT_FONTS).then(() => m)),
 }
 
 // pictures fetched and decoded ahead, kept referenced so the browser holds them for the page's <img>s

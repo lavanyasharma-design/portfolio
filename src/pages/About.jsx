@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useLayoutEffect, useRef } from 'react'
 import { ArrowUpRight } from 'lucide-react'
 import '@fontsource-variable/dm-sans/opsz-italic.css'
 import NavBar from '../components/nav/NavBar'
@@ -66,7 +66,8 @@ function About() {
   const hideLine = useRef(null)
   const navHidden = useNavHidden(hideLine)
 
-  useEffect(() => {
+  // before the first paint, so the words are already laid out when the page shows (textFlow.js)
+  useLayoutEffect(() => {
     applyLayout(page.current)
     const stopMotion = mountCaseMotion(page.current)
     // captions on the gallery photos and on hers
