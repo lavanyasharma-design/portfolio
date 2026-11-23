@@ -66,7 +66,7 @@ public/motif.svg                   tiled page background
 - Section links: on click or tap (never hover) the brackets ease out and back (`BRACKETS`) and the section's sound motif plays. `[work]` then opens `/work`; about and play stay put until their "soon" state is designed.
 - Footer: Chandigarh → Bengaluru · © Lavanya 2026 · v1.0.0 · N notes played [sound switch] · Colophon, in #616161. On phones © Lavanya 2026 and v1.0.0 (and their dots) are hidden so the switch fits on one line (up to 999 notes). The counter is live (`src/lib/sound/notes.js`, +2 per motif played).
 - Blocks rise in (opacity, 14px, 4px blur) on reveal, staggered 0 to 0.55s. Coming back home (no intro) the butterfly rises with them, in step with "Product Designer" (0.2s; hers, 2026-11-23: it sat there already, abrupt); after the intro the flyer lands on it instead.
-- Routing is `src/router.js` (pushState, no library), so moving between pages keeps the AudioContext and returning home skips the intro. On lavanyaaa.com every path shows Coming Soon.
+- Routing is `src/router.js` (pushState, no library), so moving between pages keeps the AudioContext and returning home skips the intro. On lavanyaaa.com every path shows Coming Soon. A mistyped address shows home and the address bar is set to `/` (hers, 2026-11-23: no "not found" page). Page titles follow one pattern, "<page> · Lavanya" (`TITLES` in App.jsx; home "Lavanya Sharma · product designer"). The share card lives in `index.html` (description "Lavanya Sharma, product designer"); the share image (1200 x 630, `public/share.png`, kept out of `/assets/` because of the cache rule) is still to come, from her inspiration in `art/share/`.
 
 ## Work page (`/work`)
 
