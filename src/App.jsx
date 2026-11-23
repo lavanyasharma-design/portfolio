@@ -6,13 +6,6 @@ import { usePath } from './router'
 import { armUnlockOnFirstGesture } from './lib/sound/engine'
 import { startSmoothScroll, stopSmoothScroll } from './lib/smoothScroll'
 
-const TITLES = {
-  '/': 'Lavanya Sharma · product designer',
-  '/work': 'Work · Lavanya',
-  '/work/bolt': 'Bolt case study · Lavanya',
-  '/about': 'About · Lavanya',
-}
-
 // lavanyaaa.com shows Coming Soon on every path, so unfinished pages never reach it
 function App() {
   const path = usePath()
@@ -36,8 +29,6 @@ function App() {
   // a mistyped address goes home quietly (hers, 2026-11-23: no "not found" page), and the address bar says so
   const lost = !SOON && !Page && path !== '/'
   useEffect(() => { if (lost) history.replaceState(null, '', '/' + location.search) }, [lost])
-  // one title pattern, "<page> · Lavanya" (hers, 2026-11-23)
-  useEffect(() => { document.title = SOON ? TITLES['/'] : TITLES[path] ?? TITLES['/'] }, [path])
   if (!Page) return <Home />
   // only waits on a first visit straight to a page (a link or a reload), for its own file
   return <Suspense fallback={null}><Page /></Suspense>
