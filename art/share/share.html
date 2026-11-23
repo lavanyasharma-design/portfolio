@@ -1,0 +1,36 @@
+<!doctype html>
+<!-- The share card image (hers, 2026-11-23), after the studio maydit card she sent: her name in Cormorant
+     Infant, "product designer" in DM Sans under it, and the footer's purple garden along the bottom in place
+     of the pixel landscape. Rendered to public/share.jpg by art/share/render.mjs (dev server running):
+     the garden is the site's own code, held still the way reduced motion shows it. -->
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1200" />
+<title>share card</title>
+<style>
+  html,body{margin:0}
+  .card{position:relative;width:1200px;height:630px;overflow:hidden;background:var(--color-white-default)}
+  .words{position:absolute;left:0;right:0;top:148px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
+  .name{margin:0;font-family:var(--font-serif);font-weight:600;font-size:96px;line-height:1;color:var(--color-black-default)}
+  .role{margin:0;font-family:var(--font-sans);font-weight:300;font-variation-settings:"opsz" 14;font-size:36px;line-height:1.2;color:var(--color-black-highlight)}
+  .garden{position:absolute;left:0;right:0;bottom:0;height:268px}
+  .garden canvas{display:block;width:100%;height:100%}
+</style>
+<script type="module">
+  import '/src/index.css'
+  import { mountGarden } from '/src/components/footer/gardenScene.js'
+  mountGarden(document.querySelector('.garden canvas'), 'sunflowers')
+  document.fonts.ready.then(() => setTimeout(() => { document.body.dataset.ready = '1' }, 600))
+</script>
+</head>
+<body>
+  <div class="card">
+    <div class="words">
+      <h1 class="name">Lavanya Sharma</h1>
+      <p class="role">product designer</p>
+    </div>
+    <div class="garden"><canvas></canvas></div>
+  </div>
+</body>
+</html>
