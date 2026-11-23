@@ -71,7 +71,8 @@ export const GARDEN = {
   // the sunflowers (2026-11-14; her values 2026-11-15)
   petalBreeze: 0.4, // petals stirring in the breeze, desktop and phones (0 still)
   petalSpeed: 0.35, // breezes a second through the petals
-  calmFps: 30,      // times a second the slow, steady motion (breeze, wind) is redrawn; the butterfly and anything the cursor moves keep every frame (2026-11-23, performance)
+  calmFps: 30,      // times a second the phone wind on the grass is redrawn; the butterfly and anything the cursor moves keep every frame (2026-11-23, performance)
+  breezeFps: 60,    // times a second the petals in the breeze are redrawn (hers, 2026-11-23: 30 read a touch stepped); the flowers layer only, so it stays cheap
   flowerTwitch: 0.85, // desktop: the little twitch when the cursor passes over a flower head
 }
 /* The About page's garden: the same scene, butterfly and pencil, with green grass and leaves instead of
@@ -94,7 +95,8 @@ export const MEADOW = {
   flowerTwitch: 0.8,     // the twitch when the cursor passes over a head
   petalBreeze: 0.45,     // petals stirring in the breeze
   petalSpeed: 0.7,       // breezes a second through the petals
-  calmFps: 30,           // times a second the breeze and the wind are redrawn (the butterfly and the cursor keep every frame)
+  calmFps: 30,           // times a second the phone wind on the grass is redrawn (the butterfly and the cursor keep every frame)
+  breezeFps: 60,         // times a second the petals in the breeze are redrawn (hers, 2026-11-23), the flowers layer only
   dart: 155,             // px the butterfly darts from the cursor or a tap
   petal: '#85b4db',      // petals: the body (the tulips' blues, hers)
   petalShade: '#5b86ae', // the petals behind, turned away
@@ -408,7 +410,8 @@ export function mountGarden(canvas, kind = 'sunflowers') {
      of it every frame (about a thousand blades and every petal) made the footer heavy, though on a desktop
      the grass stands still unless the cursor is in it. A layer redraws every frame while the cursor, a
      twitch or a landing is moving it; for slow, steady motion (petals in the breeze, the wind on phones)
-     about `calmFps` times a second, the back and near on one frame and the flowers on the next. */
+     about `calmFps` times a second, the back and near on one frame and the flowers on the next; the flowers
+     (the petal breeze) `breezeFps` times a second, every frame at 60. */
   const backCanvas = document.createElement('canvas'), flowerCanvas = document.createElement('canvas')
   const LAYERS = {
     back: { c: backCanvas.getContext('2d'), at: 0 },
@@ -483,20 +486,27 @@ export function mountGarden(canvas, kind = 'sunflowers') {
      Chrome's Energy Saver runs everything at an even 30 a second, which is smooth, and with a fixed 28 ms every
      one of those frames counted as late, so the garden stepped down to its softest. So the garden keeps the
      last 60 gaps between draws: while they come evenly (the middle one within 1.2x of the quickest tenth),
-     only a frame 1.4x the screen's own beat is late; while they come unevenly, any frame over SLOW_FRAME is,
-     as before (that caught his laptop's stutter at 1.5x). 60Hz and faster screens are judged as they always
-     were. It learns the beat from the 10th draw on, before 10 frames at 30 a second can add up to a step. */
+     only a frame 1.4x the screen's own beat is late. Later the same day: the same goes while they come
+     unevenly (never under SLOW_FRAME). Her laptop at 30 a second came unevenly while the page settled after a
+     scroll, every frame passed the fixed 28 ms, and the garden went soft for the 2.5 s its trial took to undo
+     it, just as it came into view. His laptop (40 to 48 a second, quickest frames about 21 ms) is judged at
+     28 to 29 ms as before, which caught his stutter. Nothing counts until 10 draws have set the beat. */
   const gaps = new Float32Array(60)
-  let gapN = 0, beat = 1 / 60, even = false
+  let gapN = 0, beat = 1 / 60
+  const BEAT_SPAN = 20
   function lateAfter(gap) {
     gaps[gapN % 60] = gap
     gapN++
+    // the beat from the last BEAT_SPAN draws only, so it follows the screen when Chrome slows to 30 a second as
+    // the page settles (learnt over 60 draws, a beat from 60 a second judged the 30 a second frames as late)
     if (gapN >= 10 && gapN % 5 === 0) {
-      const sorted = Array.from(gaps.subarray(0, Math.min(gapN, 60))).sort((a, b) => a - b)
-      beat = sorted[Math.floor(sorted.length / 10)]
-      even = sorted[sorted.length >> 1] <= beat * 1.2
+      const n = Math.min(gapN, BEAT_SPAN), recent = []
+      for (let i = gapN - n; i < gapN; i++) recent.push(gaps[i % 60])
+      recent.sort((a, b) => a - b)
+      beat = recent[Math.floor(n / 10)]
     }
-    return even ? Math.max(SLOW_FRAME, 1.4 * beat) : SLOW_FRAME
+    if (gapN < 10) return Infinity   // the beat isn't known yet
+    return Math.max(SLOW_FRAME, 1.4 * beat)
   }
 
   // the mean gap between the last draws covering about `span` seconds
@@ -511,11 +521,25 @@ export function mountGarden(canvas, kind = 'sunflowers') {
      the garden was what slowed them (his laptop: 1.5x stuttered, 1x ran smoothly); when the browser itself
      slowed down (a power saver kicking in, a throttled window) the frames stay as slow. If they're not at least
      a tenth quicker, the garden goes back to the resolution it had and stops judging for as long as it's up. */
-  let trial = null, settled = false
+  /* One second chance (2026-11-23): a step kept because frames got quicker may have been the page settling, not the
+     garden (her laptop settling unevenly for seconds after a scroll stepped down and stayed soft). RETRY_AFTER
+     seconds after keeping a step it tries the full resolution once more: a machine the garden is too much for
+     steps down again within about two seconds and stays there; a good one stays sharp. */
+  const RETRY_AFTER = 3
+  let trial = null, settled = false, retryAt = 0, retried = 0, fullRes = 0
+  /* Frames while the page scrolls, and half a second after, aren't judged (2026-11-23): the garden only comes
+     into view by scrolling, and a page scrolling and settling runs slow for reasons of its own. Judged then,
+     her laptop stepped down as the garden arrived and the trial kept it (frames got quicker once the scroll
+     ended, and the step got the credit), leaving it soft at 1x. A machine the garden itself is too much for
+     is just as slow standing still, so it is still caught, about a second after the scroll stops. */
+  let scrolledAt = -1e9
+  const onPageScroll = () => { scrolledAt = performance.now() }
+  addEventListener('scroll', onPageScroll, { passive: true, capture: true })
+
   function watchPace(gap) {
     // a pause of a quarter second or more is the browser holding the page (a tab or window switch, a throttled
     // background window, the page busy with something else), never the garden drawing slowly: not counted
-    if (gap > 0.25) return
+    if (gap > 0.25 || performance.now() - scrolledAt < 500) return
     const slow = gap > lateAfter(gap)
     if (trial) {
       const since = T - trial.at
@@ -523,14 +547,22 @@ export function mountGarden(canvas, kind = 'sunflowers') {
       if (since < 2.5) return
       const after = trial.sum / Math.max(1, trial.n)
       if (after > trial.before * 0.9) { res = trial.res; restored++; settled = true; sizeCanvases() }
+      else if (!retried) retryAt = T + RETRY_AFTER   // kept: try full sharpness once more, later
+      else settled = true                            // kept twice: this machine needs it
       trial = null
       return
     }
     if (settled) return
+    if (retryAt && T >= retryAt) {
+      retryAt = 0; retried++; res = fullRes; slowFor = 0; steppedAt = T
+      sizeCanvases()
+      return
+    }
     const step = Math.min(gap, 0.05)
     slowFor = slow ? slowFor + step : Math.max(0, slowFor - step)
     if (slowFor > 1 && T - steppedAt > 2) {
       const before = meanRecent(1), was = res
+      if (!lowered) fullRes = res
       if (lowerResolution()) trial = { at: T, before, res: was, sum: 0, n: 0 }
     }
   }
@@ -925,8 +957,9 @@ export function mountGarden(canvas, kind = 'sunflowers') {
     const windy = swayNow() > 0
     const calm = { back: windy, flowers: windy || G.petalBreeze > 0, near: windy }
     const step = 0.72 / Math.max(1, G.calmFps)   // a little under 1 / calmFps, so a frame early still counts
+    const flowerStep = 0.72 / Math.max(1, G.breezeFps ?? G.calmFps)
     for (const [name, L] of Object.entries(LAYERS)) {
-      if (!(all || L.dirty || L.active || L.was || (calm[name] && T - L.at >= step))) continue
+      if (!(all || L.dirty || L.active || L.was || (calm[name] && T - L.at >= (name === 'flowers' ? flowerStep : step)))) continue
       ctx = L.c
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       ctx.clearRect(0, 0, W, H)
@@ -1219,7 +1252,7 @@ export function mountGarden(canvas, kind = 'sunflowers') {
       update(dt); draw(false)
       cost = cost * 0.95 + (performance.now() - t0) * 0.05   // smoothed, shown in the ?garden panel
       if (dt) { rate = rate * 0.95 + (1 / dt) * 0.05; watchPace(gap) }
-      if (PERF) window.__garden = { kind, cost, rate, dpr, screen: devicePixelRatio, lowered, restored, firstPaint, beat, rebuilds, size: `${canvas.width}x${canvas.height}` }
+      if (PERF) window.__garden = { kind, cost, rate, dpr, screen: devicePixelRatio, lowered, restored, retried, firstPaint, beat, rebuilds, size: `${canvas.width}x${canvas.height}` }
     }
     if (visible && !reduce.matches) raf = requestAnimationFrame(frame)
   }
@@ -1250,6 +1283,7 @@ export function mountGarden(canvas, kind = 'sunflowers') {
       canvas.removeEventListener('pointerleave', onLeave)
       canvas.removeEventListener('pointerdown', onDown)
       reduce.removeEventListener('change', onMotion)
+      removeEventListener('scroll', onPageScroll, { capture: true })
       panel?.remove()
     },
   }
@@ -1330,7 +1364,8 @@ function mountPanel({ G, kind, rebuild, redraw, cost, rate }) {
     'petals (desktop and phones)',
     ['petalBreeze', 'petal breeze', 0, 2, 0.05],
     ['petalSpeed', 'breezes/s', 0.05, 2, 0.05],
-    ['calmFps', 'breeze redraws/s', 10, 60, 5],
+    ['breezeFps', 'breeze redraws/s', 10, 60, 5],
+    ['calmFps', 'phone wind redraws/s', 10, 60, 5],
     ...(meadowKind ? [
       'meadow',
       ['flowerSize', 'flower size', 0.6, 1.6, 0.02, true],
