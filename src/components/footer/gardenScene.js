@@ -397,12 +397,6 @@ const MIN_STEP = 0.0095
 // ?perf: the garden reports its numbers for the readout (src/lib/perfProbe.js)
 const PERF = typeof location !== 'undefined' && new URLSearchParams(location.search).has('perf')
 
-// the resolution step a garden had to drop to, kept for the visit (a reload too), so the next garden starts
-// there instead of stuttering its way down again
-const SAVED_RES = 'garden-res'
-function savedRes() { try { return Number(sessionStorage.getItem(SAVED_RES)) || 0 } catch { return 0 } }
-function saveRes(i) { try { sessionStorage.setItem(SAVED_RES, String(i)) } catch { /* storage blocked */ } }
-
 export function mountGarden(canvas, kind = 'sunflowers') {
   const G = kind === 'meadow' ? MEADOW : GARDEN
   const main = canvas.getContext('2d')
@@ -452,9 +446,7 @@ export function mountGarden(canvas, kind = 'sunflowers') {
      A machine that keeps up stays at its screen's resolution (at most 2x). ?perf shows the step it's on. */
   const RES = [2, 1.5, 1, 0.75]
   const SLOW_COST = 6, SLOW_FRAME = 0.028   // ms a draw, s between frames (under about 35 a second)
-  let res = savedRes(), slowFor = 0, steppedAt = -9, rebuilds = 0, lowered = 0, firstPaint = 0, loadRate = 0, rateRaf = 0
-  // a full paint (every layer at once) costing more than this at load starts the garden a step lower
-  const FIRST_PAINT = 12
+  let res = 0, slowFor = 0, steppedAt = -9, rebuilds = 0, lowered = 0, restored = 0, firstPaint = 0
   const resAt = (i) => Math.min(RES[i], devicePixelRatio || 1)
 
   function sizeCanvases() {
@@ -469,65 +461,78 @@ export function mountGarden(canvas, kind = 'sunflowers') {
     while (next < RES.length - 1 && resAt(next) >= dpr) next++
     if (resAt(next) >= dpr) return false   // already as low as it goes
     res = next; steppedAt = T; slowFor = 0; lowered++
-    saveRes(res)
     sizeCanvases()
     return true
   }
 
-  /* Before anyone sees it (2026-11-23: on the friend's laptop it stuttered for the two seconds the pace
-     watch took to step down): once the page has settled, time a full paint while the garden is still off
-     screen, warm (the first paint runs cold and would misjudge a fast machine), and step down straight away
-     while it costs more than FIRST_PAINT. The pace watch below stays as the backup. */
-  function calibrate() {
+  /* Only how the garden actually runs on screen changes its resolution (2026-11-23). Two guesses made before
+     it was on screen were tried and removed the same day: a slow full paint at load, and a page running under 55
+     frames a second at load (kept for the visit). The second misjudged Lavanya's own laptop while a page was
+     still settling and left the garden blurred at 0.75x. ?perf still shows the full paint time, as a reading. */
+  function timePaint() {
     if (reduce.matches || !scene) return
     draw()   // warm up
-    for (let i = 0; i < RES.length; i++) {
-      const t0 = performance.now()
-      draw()
-      firstPaint = performance.now() - t0
-      if (firstPaint <= FIRST_PAINT || !lowerResolution()) break
+    const t0 = performance.now()
+    draw()
+    firstPaint = performance.now() - t0
+  }
+
+  /* When is a frame late? Stutter is uneven frames, not slow ones (2026-11-23). A phone in Low Power Mode or
+     Chrome's Energy Saver runs everything at an even 30 a second, which is smooth, and with a fixed 28 ms every
+     one of those frames counted as late, so the garden stepped down to its softest. So the garden keeps the
+     last 60 gaps between draws: while they come evenly (the middle one within 1.2x of the quickest tenth),
+     only a frame 1.4x the screen's own beat is late; while they come unevenly, any frame over SLOW_FRAME is,
+     as before (that caught his laptop's stutter at 1.5x). 60Hz and faster screens are judged as they always
+     were. It learns the beat from the 10th draw on, before 10 frames at 30 a second can add up to a step. */
+  const gaps = new Float32Array(60)
+  let gapN = 0, beat = 1 / 60, even = false
+  function lateAfter(gap) {
+    gaps[gapN % 60] = gap
+    gapN++
+    if (gapN >= 10 && gapN % 5 === 0) {
+      const sorted = Array.from(gaps.subarray(0, Math.min(gapN, 60))).sort((a, b) => a - b)
+      beat = sorted[Math.floor(sorted.length / 10)]
+      even = sorted[sorted.length >> 1] <= beat * 1.2
     }
-    measureRate()
+    return even ? Math.max(SLOW_FRAME, 1.4 * beat) : SLOW_FRAME
   }
 
-  /* A page running under SLOW_SCREEN frames a second at load starts the garden a step lower, never below 1x
-     (2026-11-23, the friend's second readout: his laptop ran at 40 to 48 a second, on battery or a quiet power
-     mode; the full paint cost only 2.2 ms, yet the garden stuttered at 1.5x until the pace watch dropped it, and
-     both times it ran smoothly at 1x. The slow part was the graphics chip's work after the drawing, which no
-     timer here can see, so the frame rate is the sign to go by). Measured over 40 frames while the garden is
-     still off screen; a screen at 60 or more keeps its full resolution. */
-  const SLOW_SCREEN = 55
-  function measureRate() {
-    const gaps = []
-    let prev = 0
-    const tick = (t) => {
-      if (prev) gaps.push(t - prev)
-      prev = t
-      if (gaps.length < 40) { rateRaf = requestAnimationFrame(tick); return }
-      rateRaf = 0
-      gaps.sort((a, b) => a - b)
-      loadRate = 1000 / gaps[gaps.length >> 1]
-      if (loadRate < SLOW_SCREEN && res === 0 && dpr > 1) lowerResolution()
-    }
-    rateRaf = requestAnimationFrame(tick)
+  // the mean gap between the last draws covering about `span` seconds
+  function meanRecent(span) {
+    let sum = 0, n = 0
+    for (let i = gapN - 1; i >= Math.max(0, gapN - 60) && sum < span; i--) { sum += gaps[i % 60]; n++ }
+    return n ? sum / n : 0
   }
 
-  /* A frame counts as late against this screen's own beat, not a fixed one (2026-11-23): a phone in Low Power
-     Mode, or Chrome's Energy Saver, runs everything at 30 a second, and every one of those frames used to count
-     as late, so the garden kept stepping down to its softest. Late is over 1.6 draws of the beat measured at
-     load (a fast screen draws every 2nd or 3rd frame, MIN_STEP), never under SLOW_FRAME, so 60Hz and faster
-     screens are judged as before. */
-  function lateAfter() {
-    const f = loadRate > 0 ? Math.min(1 / loadRate, 1 / 24) : 1 / 60
-    return Math.max(SLOW_FRAME, 1.6 * f * Math.ceil(MIN_STEP / f - 1e-6))
-  }
-
+  /* Every step down is a trial (2026-11-23). The garden compares its pace over the second before the step with
+     its pace from half a second to two and a half after it. Lowering the resolution only speeds frames up when
+     the garden was what slowed them (his laptop: 1.5x stuttered, 1x ran smoothly); when the browser itself
+     slowed down (a power saver kicking in, a throttled window) the frames stay as slow. If they're not at least
+     a tenth quicker, the garden goes back to the resolution it had and stops judging for as long as it's up. */
+  let trial = null, settled = false
   function watchPace(gap) {
-    const slow = cost > SLOW_COST || gap > lateAfter()
+    // a pause of a quarter second or more is the browser holding the page (a tab or window switch, a throttled
+    // background window, the page busy with something else), never the garden drawing slowly: not counted
+    if (gap > 0.25) return
+    const slow = cost > SLOW_COST || gap > lateAfter(gap)
+    if (trial) {
+      const since = T - trial.at
+      if (since > 0.5) { trial.sum += gap; trial.n++ }
+      if (since < 2.5) return
+      const after = trial.sum / Math.max(1, trial.n)
+      if (after > trial.before * 0.9) { res = trial.res; restored++; settled = true; sizeCanvases() }
+      trial = null
+      return
+    }
+    if (settled) return
     const step = Math.min(gap, 0.05)
     slowFor = slow ? slowFor + step : Math.max(0, slowFor - step)
-    if (slowFor > 1 && T - steppedAt > 2) lowerResolution()
+    if (slowFor > 1 && T - steppedAt > 2) {
+      const before = meanRecent(1), was = res
+      if (lowerResolution()) trial = { at: T, before, res: was, sum: 0, n: 0 }
+    }
   }
+
 
   function resize() {
     const W = canvas.clientWidth, H = canvas.clientHeight
@@ -542,7 +547,7 @@ export function mountGarden(canvas, kind = 'sunflowers') {
     scene = build(W, H, G, kind)
     fly.cx = null; fly.mode = 'cruise'; fly.w = 0; fly.flower = null; fly.next = T + 2
     draw()
-    if (rebuilds === 1) (window.requestIdleCallback ?? ((fn) => setTimeout(fn, 500)))(calibrate, { timeout: 1500 })
+    if (rebuilds === 1) (window.requestIdleCallback ?? ((fn) => setTimeout(fn, 500)))(timePaint, { timeout: 1500 })
   }
 
   const swayNow = () => (scene.W <= 600 ? G.swayPhone : G.sway)
@@ -1212,7 +1217,7 @@ export function mountGarden(canvas, kind = 'sunflowers') {
       update(dt); draw(false)
       cost = cost * 0.95 + (performance.now() - t0) * 0.05   // smoothed, shown in the ?garden panel
       if (dt) { rate = rate * 0.95 + (1 / dt) * 0.05; watchPace(gap) }
-      if (PERF) window.__garden = { kind, cost, rate, dpr, screen: devicePixelRatio, lowered, firstPaint, loadRate, rebuilds, size: `${canvas.width}x${canvas.height}` }
+      if (PERF) window.__garden = { kind, cost, rate, dpr, screen: devicePixelRatio, lowered, restored, firstPaint, beat, rebuilds, size: `${canvas.width}x${canvas.height}` }
     }
     if (visible && !reduce.matches) raf = requestAnimationFrame(frame)
   }
@@ -1238,7 +1243,7 @@ export function mountGarden(canvas, kind = 'sunflowers') {
 
   return {
     destroy() {
-      stop(); cancelAnimationFrame(rateRaf); ro.disconnect(); io.disconnect()
+      stop(); ro.disconnect(); io.disconnect()
       canvas.removeEventListener('pointermove', onMove)
       canvas.removeEventListener('pointerleave', onLeave)
       canvas.removeEventListener('pointerdown', onDown)
