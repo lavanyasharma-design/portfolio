@@ -512,8 +512,18 @@ export function mountGarden(canvas, kind = 'sunflowers') {
     rateRaf = requestAnimationFrame(tick)
   }
 
+  /* A frame counts as late against this screen's own beat, not a fixed one (2026-11-23): a phone in Low Power
+     Mode, or Chrome's Energy Saver, runs everything at 30 a second, and every one of those frames used to count
+     as late, so the garden kept stepping down to its softest. Late is over 1.6 draws of the beat measured at
+     load (a fast screen draws every 2nd or 3rd frame, MIN_STEP), never under SLOW_FRAME, so 60Hz and faster
+     screens are judged as before. */
+  function lateAfter() {
+    const f = loadRate > 0 ? Math.min(1 / loadRate, 1 / 24) : 1 / 60
+    return Math.max(SLOW_FRAME, 1.6 * f * Math.ceil(MIN_STEP / f - 1e-6))
+  }
+
   function watchPace(gap) {
-    const slow = cost > SLOW_COST || gap > SLOW_FRAME
+    const slow = cost > SLOW_COST || gap > lateAfter()
     const step = Math.min(gap, 0.05)
     slowFor = slow ? slowFor + step : Math.max(0, slowFor - step)
     if (slowFor > 1 && T - steppedAt > 2) lowerResolution()
