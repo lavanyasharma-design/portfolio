@@ -3,6 +3,7 @@ import './Hero.css'
 import MotifField from '../motif/MotifField'
 import Butterfly from './Butterfly'
 import SectionLink from './SectionLink'
+import Colophon from './Colophon'
 import { Volume2, VolumeX } from 'lucide-react'
 import { useNotesPlayed, useMuted, toggleMute, pressSound, playButterflySound } from '../../lib/sound/notes'
 import { SOON } from '../../site'
@@ -81,9 +82,10 @@ function Hero({ revealed, heroRef, bflyRef, riseBfly }) {
         {/* the row hugs its text, so the motif stays off over the words and the gaps between them only */}
         <div className="foot-row" data-no-motif="">
           <span>Chandigarh → Bengaluru</span><Dot />
+          <span className="copy">© Lavanya 2026</span><Dot className="copy" />
           <span className="ver">v1.0.0</span><Dot className="ver" />
           <span className="notes">{notes} {notes === 1 ? 'note' : 'notes'} played<SoundSwitch /></span><Dot />
-          <span>Colophon</span>
+          <Colophon />
         </div>
       </footer>}
     </main>

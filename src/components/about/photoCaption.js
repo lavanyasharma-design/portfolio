@@ -73,12 +73,28 @@ export function mountPhotoCaptions(root) {
   }
   const run = () => { if (!raf) raf = requestAnimationFrame(tick) }
 
+  // a wrapped caption's box would stay at its max-width (CSS sizes it before wrapping), leaving a gap on
+  // the right; narrow it to its widest line. The pop's scale is divided out of the measured widths.
+  const fit = () => {
+    label.style.width = ''
+    const range = document.createRange()
+    range.selectNodeContents(label)
+    const lines = [...range.getClientRects()]
+    const box = label.getBoundingClientRect()
+    if (lines.length < 2 || !box.width) return
+    const scale = box.width / label.offsetWidth
+    const cs = getComputedStyle(label)
+    const pad = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight)
+    label.style.width = `${Math.ceil(Math.max(...lines.map((r) => r.width)) / scale + pad)}px`
+  }
+
   const show = (fig) => {
     const text = fig.dataset.caption
     if (current === fig) return
     const wasOn = !!current
     current = fig
     label.textContent = text
+    fit()
     if (wasOn) return   // moving straight to the next photo: the label stays up, only its words change
     const [tx, ty] = target()  // appears at the pointer, not sliding in from where it was
     x = tx; y = ty

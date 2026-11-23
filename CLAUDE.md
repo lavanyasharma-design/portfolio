@@ -64,7 +64,7 @@ public/motif.svg                   tiled page background
 - Copy: "Hello, I'm Lavanya" / "Product Designer" / "systems thinker, backend literate & stubborn about clarity".
 - Top bar: `hi@lavanyaaa.com` (mailto), LinkedIn (linkedin.com/in/lavanyaaasharmaaa), X (x.com/lavanyaaasharma), both in a new tab. Section links (`SectionLink`): `[work]` #6729ae, `[about]` #46b2d7, `[play]` #ff33d0, the Figma colour variables.
 - Section links: on click or tap (never hover) the brackets ease out and back (`BRACKETS`) and the section's sound motif plays. `[work]` then opens `/work`; about and play stay put until their "soon" state is designed.
-- Footer: Chandigarh → Bengaluru · v1.0.0 · N notes played [sound switch] · Colophon, in #616161. On phones v1.0.0 and its dot are hidden so the switch fits on one line (up to 999 notes). The counter is live (`src/lib/sound/notes.js`, +2 per motif played).
+- Footer: Chandigarh → Bengaluru · © Lavanya 2026 · v1.0.0 · N notes played [sound switch] · Colophon, in #616161. On phones © Lavanya 2026 and v1.0.0 (and their dots) are hidden so the switch fits on one line (up to 999 notes). The counter is live (`src/lib/sound/notes.js`, +2 per motif played).
 - Blocks rise in (opacity, 14px, 4px blur) on reveal, staggered 0 to 0.55s. Coming back home (no intro) the butterfly rises with them, in step with "Product Designer" (0.2s; hers, 2026-11-23: it sat there already, abrupt); after the intro the flyer lands on it instead.
 - Routing is `src/router.js` (pushState, no library), so moving between pages keeps the AudioContext and returning home skips the intro. On lavanyaaa.com every path shows Coming Soon.
 
@@ -155,9 +155,10 @@ public/motif.svg                   tiled page background
 
 The pencil pass in `orbField.js` is adapted from Florian Berger's "notebook drawings" (shadertoy.com/view/XtVGD1, CC BY-NC-SA 3.0). Fine for a personal portfolio with credit in the source. If the site is ever used commercially, replace that pass.
 
+Colophon (home footer, hers 2026-11-23, after a reference she sent): "Colophon" underlined in the footer grey; over it a plain white box of credits (the footer row's own Cormorant, Desktop/Caption 2 / Mobile/h7, hers: DM Sans read too big; black/highlight, 1px tile border, radius 4, padding 12 / 16, a faint shadow), rising 4px over `--dur-quick`. Hover shows it on desktop, a tap toggles it on phones (where it spans the footer, 20 in from each side), Enter toggles it from the keyboard, Escape or a tap elsewhere closes it. Plain text, no links. Lines in `src/components/home/colophonContent.js` (not `colophon.js`: Windows would confuse it with `Colophon.jsx`); the piano (CC BY 3.0) and the pencil pass (CC BY-NC-SA 3.0) lines are required by their licences; swap the piano line when the handpan lands.
+
 ## Open (to decide)
 
 - Pages beyond the home screen: case studies (Bolt, EMI Card, BBPS), About, Archive/play. Where `[work]`, `[about]`, `[play]` lead.
 - Instagram (her poems and photography) goes on the play page, not the top bar (decided 2026-11-12).
-- Colophon (footer link): a dialog that opens on click / tap / Enter (decided 2026-11-12, not hover, so it works everywhere). Lavanya is designing it in Figma. Its content is ready in `src/components/home/colophon.js`: piano (Salamander, CC BY 3.0, required), harp (VCSL, CC0), the pencil shader (Florian Berger, CC BY-NC-SA 3.0, required), fonts and Lucide.
 - Sound: how the piano interaction plays, where it lives, and how it drives the "0 notes played" counter. See **Sound** above.

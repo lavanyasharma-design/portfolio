@@ -41,11 +41,11 @@ const photo = (src, caption, w, h) => ({ src: `/about/${src}.webp`, id: src, cap
 export const GALLERY = [
   { id: 'teams', rowGap: 60, groups: [
     { label: 'People I enjoyed working with', gap: 28, photos: [
-      photo('roadcast-1', 'product & business team', 294, 180),
-      photo('roadcast-2', 'launched a campaign with this team', 295, 197),
+      photo('roadcast-1', 'product & business team at Roadcast', 294, 180),
+      photo('roadcast-2', 'launched a successful campaign with this team', 295, 197),
     ] },
     { label: 'People I learnt ample from', gap: 24, photos: [
-      photo('bharatpe-1', 'the design team', 275, 225),
+      photo('bharatpe-1', 'design team at BharatPe', 275, 225),
       photo('bharatpe-2', 'PMs I worked with', 275, 215),
     ] },
   ] },

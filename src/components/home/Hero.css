@@ -120,10 +120,12 @@ html:has(.site.soon),html:has(.site.soon) body{overscroll-behavior:none}
   /* Mobile/h7 without its 1% letter spacing, items 4 apart rather than 5 (Lavanya, 2026-11-12),
      so a longer "notes played" count keeps Colophon on the line */
   .site:not(.soon) .foot-row{gap:calc(4*var(--u))}
-  .site:not(.soon) .foot{padding:0 calc(20*var(--u)) calc(var(--foot-pad)*var(--u));font-size:calc(14*var(--u))}
+  .site:not(.soon) .foot{position:relative;/* the colophon box spans it */padding:0 calc(20*var(--u)) calc(var(--foot-pad)*var(--u));font-size:calc(14*var(--u))}
   .site:not(.soon) .foot img{width:calc(4*var(--u));height:calc(4*var(--u))}
   /* the version stays on desktop only, leaving room for the sound switch (Lavanya, 12 Nov 2026) */
   .site:not(.soon) .foot .ver{display:none}
+  /* so is the copyright (hers, 2026-11-23): the row stays on one line */
+  .site:not(.soon) .foot .copy{display:none}
 }
 /* phones upright: exactly one screen that never moves, like the coming soon face, so a finger
    sweeping across it drives the motif instead of scrolling the page. Only when everything fits

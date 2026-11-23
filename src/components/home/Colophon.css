@@ -1,0 +1,39 @@
+/* The colophon (hers, 2026-11-23): "Colophon" underlined in the footer grey, and above it a quiet white
+   box of credits: Desktop/Caption (DM Sans 16) in black/highlight, on the 4px grid. It rises 4px and
+   fades in over --dur-quick (a hover reveal), and goes out the same way. */
+.colophon{position:relative;display:inline-flex}
+.colophon-btn{
+  font:inherit;color:inherit;background:none;border:0;padding:0;cursor:default;
+  text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px;
+  -webkit-tap-highlight-color:transparent;
+}
+.colophon-btn:focus-visible{outline:1px solid currentColor;outline-offset:2px;border-radius:2px}
+
+.colophon-box{
+  position:absolute;left:0;bottom:calc(100% + 12px);z-index:10;
+  display:flex;flex-direction:column;gap:0;
+  box-sizing:border-box;width:max-content;max-width:calc(100vw - 40px);
+  padding:12px 16px;
+  font:inherit;line-height:24px;color:inherit;  /* the footer row's own type, Cormorant Infant (Desktop/Caption 2; hers, 2026-11-23: DM Sans 16 and 14 read too big) */
+  background:#fff;border:1px solid var(--color-tile-border);border-radius:4px;
+  box-shadow:0 4px 16px #0000000d;
+  white-space:nowrap;pointer-events:none;
+  opacity:0;translate:0 4px;visibility:hidden;
+  transition:opacity var(--dur-quick) var(--ease-out),translate var(--dur-quick) var(--ease-out),visibility 0s var(--dur-quick);
+}
+@media (hover:hover) and (pointer:fine){
+  .colophon:hover .colophon-box{opacity:1;translate:0 0;visibility:visible;transition-delay:0s}
+}
+.colophon[data-open] .colophon-box{opacity:1;translate:0 0;visibility:visible;transition-delay:0s}
+
+/* phones: the box spans the footer, 20 in from each side (the footer's own padding), just above the row.
+   The footer is its anchor (position:relative in Hero.css), since "Colophon" ends short of the screen's
+   edge. a line may wrap on a narrow phone rather than run off the screen */
+@media (max-width:600px){
+  .colophon{position:static}
+  .colophon-box{left:calc(20*var(--u, 1px));right:calc(20*var(--u, 1px));width:auto;max-width:none;padding:12px 16px;line-height:20px;white-space:normal}
+  .colophon-btn{padding:8px;margin:-8px}  /* a bigger target for a finger, same footprint */
+}
+@media (prefers-reduced-motion:reduce){
+  .colophon-box{translate:none}
+}
