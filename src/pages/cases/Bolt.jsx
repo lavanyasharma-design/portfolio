@@ -107,7 +107,7 @@ function Bolt() {
                 software that every admin level in an organisation uses, as per their purpose.
               </p>
             </Copy>
-            <Media kind="phone" label="menu clip" src="/work/bolt/menu-tall.mp4" poster="/work/bolt/menu-tall.jpg" caption="A SaaS home page that works as an overview of the entire fleet management process" />
+            <Media kind="phone" label="menu clip" src="/work/bolt/menu-tall.mp4" poster="/work/bolt/menu-tall.webp" caption="A SaaS home page that works as an overview of the entire fleet management process" />
           </Section>
 
           {/* ---------- 5. why it mattered (no label, so no index entry: it reads as part of the solution) ---------- */}
@@ -170,17 +170,17 @@ function Bolt() {
           {/* ---------- 8. design: what made it to mobile ---------- */}
           <Section id="design" label="design" title="What made it to mobile">
             <div className="cs-features">
-              <Feature title="Fleet Overview" media={{ label: 'fleet overview clip', src: '/work/bolt/fleet-tall.mp4', poster: '/work/bolt/fleet-tall.jpg' }}>
+              <Feature title="Fleet Overview" media={{ label: 'fleet overview clip', src: '/work/bolt/fleet-tall.mp4', poster: '/work/bolt/fleet-tall.webp' }}>
                 Every vehicle and every status could be seen live on a phone
               </Feature>
-              <Feature title="Geofence Management" media={{ label: 'geofence clip', src: '/work/bolt/geofence-tall.mp4', poster: '/work/bolt/geofence-tall.jpg' }}>
+              <Feature title="Geofence Management" media={{ label: 'geofence clip', src: '/work/bolt/geofence-tall.mp4', poster: '/work/bolt/geofence-tall.webp' }}>
                 Admins can create boundaries, get breach alerts and respond to them promptly.
               </Feature>
               {/* subscriptions out of this one: only devices here (hers, 2026-11-16) */}
-              <Feature title="Device Management" media={{ label: 'devices clip', src: '/work/bolt/devices-tall.mp4', poster: '/work/bolt/devices-tall.jpg' }}>
+              <Feature title="Device Management" media={{ label: 'devices clip', src: '/work/bolt/devices-tall.mp4', poster: '/work/bolt/devices-tall.webp' }}>
                 Admins can manage all their devices on the go, even at the shop where they’re buying them.
               </Feature>
-              <Feature title="Points of Interest" media={{ label: 'POI clip', src: '/work/bolt/poi-tall.mp4', poster: '/work/bolt/poi-tall.jpg' }}>
+              <Feature title="Points of Interest" media={{ label: 'POI clip', src: '/work/bolt/poi-tall.mp4', poster: '/work/bolt/poi-tall.webp' }}>
                 Create POI on the go during a consignment. Auto updates and goes live to the driver.
               </Feature>
             </div>
@@ -195,10 +195,10 @@ function Bolt() {
               n={1}
               question="How do users buy and manage subscriptions without running into balance roadblocks?"
               answer="Users can take up licence subscriptions the moment they receive a new device, wherever they are."
-              media={{ kind: 'phone', label: 'subscriptions clip', src: '/work/bolt/subscriptions-tall.mp4', poster: '/work/bolt/subscriptions-tall.jpg' }}
+              media={{ kind: 'phone', label: 'subscriptions clip', src: '/work/bolt/subscriptions-tall.mp4', poster: '/work/bolt/subscriptions-tall.webp' }}
               edges={[
-                { title: 'Low balance', media: 'low balance screen', src: '/work/bolt/low-balance.jpg', kind: 'phone', text: 'Just an additional small step, in the usual flow, to renew their devices and plans.' },
-                { title: 'Grace period', media: 'grace period screen', src: '/work/bolt/grace-period.jpg', kind: 'phone', text: 'Grace period notice for ease, no abrupt endings, and user flexibility to renew in their own time.' },
+                { title: 'Low balance', media: 'low balance screen', src: '/work/bolt/low-balance.webp', kind: 'phone', text: 'Just an additional small step, in the usual flow, to renew their devices and plans.' },
+                { title: 'Grace period', media: 'grace period screen', src: '/work/bolt/grace-period.webp', kind: 'phone', text: 'Grace period notice for ease, no abrupt endings, and user flexibility to renew in their own time.' },
               ]}
             >
               <Copy>
@@ -214,8 +214,8 @@ function Bolt() {
               question="How was creating geofences on mobile made flexible?"
               answer="A quick, light tap to create circular fences, a usual mobile interaction pattern. Added different views for the map, similar to other navigation apps for familiarity."
               edges={[
-                { media: 'geofence clip', kind: 'phone', src: '/work/bolt/geofence-slider-tall.mp4', poster: '/work/bolt/geofence-slider-tall.jpg' },
-                { media: 'terrain map view', kind: 'phone', src: '/work/bolt/terrain-tall.mp4', poster: '/work/bolt/terrain-tall.jpg' },
+                { media: 'geofence clip', kind: 'phone', src: '/work/bolt/geofence-slider-tall.mp4', poster: '/work/bolt/geofence-slider-tall.webp' },
+                { media: 'terrain map view', kind: 'phone', src: '/work/bolt/terrain-tall.mp4', poster: '/work/bolt/terrain-tall.webp' },
               ]}  // two clips side by side (hers, 2026-11-15), in the 2:3 panels of decision 01's edge cases (hers, 2026-11-21; were square)
             />
 
@@ -223,7 +223,7 @@ function Bolt() {
               n={3}
               question="How do users see technical detail about a running vehicle?"
               answer="Tapping the vehicle on the map and its device list opens. All details are visible in real time."
-              media={{ kind: 'phone', label: 'map clip: vehicle tap to device list', src: '/work/bolt/vehicle-tall.mp4', poster: '/work/bolt/vehicle-tall.jpg' }}
+              media={{ kind: 'phone', label: 'map clip: vehicle tap to device list', src: '/work/bolt/vehicle-tall.mp4', poster: '/work/bolt/vehicle-tall.webp' }}
             />
           </Section>
 

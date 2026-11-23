@@ -2,7 +2,7 @@
  * Renders a clip for a case study, plus a poster (first frame) for each shape:
  *   npm run render -- bolt menu            (tall, the 2:3 panel every clip uses)
  *   npm run render -- bolt fleet wide      (another shape, if ever needed)
- * The first word is the case study: it writes ../public/work/<study>/<clip>-<shape>.mp4 and .jpg, at low concurrency (the machine ran out of memory
+ * The first word is the case study: it writes ../public/work/<study>/<clip>-<shape>.mp4 and .webp (tools/webp.mjs), at low concurrency (the machine ran out of memory
  * once at full tilt).
  * Light for slow connections and phones (2026-11-21, friends saw clips stutter): 1.2x, so a tall clip is
  * 1056 x 1584, still sharper than its panel on a retina screen (393 css px wide, 786 device px) and inside
@@ -14,6 +14,7 @@ import { execFileSync } from 'node:child_process';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
+import { toWebp } from './tools/webp.mjs';
 
 const [study, clip, ...shapes] = process.argv.slice(2);
 if (!study || !clip) throw new Error('which study and clip? e.g. npm run render -- bolt menu');
@@ -26,6 +27,7 @@ for (const variant of shapes.length ? shapes : ['tall']) {
   const run = (...args) => execFileSync('npx', ['remotion', ...args], { stdio: 'inherit', shell: true });
   run('render', clip, `${OUT}/${clip}-${variant}.mp4`, `--props=${props}`, '--scale=1.2', '--codec=h264',
     '--crf=20', '--x264-preset=slow', '--color-space=bt709', '--concurrency=2');
-  run('still', clip, `${OUT}/${clip}-${variant}.jpg`, `--props=${props}`, '--scale=1.2', '--frame=0',
-    '--image-format=jpeg', '--jpeg-quality=85');
+  const still = join(tmpdir(), `${clip}-${variant}.png`);
+  run('still', clip, still, `--props=${props}`, '--scale=1.2', '--frame=0', '--image-format=png');
+  toWebp(still, `${OUT}/${clip}-${variant}.webp`);
 }

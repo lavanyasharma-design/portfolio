@@ -1,5 +1,5 @@
 # Every Bolt clip in the shape the case study uses: all of them tall, 2:3, decision 02's pair included (hers,
-# 2026-11-21, were square on desktop), then the two edge-case screens in the same 2:3 panel (JPEG), all at 1.2x
+# 2026-11-21, were square on desktop), then the two edge-case screens in the same 2:3 panel (WebP, tools/webp.mjs), all at 1.2x
 # (render.mjs says why). Run from PowerShell: launched from Claude's bash shell the renderer's headless Chrome crashes.
 # Close any browser tab showing the case study first (and, if it still fails, stop the dev server): Windows locks an mp4
 # a page has played, so Remotion's last step (renaming <clip>.mp4.<id>.remotion-in-progress to <clip>.mp4) fails with exit 1. The in-progress file is the
@@ -8,7 +8,9 @@
 Set-Location $PSScriptRoot
 $study = 'bolt'  # this list is Bolt's clips; a new study gets its own list (or a copy of this file)
 foreach ($s in 'low-balance', 'grace-period') {
-  cmd /c "npx remotion still $s ../public/work/$study/$s.jpg --scale=1.2 --image-format=jpeg --jpeg-quality=92" *> $null
+  $png = Join-Path $env:TEMP "$s.png"
+  cmd /c "npx remotion still $s $png --scale=1.2 --image-format=png" *> $null
+  if ($LASTEXITCODE -eq 0) { node tools/webp.mjs $png ../public/work/$study/$s.webp }
   "${s}: exit $LASTEXITCODE"
 }
 $jobs = @(@('menu','tall'), @('fleet','tall'), @('geofence','tall'), @('devices','tall'), @('poi','tall'),

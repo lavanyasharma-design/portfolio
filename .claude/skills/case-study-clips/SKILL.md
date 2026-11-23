@@ -96,7 +96,7 @@ Every rule here is hers. Each one says why, so you can judge the cases it doesn'
 
 ## Pipeline (how it works, not taste)
 
-- **Project:** `clips/` has its own package.json; nothing from it enters the site bundle. Each study gets a folder `clips/src/<study>/`, one composition per clip registered in `src/Root.tsx`, with its frames under `clips/public/<study>/`. Output goes to `public/work/<study>/<clip>-tall.mp4` plus a `.jpg` poster (first frame): the render command's first word is the study (`npm run render -- fci <clip>`). `render-all.ps1` is Bolt's list of clips (`$study = 'bolt'`); a new study gets its own list.
+- **Project:** `clips/` has its own package.json; nothing from it enters the site bundle. Each study gets a folder `clips/src/<study>/`, one composition per clip registered in `src/Root.tsx`, with its frames under `clips/public/<study>/`. Output goes to `public/work/<study>/<clip>-tall.mp4` plus a `.webp` poster (first frame, rendered as PNG and converted at quality 90 by `tools/webp.mjs`: half a JPEG's size, no visible difference; 2026-11-23): the render command's first word is the study (`npm run render -- fci <clip>`). `render-all.ps1` is Bolt's list of clips (`$study = 'bolt'`); a new study gets its own list.
 - **Timings:** each clip's `T` table (or schema props) sits at the top of its file, in seconds. Helpers in `src/phone/engine.ts`: `seg`, `keys`, `pressed`, `stretch`, eases (`ios` for sheets).
 - **Layers** (`src/phone/layers.tsx`):
   - `Stage` (panel + phone), `Screen` (a whole frame; `dy` moves its content down when a frame was exported with a different status bar), `Pic`, `Crop`, `Patch`, `Press`, `ScrollScreen`.
