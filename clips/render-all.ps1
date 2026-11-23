@@ -6,15 +6,16 @@
 # finished clip then: check it plays, move it into place and render its poster (2026-11-21).
 # powershell -File render-all.ps1
 Set-Location $PSScriptRoot
+$study = 'bolt'  # this list is Bolt's clips; a new study gets its own list (or a copy of this file)
 foreach ($s in 'low-balance', 'grace-period') {
-  cmd /c "npx remotion still $s ../public/work/bolt/$s.jpg --scale=1.2 --image-format=jpeg --jpeg-quality=92" *> $null
+  cmd /c "npx remotion still $s ../public/work/$study/$s.jpg --scale=1.2 --image-format=jpeg --jpeg-quality=92" *> $null
   "${s}: exit $LASTEXITCODE"
 }
 $jobs = @(@('menu','tall'), @('fleet','tall'), @('geofence','tall'), @('devices','tall'), @('poi','tall'),
   @('subscriptions','tall'), @('vehicle','tall'), @('geofence-slider','tall'), @('terrain','tall'))
 foreach ($j in $jobs) {
-  $t0 = Get-Date; node render.mjs @j *> $null
-  if ($LASTEXITCODE -ne 0) { node render.mjs @j *> $null }  # the headless Chrome crashes now and then: one retry
+  $t0 = Get-Date; node render.mjs $study @j *> $null
+  if ($LASTEXITCODE -ne 0) { node render.mjs $study @j *> $null }  # the headless Chrome crashes now and then: one retry
   "{0} {1}: exit {2}, {3:N0}s" -f $j[0], $j[1], $LASTEXITCODE, ((Get-Date) - $t0).TotalSeconds
 }
 "ALL DONE"

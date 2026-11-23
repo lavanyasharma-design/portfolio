@@ -1,8 +1,8 @@
 /**
- * Renders a clip in every shape the case study uses, plus a poster (first frame) for each:
- *   npm run render -- menu            (wide + tall)
- *   npm run render -- fleet wide      (one shape)
- * Writes ../public/work/bolt/<clip>-<shape>.mp4 and .jpg, and low concurrency (the machine ran out of memory
+ * Renders a clip for a case study, plus a poster (first frame) for each shape:
+ *   npm run render -- bolt menu            (tall, the 2:3 panel every clip uses)
+ *   npm run render -- bolt fleet wide      (another shape, if ever needed)
+ * The first word is the case study: it writes ../public/work/<study>/<clip>-<shape>.mp4 and .jpg, at low concurrency (the machine ran out of memory
  * once at full tilt).
  * Light for slow connections and phones (2026-11-21, friends saw clips stutter): 1.2x, so a tall clip is
  * 1056 x 1584, still sharper than its panel on a retina screen (393 css px wide, 786 device px) and inside
@@ -15,12 +15,12 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
-const [clip, ...shapes] = process.argv.slice(2);
-if (!clip) throw new Error('which clip? e.g. npm run render -- menu');
-const OUT = '../public/work/bolt';
+const [study, clip, ...shapes] = process.argv.slice(2);
+if (!study || !clip) throw new Error('which study and clip? e.g. npm run render -- bolt menu');
+const OUT = `../public/work/${study}`;
 mkdirSync(OUT, { recursive: true });
 
-for (const variant of shapes.length ? shapes : ['wide', 'tall']) {
+for (const variant of shapes.length ? shapes : ['tall']) {
   const props = join(tmpdir(), `clip-props-${variant}.json`);
   writeFileSync(props, JSON.stringify({ variant }));
   const run = (...args) => execFileSync('npx', ['remotion', ...args], { stdio: 'inherit', shell: true });

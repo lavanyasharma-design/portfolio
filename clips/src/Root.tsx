@@ -2,8 +2,8 @@
  * Bolt case study clips (moved here from tools/clips, 2026-11-19). One composition per clip; each
  * clip's timings are the T table at the top of its file (Lavanya gives changes as numbers in chat).
  * `variant` switches the shape: wide 2:1 (desktop panels), tall 4:5 (features, and phone panels on
- * phones), square (decision 02 and the edge-case screens). `npm run render -- <id> [shapes]` writes
- * MP4s and posters to ../public/work/bolt/; `npm run stills` the edge-case screens.
+ * phones), square (decision 02 and the edge-case screens). `npm run render -- <study> <id> [shapes]` writes
+ * MP4s and posters to ../public/work/<study>/; `npm run stills` the edge-case screens.
  */
 import '@fontsource/inter/400.css';
 import '@fontsource/inter/500.css';
