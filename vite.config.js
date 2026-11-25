@@ -49,4 +49,10 @@ const preloads = () => ({
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss(), preloads()],
+  /* The built files live in assets/v2/ (2026-11-25). Until then a missing file under /assets/ came back as the
+     home page, kept for a year (vercel.json): a tab still on the previous build asking for one of its files
+     after a deploy stored the home page under that file's name, and the page went blank for that browser (hers:
+     the Work page). vercel.json no longer does that; the new folder gives every file a name no browser has
+     stored wrongly. Bump it (v3) only if that ever happens again. */
+  build: { assetsDir: 'assets/v2' },
 })
