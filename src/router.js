@@ -24,6 +24,8 @@ export let navigatedInSite = false
    at the top of the page. Browsers without View Transitions (Firefox for now) and reduced motion: straight
    to the new page, as before. */
 let pending = null   // the page a click is waiting on, so only the last click wins
+let changing = null  // that wait, until the new page is up (lib/pageSettled.js waits on it)
+export const pageChange = () => changing ?? Promise.resolve()
 
 export function navigate(path) {
   if (getPath() === path) return
@@ -38,10 +40,10 @@ export function navigate(path) {
     jumpToTop()
   }
   const target = path
-  pageReady(path).then(() => {
+  const wait = changing = pageReady(path).then(() => {
     if (pending !== target) return   // another click came in while this one waited
     if (document.startViewTransition && !matchMedia('(prefers-reduced-motion: reduce)').matches) document.startViewTransition(swap)
     else swap()
-  }, () => location.assign(path))
+  }, () => location.assign(path)).finally(() => { if (changing === wait) changing = null })
   pending = target
 }

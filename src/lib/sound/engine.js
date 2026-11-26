@@ -223,13 +223,22 @@ export function playButterfly() {
 
 /* ---------- public API ---------- */
 
+// The samples wait on this before downloading (2026-11-26): App sets it to the page's pictures being in
+// (lib/pageSettled.js), so on a slow line the page a click opens isn't queued behind ~670 KB of notes.
+let holdUntil = () => Promise.resolve();
+export function holdSoundUntil(fn) { holdUntil = fn; }
+let held = false, released = false;
+
 // Call from the first real gesture (the loader drag). Safe to call repeatedly.
 export async function unlockSound() {
   if (!ctx) buildGraph();
   if (ctx.state !== 'running' && !muted) {
     try { await ctx.resume(); } catch (e) { /* retried on next gesture */ }
   }
-  loadAll();
+  if (!held) {
+    held = true;
+    Promise.resolve().then(() => holdUntil()).catch(() => {}).then(() => { released = true; loadAll(); });
+  } else if (released) loadAll();
 }
 
 // Plays the two-note pair for a motif. Returns false if sound was not ready.

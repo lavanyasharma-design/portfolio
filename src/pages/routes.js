@@ -67,12 +67,16 @@ export const pageReady = (path) => pages[path]?.ready() ?? Promise.resolve()
 
 // after the page has loaded and gone quiet, fetch the other pages and the pictures they open on, so moving
 // between them stays instant. Skipped on Save-Data (the visitor asked for less data); pages still load on click.
+// On a slow line (as the browser reports it: 2g/3g, or under 1.5 Mbps) only their code, which is small: their
+// pictures took the line from the page being read (2026-11-26, a friend's slow connection on Bolt).
 export function preloadPagesWhenIdle() {
-  if (navigator.connection?.saveData) return
+  const c = navigator.connection
+  if (c?.saveData) return
+  const slow = !!c && (/2g|3g/.test(c.effectiveType ?? '') || (c.downlink > 0 && c.downlink < 1.5))
   const go = () => {
     const idle = window.requestIdleCallback ?? ((fn) => setTimeout(fn, 1500))
     idle(() => {
-      for (const p of Object.values(pages)) { p.preload().catch(() => {}); p.warmImages('low') }
+      for (const p of Object.values(pages)) { p.preload().catch(() => {}); if (!slow) p.warmImages('low') }
       import('lenis').catch(() => {})   // the other pages' smooth scrolling (lib/smoothScroll.js)
     }, { timeout: 4000 })
   }
