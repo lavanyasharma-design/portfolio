@@ -11,6 +11,16 @@ function gpuName() {
   } catch { return 'unknown' }
 }
 
+// the site's fonts: how many faces are in, and any loading or failed (2026-11-26: a friend's Dia showed the
+// About heading in Times, one Cormorant weight missing; this names the one his browser can't get)
+function fontLine() {
+  const faces = [...document.fonts].filter((f) => /Cormorant|DM Sans/.test(f.family))
+  const name = (f) => `${f.family.replace(/"/g, '')} ${f.style === 'italic' ? 'italic ' : ''}${f.weight}`
+  const list = (status) => [...new Set(faces.filter((f) => f.status === status).map(name))].join(', ')
+  const waiting = list('loading'), failed = list('error')
+  return `fonts     ${faces.filter((f) => f.status === 'loaded').length} in${waiting ? `, loading: ${waiting}` : ''}${failed ? `, FAILED: ${failed}` : ''}`
+}
+
 export function mountPerfProbe() {
   const gpu = gpuName()
   const gaps = []   // ms between frames, the last 5 seconds
@@ -57,6 +67,8 @@ export function mountPerfProbe() {
       `frames    slowest 5%: ${p95.toFixed(1)} ms, dropped in 5 s: ${dropped}`,
       `long jobs ${recent.length} in 10 s${recent.length ? `, longest ${Math.round(Math.max(...recent.map((l) => l[1])))} ms` : ''}`,
       `scrolled  ${Math.round(scrollY)} of ${scrollEl.scrollHeight - innerHeight}`,
+      fontLine(),
+      ...(document.querySelector('.ab-flow') ? [`about     words ${document.querySelector('.ab-flow.flowing') ? 'laid out' : 'still in the stand-in layout'}`] : []),
       g ? `garden    ${g.kind}: ${g.cost.toFixed(1)} ms a draw, ${Math.round(g.rate)} draws/s\n          canvas ${g.size} at ${g.dpr}x (screen ${g.screen}x), stepped down ${g.lowered} time${g.lowered === 1 ? "" : "s"}${g.retried ? ', tried full sharpness again' : ''}${g.restored ? ', stepped back up (it did not help)' : ''}
           full paint ${g.firstPaint.toFixed(1)} ms, beat ${(g.beat * 1000).toFixed(1)} ms, rebuilt ${g.rebuilds}x`
         : 'garden    not on screen yet (scroll down to it)',

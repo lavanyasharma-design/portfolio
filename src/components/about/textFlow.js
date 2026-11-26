@@ -1,4 +1,4 @@
-import { prepare, measureNaturalWidth } from '@chenglou/pretext'
+import { prepare, measureNaturalWidth, clearCache } from '@chenglou/pretext'
 import { prepareRichInline, layoutNextRichInlineLineRange, materializeRichInlineLineRange } from '@chenglou/pretext/rich-inline'
 
 /**
@@ -220,13 +220,26 @@ export function mountTextFlow(root, box, paragraphs) {
     document.documentElement.addEventListener('pointerleave', onLeave)
     addEventListener('scroll', onScroll, { passive: true })
   }
+  // Never waits forever (2026-11-26): a friend's Dia showed the stand-in layout on every visit, with one
+  // Cormorant weight in Times. A font that failed made Promise.all reject, so the words never flowed. Now a
+  // failed font, or one still on its way after FONTS_MAX, starts the flow with what the page has, and every
+  // font that lands or fails later lays the words out again (Pretext's widths were taken with the old font).
+  const FONTS_MAX = 3000
   if (document.fonts.status === 'loaded' && document.fonts.check(f.regular) && document.fonts.check(f.italic)) begin()
-  else Promise.all([document.fonts.load(f.regular), document.fonts.load(f.italic)]).then(() => document.fonts.ready).then(begin)
+  else Promise.race([
+    Promise.allSettled([document.fonts.load(f.regular), document.fonts.load(f.italic)]).then(() => document.fonts.ready),
+    new Promise((r) => setTimeout(r, FONTS_MAX)),
+  ]).then(begin, begin)
+  const onFonts = () => { if (alive && root.classList.contains('flowing')) { clearCache(); measure() } }
+  document.fonts.addEventListener('loadingdone', onFonts)
+  document.fonts.addEventListener('loadingerror', onFonts)
 
   const stop = () => {
     alive = false
     cancelAnimationFrame(raf)
     ro.disconnect()
+    document.fonts.removeEventListener('loadingdone', onFonts)
+    document.fonts.removeEventListener('loadingerror', onFonts)
     removeEventListener('pointermove', onMove)
     document.documentElement.removeEventListener('pointerleave', onLeave)
     removeEventListener('scroll', onScroll)
