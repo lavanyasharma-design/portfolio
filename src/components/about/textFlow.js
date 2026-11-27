@@ -20,6 +20,7 @@ import { prepareRichInline, layoutNextRichInlineLineRange, materializeRichInline
 const HOVER = '(hover: hover) and (pointer: fine)'
 const BOX_LIFT = 20   // the Experience box starts this far above the second paragraph, so its heading lines up with it (her Figma)
 const BOX_SIDE = 24   // px between the words and the box (her Figma: 923 + 24 + 305 = 1252)
+const BOX_CLEAR = 12  // px from a line running into the box's column to the box's top, when one does
 const PHOTO_BELOW = 8 // px from her photo's bottom bracket to a line's words before the line may run under it
                       // (to the words, not the line box: a phone line 4 short of that stayed beside the photo, leaving a hole)
 
@@ -174,9 +175,16 @@ export function mountTextFlow(root, box, paragraphs) {
     let end = layoutAll(staticRect)
     let height = end.end
     if (boxInFlow) {
-      const top = Math.round((end.tops[1] ?? startY) - BOX_LIFT)
+      const para2 = end.tops[1] ?? startY
+      const boxLeft = W - box.offsetWidth - BOX_SIDE
+      // a line above the second paragraph that runs into the box's column: the box starts BOX_CLEAR below
+      // it instead (hers, 2026-11-27: at 1247 wide the intro's last line ran under the box's top corner).
+      // Otherwise it lines up with the second paragraph, as her Figma.
+      const into = end.rows.filter((r) => r.y < para2 && r.x + r.w > boxLeft)
+      const below = into.length ? Math.max(...into.map((r) => r.y + lh)) + BOX_CLEAR : -Infinity
+      const top = Math.round(Math.max(para2 - BOX_LIFT, below))
       box.style.top = `${top}px`
-      staticRect = [photo, { x0: W - box.offsetWidth - BOX_SIDE, x1: 1e6, y0: top + BOX_LIFT, y1: top + box.offsetHeight }]
+      staticRect = [photo, { x0: boxLeft, x1: 1e6, y0: Math.max(top, para2), y1: top + box.offsetHeight }]
       end = layoutAll(staticRect)
       height = Math.max(end.end, top + box.offsetHeight)
     } else box.style.top = ''
