@@ -25,6 +25,7 @@ Current direction: a **window intro** (a pencil-drawn sash window you drag open;
 - `npm run build`: production build to `dist/`
 - `npm run preview`: serve the build
 - `npm run lint`: oxlint
+- `node scripts/checks/site.mjs [url]`: site checks in a real browser (pages, blank-page cache, nav clicks, About fonts and box, slow lines, sound); `node scripts/checks/garden-pace.mjs`: the garden's sharpness logic. Run after adding anything that loads and before a launch; what each guards: `.claude/skills/site-checks/SKILL.md`
 
 Add `?slow` (or `?slow=8`) to the URL to slow every intro animation 4x (or 8x) when reviewing motion.
 
